@@ -1,5 +1,5 @@
 server:
-  port: 8091
+  port: 8080
 
 # 线程池配置
 thread:
@@ -11,6 +11,14 @@ thread:
         keep-alive-time: 5000
         block-queue-size: 5000
         policy: CallerRunsPolicy
+
+weixin:
+  config:
+    originalid: gh_aec3b0f21ae2
+    token: 180818ly
+    app-id: wx39335001840306f6
+    app-secret: d588ef20942027994721fba5aff6ed25
+    template_id: Ky9LEqquuj73KUuj8UAlKWBzR_IjujNt-t7_23SWE-E
 
 # 数据库配置；启动时配置数据库资源信息
 spring:
