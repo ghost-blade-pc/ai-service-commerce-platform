@@ -12,7 +12,7 @@ public interface IOrderDao {
 
     PayOrder queryUnPayOrder(PayOrder payOrderReq);
 
-//    void updateOrderPayInfo(PayOrder payOrder);
+    void updateOrderPayInfo(PayOrder payOrder);
 //
 //    void changeOrderPaySuccess(PayOrder order);
 //
