@@ -12,10 +12,10 @@ import top.licodetech.mall.domain.order.adapter.repository.IOrderRepository;
 import top.licodetech.mall.domain.order.model.aggregate.CreateOrderAggregate;
 import top.licodetech.mall.domain.order.model.entity.PayOrderEntity;
 import top.licodetech.mall.domain.order.model.valobj.OrderStatusVO;
-import top.licodetech.mall.types.common.Constants;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -45,7 +45,7 @@ public class OrderService extends AbstractOrderService{
         request.setReturnUrl(returnUrl);
 
         JSONObject bizContent = new JSONObject();
-        bizContent.put("out_trand_no", orderId);
+        bizContent.put("out_trade_no", orderId);
         bizContent.put("total_amount", totalAmount.toString());
         bizContent.put("subject", productName);
         bizContent.put("product_code", "FAST_INSTANT_TRADE_PAY");
@@ -61,5 +61,25 @@ public class OrderService extends AbstractOrderService{
         repository.updataOrderPayInfo(payOrderEntity);
 
         return payOrderEntity;
+    }
+
+    @Override
+    public void changeOrderPaySuccess(String orderId) {
+        repository.changeOrderPaySuccess(orderId);
+    }
+
+    @Override
+    public List<String> queryNoPayNotifyOrder() {
+        return repository.queryNoPayNotifyOrder();
+    }
+
+    @Override
+    public List<String> queryTimeoutCloseOrderList() {
+        return repository.queryTimeoutCloseOrderList();
+    }
+
+    @Override
+    public boolean changeOrderClose(String orderId) {
+        return repository.changeOrderClose(orderId);
     }
 }

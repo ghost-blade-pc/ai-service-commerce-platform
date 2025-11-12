@@ -13,12 +13,12 @@ public interface IOrderDao {
     PayOrder queryUnPayOrder(PayOrder payOrderReq);
 
     void updateOrderPayInfo(PayOrder payOrder);
-//
-//    void changeOrderPaySuccess(PayOrder order);
-//
-//    List<String> queryNoPayNotifyOrder();
-//
-//    List<String> queryTimeoutCloseOrderList();
-//
-//    boolean changeOrderClose(String orderId);
+
+    void changeOrderPaySuccess(PayOrder payOrderReq);
+
+    List<String> queryNoPayNotifyOrder();
+
+    List<String> queryTimeoutCloseOrderList();
+
+    boolean changeOrderClose(String orderId);
 }

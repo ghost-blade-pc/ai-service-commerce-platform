@@ -41,7 +41,7 @@ public class AliPayController implements IPayService {
     @Override
     public Response<String> createPayOrder(@RequestBody CreatePayRequestDTO createPayRequestDTO) {
         try {
-            log.info("商品下单，根据商品ID创建支付单开始 userId:{} productId:{}", createPayRequestDTO.getUserId(), createPayRequestDTO.getUserId());
+            log.info("商品下单，根据商品ID创建支付单开始 userId:{} productId:{}", createPayRequestDTO.getUserId(), createPayRequestDTO.getProductId());
             String userId = createPayRequestDTO.getUserId();
             String productId = createPayRequestDTO.getProductId();
             // 下单
@@ -104,6 +104,8 @@ public class AliPayController implements IPayService {
         log.info("支付回调，买家付款时间: {}", params.get("gmt_payment"));
         log.info("支付回调，买家付款金额: {}", params.get("buyer_pay_amount"));
         log.info("支付回调，支付回调，更新订单 {}", tradeNo);
+
+        orderService.changeOrderPaySuccess(tradeNo);
 
         return "success";
     }

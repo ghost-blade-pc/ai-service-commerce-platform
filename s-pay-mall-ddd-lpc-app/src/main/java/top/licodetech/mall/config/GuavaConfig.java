@@ -2,8 +2,10 @@ package top.licodetech.mall.config;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.eventbus.EventBus;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import top.licodetech.mall.trigger.listener.OrderPaySuccessListener;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +24,13 @@ public class GuavaConfig {
         return CacheBuilder.newBuilder()
                 .expireAfterWrite(1, TimeUnit.HOURS)
                 .build();
+    }
+
+    @Bean
+    public EventBus eventBusListener(OrderPaySuccessListener listener) {
+        EventBus eventBus = new EventBus();
+        eventBus.register(listener);
+        return eventBus;
     }
 
 }
