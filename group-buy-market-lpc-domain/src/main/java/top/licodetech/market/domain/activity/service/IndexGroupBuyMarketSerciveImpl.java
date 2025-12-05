@@ -9,7 +9,7 @@ import top.licodetech.market.types.design.framwork.tree.StrategyHandler;
 import javax.annotation.Resource;
 
 @Service
-public class IndexGroupBuyMarketSerciveImpl implements IIndexGroupBuyMarketSercive {
+public class IndexGroupBuyMarketSerciveImpl implements IIndexGroupBuyMarketService {
 
     @Resource
     private DefaultActivityStrategyFactory defaultActivityStrategyFactory;

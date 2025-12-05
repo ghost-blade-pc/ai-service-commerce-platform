@@ -1,12 +1,15 @@
 package top.licodetech.market.domain.activity.service.trial.node;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import top.licodetech.market.domain.activity.model.entity.MarketProductEntity;
 import top.licodetech.market.domain.activity.model.entity.TrialBalanceEntity;
 import top.licodetech.market.domain.activity.service.trial.AbstractGroupBuyMarketSupport;
 import top.licodetech.market.domain.activity.service.trial.factory.DefaultActivityStrategyFactory;
 import top.licodetech.market.types.design.framwork.tree.StrategyHandler;
+import top.licodetech.market.types.enums.ResponseCode;
+import top.licodetech.market.types.exception.AppException;
 
 import javax.annotation.Resource;
 
@@ -18,8 +21,15 @@ public class RootNode extends AbstractGroupBuyMarketSupport<MarketProductEntity,
     private SwitchRoot switchRoot;
 
     @Override
-    public TrialBalanceEntity apply(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws Exception {
-        return null;
+    public TrialBalanceEntity doApply(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws Exception {
+
+        if (StringUtils.isBlank(requestParameter.getUserId()) ||
+                StringUtils.isBlank(requestParameter.getGoodsId()) ||
+                StringUtils.isBlank(requestParameter.getSource()) ||
+                StringUtils.isBlank(requestParameter.getChannel())) {
+            throw new AppException(ResponseCode.ILLEGAL_PARAMETER.getCode(), ResponseCode.ILLEGAL_PARAMETER.getInfo());
+        }
+        return router(requestParameter, dynamicContext);
     }
 
     @Override

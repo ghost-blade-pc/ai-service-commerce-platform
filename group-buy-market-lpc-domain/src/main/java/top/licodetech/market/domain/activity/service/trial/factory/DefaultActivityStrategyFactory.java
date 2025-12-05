@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 import top.licodetech.market.domain.activity.model.entity.MarketProductEntity;
 import top.licodetech.market.domain.activity.model.entity.TrialBalanceEntity;
+import top.licodetech.market.domain.activity.model.valobj.GroupBuyActivityDiscountVO;
+import top.licodetech.market.domain.activity.model.valobj.SkuVO;
 import top.licodetech.market.domain.activity.service.trial.node.RootNode;
 import top.licodetech.market.types.design.framwork.tree.StrategyHandler;
 
@@ -29,6 +31,9 @@ public class DefaultActivityStrategyFactory {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class DynamicContext {
+
+        private GroupBuyActivityDiscountVO groupBuyActivityDiscountVO;
+        private SkuVO skuVO;
 
     }
 
