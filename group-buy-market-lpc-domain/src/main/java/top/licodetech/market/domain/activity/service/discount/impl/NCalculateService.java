@@ -18,6 +18,6 @@ public class NCalculateService extends AbstractDiscountCalculateService {
         // 折扣表达式 - 1.99 N元购买优惠 直接为优惠后的金额
         String marketExpr = groupBuyDiscount.getMarketExpr();
         // n元购
-        return new BigDecimal(marketExpr.trim());
+        return minPrice(new BigDecimal(marketExpr.trim()));
     }
 }

@@ -18,6 +18,14 @@ public abstract class AbstractDiscountCalculateService implements IDiscountCalcu
         return doCalculate(originalPrice, groupBuyDiscount);
     }
 
+    protected BigDecimal minPrice(BigDecimal deductionPrice) {
+        // 判断折扣后金额，最低支付1分钱
+        if (deductionPrice.compareTo(BigDecimal.ZERO) <= 0) {
+            return new BigDecimal("0.01");
+        }
+        return deductionPrice;
+    }
+
     protected abstract BigDecimal doCalculate(BigDecimal originalPrice, GroupBuyActivityDiscountVO.GroupBuyDiscount groupBuyDiscount);
 
     private boolean filterTagId(String useId, String tagId) {
