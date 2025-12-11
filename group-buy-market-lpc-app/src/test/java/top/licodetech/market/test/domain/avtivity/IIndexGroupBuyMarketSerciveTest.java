@@ -22,7 +22,7 @@ public class IIndexGroupBuyMarketSerciveTest {
     private IIndexGroupBuyMarketService indexGroupBuyMarketService;
 
     @Test
-    public void test() throws Exception {
+    public void test_indexMarketTrial() throws Exception {
         MarketProductEntity marketProductEntity = new MarketProductEntity();
         marketProductEntity.setUserId("xiaofuge");
         marketProductEntity.setSource("s01");

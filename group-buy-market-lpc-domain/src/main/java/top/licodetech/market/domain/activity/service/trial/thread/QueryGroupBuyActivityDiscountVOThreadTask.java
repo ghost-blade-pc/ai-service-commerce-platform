@@ -1,6 +1,6 @@
 package top.licodetech.market.domain.activity.service.trial.thread;
 
-import top.licodetech.market.domain.activity.adapter.repository.IActivityRespository;
+import top.licodetech.market.domain.activity.adapter.repository.IActivityRepository;
 import top.licodetech.market.domain.activity.model.valobj.GroupBuyActivityDiscountVO;
 
 import java.util.concurrent.Callable;
@@ -11,17 +11,17 @@ public class QueryGroupBuyActivityDiscountVOThreadTask implements Callable<Group
 
     private final String channel;
 
-    private final IActivityRespository respository;
+    private final IActivityRepository repository;
 
-    public QueryGroupBuyActivityDiscountVOThreadTask(String source, String channel, IActivityRespository respository) {
+    public QueryGroupBuyActivityDiscountVOThreadTask(String source, String channel, IActivityRepository repository) {
         this.source = source;
         this.channel = channel;
-        this.respository = respository;
+        this.repository = repository;
     }
 
     @Override
     public GroupBuyActivityDiscountVO call() throws Exception {
-        return respository.queryGroupBuyActivityDiscountVO(source, channel);
+        return repository.queryGroupBuyActivityDiscountVO(source, channel);
     }
 
 }

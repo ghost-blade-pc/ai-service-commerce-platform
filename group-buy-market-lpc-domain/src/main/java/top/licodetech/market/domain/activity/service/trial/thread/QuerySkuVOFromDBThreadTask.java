@@ -1,6 +1,6 @@
 package top.licodetech.market.domain.activity.service.trial.thread;
 
-import top.licodetech.market.domain.activity.adapter.repository.IActivityRespository;
+import top.licodetech.market.domain.activity.adapter.repository.IActivityRepository;
 import top.licodetech.market.domain.activity.model.valobj.SkuVO;
 
 import java.util.concurrent.Callable;
@@ -9,9 +9,9 @@ public class QuerySkuVOFromDBThreadTask implements Callable<SkuVO> {
 
     private final String goodsId;
 
-    private final IActivityRespository activityRespository;
+    private final IActivityRepository activityRespository;
 
-    public QuerySkuVOFromDBThreadTask(String goodsId, IActivityRespository activityRespository) {
+    public QuerySkuVOFromDBThreadTask(String goodsId, IActivityRepository activityRespository) {
         this.goodsId = goodsId;
         this.activityRespository = activityRespository;
     }

@@ -1,7 +1,8 @@
 package top.licodetech.market.infrastructure.adapter.repository;
 
 import org.springframework.stereotype.Repository;
-import top.licodetech.market.domain.activity.adapter.repository.IActivityRespository;
+import top.licodetech.market.domain.activity.adapter.repository.IActivityRepository;
+import top.licodetech.market.domain.activity.model.valobj.DiscountTypeEnum;
 import top.licodetech.market.domain.activity.model.valobj.GroupBuyActivityDiscountVO;
 import top.licodetech.market.domain.activity.model.valobj.SkuVO;
 import top.licodetech.market.infrastructure.dao.IGroupBuyActivityDao;
@@ -14,7 +15,7 @@ import top.licodetech.market.infrastructure.dao.po.Sku;
 import javax.annotation.Resource;
 
 @Repository
-public class ActivityRespository implements IActivityRespository {
+public class ActivityRepository implements IActivityRepository {
 
     @Resource
     private IGroupBuyDiscountDao groupBuyDiscountDao;
@@ -40,7 +41,7 @@ public class ActivityRespository implements IActivityRespository {
         GroupBuyActivityDiscountVO.GroupBuyDiscount groupBuyDiscount = GroupBuyActivityDiscountVO.GroupBuyDiscount.builder()
                 .discountName(groupBuyDiscountRes.getDiscountName())
                 .discountDesc(groupBuyDiscountRes.getDiscountDesc())
-                .discountType(groupBuyDiscountRes.getDiscountType())
+                .discountType(DiscountTypeEnum.get(groupBuyDiscountRes.getDiscountType()))
                 .marketExpr(groupBuyDiscountRes.getMarketExpr())
                 .marketPlan(groupBuyDiscountRes.getMarketPlan())
                 .tagId(groupBuyDiscountRes.getTagId())
