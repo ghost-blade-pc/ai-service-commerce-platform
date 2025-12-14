@@ -1,8 +1,11 @@
 package top.licodetech.market.domain.activity.model.valobj;
 
 import lombok.*;
+import org.apache.commons.lang3.StringUtils;
+import top.licodetech.market.types.common.Constants;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Getter
 @Builder
@@ -58,6 +61,30 @@ public class GroupBuyActivityDiscountVO {
         private String marketExpr;
         /** 人群标签，特定优惠限定 */
         private String tagId;
+    }
+
+    /**
+     * 可见限制
+     * 只要存在这样一个值，那么首次获得的默认值就是 false
+     */
+    public boolean isVisible() {
+        String[] split = this.tagScope.split(Constants.SPLIT);
+        if (split.length > 0 && Objects.equals(split[0], "1") && StringUtils.isNotBlank(split[0])) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 参与限制
+     * 只要存在这样一个值，那么首次获得的默认值就是 false
+     */
+    public boolean isEnable() {
+        String[] split = this.tagScope.split(Constants.SPLIT);
+        if (split.length >= 2 && Objects.equals(split[1], "2") && StringUtils.isNotBlank(split[1])) {
+            return false;
+        }
+        return true;
     }
 
 }

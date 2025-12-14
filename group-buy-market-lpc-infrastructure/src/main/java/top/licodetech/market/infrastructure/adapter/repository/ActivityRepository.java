@@ -1,19 +1,18 @@
 package top.licodetech.market.infrastructure.adapter.repository;
 
+import org.redisson.api.RBitSet;
 import org.springframework.stereotype.Repository;
 import top.licodetech.market.domain.activity.adapter.repository.IActivityRepository;
 import top.licodetech.market.domain.activity.model.valobj.DiscountTypeEnum;
 import top.licodetech.market.domain.activity.model.valobj.GroupBuyActivityDiscountVO;
 import top.licodetech.market.domain.activity.model.valobj.SCSkuActivityVO;
 import top.licodetech.market.domain.activity.model.valobj.SkuVO;
-import top.licodetech.market.infrastructure.dao.IGroupBuyActivityDao;
-import top.licodetech.market.infrastructure.dao.IGroupBuyDiscountDao;
-import top.licodetech.market.infrastructure.dao.ISCSkuActivityDao;
-import top.licodetech.market.infrastructure.dao.ISkuDao;
+import top.licodetech.market.infrastructure.dao.*;
 import top.licodetech.market.infrastructure.dao.po.GroupBuyActivity;
 import top.licodetech.market.infrastructure.dao.po.GroupBuyDiscount;
 import top.licodetech.market.infrastructure.dao.po.SCSkuActivity;
 import top.licodetech.market.infrastructure.dao.po.Sku;
+import top.licodetech.market.infrastructure.redis.IRedisService;
 
 import javax.annotation.Resource;
 
@@ -27,6 +26,9 @@ public class ActivityRepository implements IActivityRepository {
 
     @Resource
     private ISCSkuActivityDao scSkuActivityDao;
+
+    @Resource
+    private IRedisService redisService;
 
     @Resource
     private ISkuDao skuDao;
@@ -104,5 +106,15 @@ public class ActivityRepository implements IActivityRepository {
                 .tagId(groupBuyActivityRes.getTagId())
                 .tagScope(groupBuyActivityRes.getTagScope())
                 .build();
+    }
+
+    @Override
+    public boolean isTagCrowdRange(String tagId, String userId) {
+        RBitSet bitSet = redisService.getBitSet(tagId);
+        if (!bitSet.isExists()) {
+            return true;
+        }
+        // 判断用户是否存在人群中
+        return bitSet.get(redisService.getIndexFromUserId(userId));
     }
 }
