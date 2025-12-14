@@ -14,7 +14,9 @@ public abstract class AbstractMultiThreadStrategyRouter<T, D, R> implements Stra
 
     public R router(T requestParameter, D dynamicContext) throws Exception {
         StrategyHandler<T, D, R> strategyHandler = get(requestParameter, dynamicContext);
-        if (null != strategyHandler) return strategyHandler.apply(requestParameter, dynamicContext);
+        if (null != strategyHandler) {
+            return strategyHandler.apply(requestParameter, dynamicContext);
+        }
         return defaultStrategyHandler.apply(requestParameter, dynamicContext);
     }
 
