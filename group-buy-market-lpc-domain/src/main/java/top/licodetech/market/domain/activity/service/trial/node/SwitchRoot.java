@@ -10,12 +10,15 @@ import top.licodetech.market.types.design.framwork.tree.StrategyHandler;
 
 import javax.annotation.Resource;
 
+/**
+ * @author LiPC
+ */
 @Slf4j
 @Service
 public class SwitchRoot extends AbstractGroupBuyMarketSupport<MarketProductEntity, DefaultActivityStrategyFactory.DynamicContext, TrialBalanceEntity> {
 
     @Resource
-    private MarketNode marketNode;
+    private TagNode tagNode;
 
     @Override
     public TrialBalanceEntity doApply(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws Exception {
@@ -24,6 +27,6 @@ public class SwitchRoot extends AbstractGroupBuyMarketSupport<MarketProductEntit
 
     @Override
     public StrategyHandler<MarketProductEntity, DefaultActivityStrategyFactory.DynamicContext, TrialBalanceEntity> get(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) {
-        return marketNode;
+        return tagNode;
     }
 }
