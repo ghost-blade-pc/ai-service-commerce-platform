@@ -12,6 +12,7 @@ import top.licodetech.market.infrastructure.dao.po.GroupBuyActivity;
 import top.licodetech.market.infrastructure.dao.po.GroupBuyDiscount;
 import top.licodetech.market.infrastructure.dao.po.SCSkuActivity;
 import top.licodetech.market.infrastructure.dao.po.Sku;
+import top.licodetech.market.infrastructure.dcc.DCCService;
 import top.licodetech.market.infrastructure.redis.IRedisService;
 
 import javax.annotation.Resource;
@@ -32,6 +33,9 @@ public class ActivityRepository implements IActivityRepository {
 
     @Resource
     private ISkuDao skuDao;
+
+    @Resource
+    private DCCService dccService;
 
     @Override
     public SkuVO querySkuByGoodsId(String goodsId) {
@@ -116,5 +120,15 @@ public class ActivityRepository implements IActivityRepository {
         }
         // 判断用户是否存在人群中
         return bitSet.get(redisService.getIndexFromUserId(userId));
+    }
+
+    @Override
+    public boolean downgradeSwitch() {
+        return dccService.isDowngradeSwitch();
+    }
+
+    @Override
+    public boolean cutRange(String userId) {
+        return dccService.isCutRange(userId);
     }
 }

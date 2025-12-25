@@ -13,4 +13,8 @@ public interface IActivityRepository {
     GroupBuyActivityDiscountVO queryGroupBuyActivityDiscountVO(Long activityId);
 
     boolean isTagCrowdRange(String tagId, String userId);
+
+    boolean downgradeSwitch();
+
+    boolean cutRange(String userId);
 }
