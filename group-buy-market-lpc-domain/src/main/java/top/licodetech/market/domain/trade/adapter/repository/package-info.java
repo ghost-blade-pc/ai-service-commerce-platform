@@ -1,0 +1,1 @@
+package top.licodetech.market.domain.trade.adapter.repository;

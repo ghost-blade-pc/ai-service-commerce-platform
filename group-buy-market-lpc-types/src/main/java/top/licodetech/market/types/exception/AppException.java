@@ -2,7 +2,11 @@ package top.licodetech.market.types.exception;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import top.licodetech.market.types.enums.ResponseCode;
 
+/**
+ * @author LiPC
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class AppException extends RuntimeException {
@@ -33,6 +37,11 @@ public class AppException extends RuntimeException {
         this.code = code;
         this.info = message;
         super.initCause(cause);
+    }
+
+    public AppException(ResponseCode responseCode) {
+        this.code = responseCode.getCode();
+        this.info = responseCode.getInfo();
     }
 
     @Override
