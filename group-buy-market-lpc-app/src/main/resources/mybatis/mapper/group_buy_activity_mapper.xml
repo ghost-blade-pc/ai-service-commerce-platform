@@ -24,7 +24,7 @@
         select * from group_buy_activity
     </select>
 
-<!--    <select id="queryValidGroupBuyActivity" parameterType="cn.bugstack.infrastructure.dao.po.GroupBuyActivity"-->
+<!--    <select id="queryValidGroupBuyActivity" parameterType="top.licodetech.market.infrastructure.dao.po.GroupBuyActivity"-->
 <!--            resultMap="dataMap">-->
 <!--        select-->
 <!--            activity_id, activity_name, discount_id, group_type, take_limit_count,-->
@@ -41,6 +41,14 @@
             target, valid_time, status, start_time, end_time, tag_id, tag_scope
         from group_buy_activity
         where activity_id = #{activityId} and status = 1
+    </select>
+
+    <select id="queryGroupBuyActivityByActivityId" parameterType="java.lang.Long" resultMap="dataMap">
+        select
+            activity_id, activity_name, discount_id, group_type, take_limit_count,
+            target, valid_time, status, start_time, end_time, tag_id, tag_scope
+        from group_buy_activity
+        where activity_id = #{activityId}
     </select>
 
 </mapper>

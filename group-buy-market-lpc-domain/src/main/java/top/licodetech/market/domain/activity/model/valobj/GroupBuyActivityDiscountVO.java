@@ -7,6 +7,9 @@ import top.licodetech.market.types.common.Constants;
 import java.util.Date;
 import java.util.Objects;
 
+/**
+ * @author LiPC
+ */
 @Getter
 @Builder
 @AllArgsConstructor

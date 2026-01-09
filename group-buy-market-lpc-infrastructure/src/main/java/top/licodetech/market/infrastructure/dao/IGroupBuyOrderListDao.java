@@ -11,8 +11,9 @@ import top.licodetech.market.infrastructure.dao.po.GroupBuyOrderList;
 @Mapper
 public interface IGroupBuyOrderListDao {
 
-    void insert(GroupBuyOrderList groupBuyOrderList);
+    void insert(GroupBuyOrderList groupBuyOrderListReq);
 
     GroupBuyOrderList queryGroupBuyOrderRecordByOutTradeNo(GroupBuyOrderList groupBuyOrderListReq);
 
+    Integer queryOrderCountByActivityId(GroupBuyOrderList groupBuyOrderListReq);
 }
