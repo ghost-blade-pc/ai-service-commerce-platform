@@ -25,7 +25,7 @@ public class TagNode extends AbstractGroupBuyMarketSupport<MarketProductEntity, 
     @Resource
     private MarketNode marketNode;
     @Resource
-    private EndNode endNode;
+    private ErrorNode errorNode;
 
     @Override
     protected void mutiThread(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws ExecutionException, InterruptedException, TimeoutException {
@@ -72,9 +72,16 @@ public class TagNode extends AbstractGroupBuyMarketSupport<MarketProductEntity, 
 
     @Override
     public StrategyHandler<MarketProductEntity, DefaultActivityStrategyFactory.DynamicContext, TrialBalanceEntity> get(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws Exception {
+
+//        // 不存在配置的拼团活动，走异常节点
+//        if (null == dynamicContext.getGroupBuyActivityDiscountVO() || null == dynamicContext.getSkuVO()) {
+//            return errorNode;
+//        }
+
         if (dynamicContext.isEnable() && dynamicContext.isVisible()) {
             return marketNode;
         }
-        return defaultStrategyHandler;
+//        return defaultStrategyHandler;
+        return errorNode;
     }
 }
