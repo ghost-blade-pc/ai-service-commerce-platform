@@ -10,6 +10,9 @@ import top.licodetech.market.domain.activity.model.valobj.GroupBuyActivityDiscou
 import java.math.BigDecimal;
 import java.util.Date;
 
+/**
+ * @author LiPC
+ */
 @Data
 @Builder
 @AllArgsConstructor
@@ -34,7 +37,6 @@ public class TrialBalanceEntity {
     private Boolean isVisible;
     /** 是否可参与进团 */
     private Boolean isEnable;
-
     /** 活动配置信息 */
     private GroupBuyActivityDiscountVO groupBuyActivityDiscountVO;
 

@@ -11,7 +11,7 @@ import top.licodetech.market.domain.trade.model.valobj.GroupBuyProgressVO;
  * @description
  * @create 2025-12-25 17:05
  */
-public interface ITradeOrderService {
+public interface ITradeLockOrderService {
 
     /**
      * 查询，未被支付消费完成的营销优惠订单

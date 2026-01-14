@@ -1,13 +1,15 @@
 package top.licodetech.market.domain.trade.adapter.repository;
 
 import top.licodetech.market.domain.trade.model.aggregate.GroupBuyOrderAggregate;
+import top.licodetech.market.domain.trade.model.aggregate.GroupBuyTeamSettlementAggregate;
 import top.licodetech.market.domain.trade.model.entity.GroupBuyActivityEntity;
+import top.licodetech.market.domain.trade.model.entity.GroupBuyTeamEntity;
 import top.licodetech.market.domain.trade.model.entity.MarketPayOrderEntity;
 import top.licodetech.market.domain.trade.model.valobj.GroupBuyProgressVO;
 
 /**
  * @author LiPC
- * @description
+ * @description 交易仓储服务接口
  * @create 2025-12-25 20:07
  */
 public interface ITradeRepository {
@@ -21,4 +23,8 @@ public interface ITradeRepository {
     GroupBuyActivityEntity queryGroupBuyActivityEntityByActivityId(Long activityId);
 
     Integer queryOrderCountByActivityId(Long activityId, String userId);
+
+    void settlementMarketPayOrder(GroupBuyTeamSettlementAggregate groupBuyTeamSettlementAggregate);
+
+    GroupBuyTeamEntity queryGroupTeamByTeamId(String teamId);
 }

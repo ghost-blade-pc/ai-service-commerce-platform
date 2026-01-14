@@ -3,6 +3,8 @@ package top.licodetech.market.infrastructure.dao;
 import org.apache.ibatis.annotations.Mapper;
 import top.licodetech.market.infrastructure.dao.po.GroupBuyOrderList;
 
+import java.util.List;
+
 /**
  * @author LiPC
  * @description
@@ -16,4 +18,8 @@ public interface IGroupBuyOrderListDao {
     GroupBuyOrderList queryGroupBuyOrderRecordByOutTradeNo(GroupBuyOrderList groupBuyOrderListReq);
 
     Integer queryOrderCountByActivityId(GroupBuyOrderList groupBuyOrderListReq);
+
+    int updateOrderStatus2COMPLETE(GroupBuyOrderList groupBuyOrderListReq);
+
+    List<String> queryGroupBuyCompleteOrderOutTradeNoListByTeamId(String teamId);
 }

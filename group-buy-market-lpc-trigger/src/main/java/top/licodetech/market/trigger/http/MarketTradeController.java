@@ -17,7 +17,7 @@ import top.licodetech.market.domain.trade.model.entity.PayActivityEntity;
 import top.licodetech.market.domain.trade.model.entity.PayDiscountEntity;
 import top.licodetech.market.domain.trade.model.entity.UserEntity;
 import top.licodetech.market.domain.trade.model.valobj.GroupBuyProgressVO;
-import top.licodetech.market.domain.trade.service.ITradeOrderService;
+import top.licodetech.market.domain.trade.service.ITradeLockOrderService;
 import top.licodetech.market.types.enums.ResponseCode;
 import top.licodetech.market.types.exception.AppException;
 
@@ -39,7 +39,7 @@ public class MarketTradeController implements IMarketTradeService {
     private IIndexGroupBuyMarketService indexGroupBuyMarketService;
 
     @Resource
-    private ITradeOrderService tradeOrderService;
+    private ITradeLockOrderService tradeOrderService;
 
     /**
      * 拼团营销锁单

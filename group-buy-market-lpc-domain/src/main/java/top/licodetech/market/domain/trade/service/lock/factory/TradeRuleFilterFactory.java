@@ -1,4 +1,4 @@
-package top.licodetech.market.domain.trade.service.factory;
+package top.licodetech.market.domain.trade.service.lock.factory;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import top.licodetech.market.domain.trade.model.entity.GroupBuyActivityEntity;
 import top.licodetech.market.domain.trade.model.entity.TradeRuleCommandEntity;
 import top.licodetech.market.domain.trade.model.entity.TradeRuleFilterBackEntity;
-import top.licodetech.market.domain.trade.service.filter.ActivityUsabilityRuleFilter;
-import top.licodetech.market.domain.trade.service.filter.UserTakeLimitRuleFilter;
+import top.licodetech.market.domain.trade.service.lock.filter.ActivityUsabilityRuleFilter;
+import top.licodetech.market.domain.trade.service.lock.filter.UserTakeLimitRuleFilter;
 import top.licodetech.market.types.design.framwork.link.model2.LinkArmory;
 import top.licodetech.market.types.design.framwork.link.model2.chain.BusinessLinkedList;
 

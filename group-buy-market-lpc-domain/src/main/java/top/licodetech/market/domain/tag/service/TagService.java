@@ -29,6 +29,14 @@ public class TagService implements ITagService {
         List<String> userIdList = new ArrayList<>() {{
             add("lipeicheng");
             add("yanxinyao");
+            add("xiaoming01");
+            add("xiaoming01");
+            add("xiaoming02");
+            add("xiaoming03");
+            add("xiaoming04");
+            add("xiaoming05");
+            add("xiaoming06");
+            add("xiaoming07");
         }};
 
         // 4. 一般人群标签的处理在公司中，会有专门的数据数仓团队通过脚本方式写入到数据库，就不用这样一个个或者批次来写。
