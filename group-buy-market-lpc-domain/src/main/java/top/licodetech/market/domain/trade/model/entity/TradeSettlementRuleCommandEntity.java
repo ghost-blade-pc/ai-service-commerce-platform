@@ -1,20 +1,22 @@
 package top.licodetech.market.domain.trade.model.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
 /**
  * @author LiPC
  * @description
- * @create 2026-01-13 16:35
+ * @create 2026-01-15 17:57
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TradePaySuccessEntity {
-
+public class TradeSettlementRuleCommandEntity {
     /** 渠道 */
     private String source;
     /** 来源 */

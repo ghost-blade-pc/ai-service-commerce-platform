@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 
 /**
  * @author LiPC
- * @description
+ * @description 拼团，预购订单营销实体对象
  * @create 2025-12-25 17:11
  */
 @Data

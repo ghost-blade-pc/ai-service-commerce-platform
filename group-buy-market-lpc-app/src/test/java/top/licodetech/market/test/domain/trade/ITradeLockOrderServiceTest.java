@@ -59,11 +59,11 @@ public class ITradeLockOrderServiceTest {
     public void test_lockMarketPayOrder() throws Exception {
         // 入参信息
         Long activityId = 100123L;
-        String userId = "xiaoming03";
+        String userId = "xiaoming07";
         String goodsId = "9890001";
         String source = "s01";
         String channel = "c01";
-        String outTradeNo = "909000098111";
+        String outTradeNo = RandomStringUtils.randomNumeric(12);
 
         // 1. 获取试算优惠，有【activityId】优先使用
         TrialBalanceEntity trialBalanceEntity = indexGroupBuyMarketService.indexMarketTrial(MarketProductEntity.builder()
@@ -92,6 +92,7 @@ public class ITradeLockOrderServiceTest {
                         .activityName(groupBuyActivityDiscountVO.getActivityName())
                         .startTime(groupBuyActivityDiscountVO.getStartTime())
                         .endTime(groupBuyActivityDiscountVO.getEndTime())
+                        .validTime(groupBuyActivityDiscountVO.getValidTime())
                         .targetCount(groupBuyActivityDiscountVO.getTarget())
                         .build(),
                 PayDiscountEntity.builder()
@@ -110,8 +111,8 @@ public class ITradeLockOrderServiceTest {
     @Test
     public void test_lockMarketPayOrder_teamId_not_null() {
         LockMarketPayOrderRequestDTO lockMarketPayOrderRequestDTO = new LockMarketPayOrderRequestDTO();
-        lockMarketPayOrderRequestDTO.setUserId("xiaoming05");
-        lockMarketPayOrderRequestDTO.setTeamId("54354725");
+        lockMarketPayOrderRequestDTO.setUserId("xiaoming07");
+        lockMarketPayOrderRequestDTO.setTeamId("96942753");
         lockMarketPayOrderRequestDTO.setActivityId(100123L);
         lockMarketPayOrderRequestDTO.setGoodsId("9890001");
         lockMarketPayOrderRequestDTO.setSource("s01");

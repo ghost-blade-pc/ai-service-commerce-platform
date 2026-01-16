@@ -27,4 +27,6 @@ public interface ITradeRepository {
     void settlementMarketPayOrder(GroupBuyTeamSettlementAggregate groupBuyTeamSettlementAggregate);
 
     GroupBuyTeamEntity queryGroupTeamByTeamId(String teamId);
+
+    boolean isSCBlackIntercept(String source, String channel);
 }

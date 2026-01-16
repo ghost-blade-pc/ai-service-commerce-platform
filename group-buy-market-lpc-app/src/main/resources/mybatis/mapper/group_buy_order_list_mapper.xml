@@ -49,7 +49,7 @@
 
     <update id="updateOrderStatus2COMPLETE" parameterType="top.licodetech.market.infrastructure.dao.po.GroupBuyOrderList">
         update group_buy_order_list
-        set status = 1, update_time = now()
+        set status = 1, out_trade_time = #{outTradeTime}, update_time = now()
         where out_trade_no = #{outTradeNo} and user_id = #{userId}
     </update>
 

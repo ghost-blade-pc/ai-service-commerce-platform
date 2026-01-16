@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.licodetech.market.domain.trade.adapter.repository.ITradeRepository;
 import top.licodetech.market.domain.trade.model.entity.GroupBuyActivityEntity;
-import top.licodetech.market.domain.trade.model.entity.TradeRuleCommandEntity;
-import top.licodetech.market.domain.trade.model.entity.TradeRuleFilterBackEntity;
+import top.licodetech.market.domain.trade.model.entity.TradeLockRuleCommandEntity;
+import top.licodetech.market.domain.trade.model.entity.TradeLockRuleFilterBackEntity;
 import top.licodetech.market.domain.trade.service.lock.factory.TradeRuleFilterFactory;
 import top.licodetech.market.types.design.framwork.link.model2.handler.ILogicHandler;
 import top.licodetech.market.types.enums.ActivityStatusEnumVO;
@@ -22,13 +22,13 @@ import java.util.Date;
  */
 @Slf4j
 @Service
-public class ActivityUsabilityRuleFilter implements ILogicHandler<TradeRuleCommandEntity, TradeRuleFilterFactory.DynamicContext, TradeRuleFilterBackEntity> {
+public class ActivityUsabilityRuleFilter implements ILogicHandler<TradeLockRuleCommandEntity, TradeRuleFilterFactory.DynamicContext, TradeLockRuleFilterBackEntity> {
 
     @Resource
     private ITradeRepository repository;
 
     @Override
-    public TradeRuleFilterBackEntity apply(TradeRuleCommandEntity requestParameter, TradeRuleFilterFactory.DynamicContext dynamicContext) throws Exception {
+    public TradeLockRuleFilterBackEntity apply(TradeLockRuleCommandEntity requestParameter, TradeRuleFilterFactory.DynamicContext dynamicContext) throws Exception {
         log.info("交易规则过滤-活动的可用性校验{} activityId:{}", requestParameter.getUserId(), requestParameter.getActivityId());
 
         // 查询拼团活动

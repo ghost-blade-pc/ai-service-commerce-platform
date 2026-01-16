@@ -8,17 +8,15 @@ import lombok.NoArgsConstructor;
 /**
  * @author LiPC
  * @description
- * @create 2026-01-09 15:26
+ * @create 2026-01-09 15:29
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TradeRuleCommandEntity {
+public class TradeLockRuleFilterBackEntity {
 
-    /** 用户ID */
-    private String userId;
-    /** 活动ID */
-    private Long activityId;
+    // 用户参与活动的订单量
+    private Integer userTakeOrderCount;
 
 }

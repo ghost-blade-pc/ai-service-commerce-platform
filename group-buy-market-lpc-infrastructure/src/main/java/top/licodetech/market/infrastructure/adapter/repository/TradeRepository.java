@@ -21,6 +21,7 @@ import top.licodetech.market.infrastructure.dao.po.GroupBuyActivity;
 import top.licodetech.market.infrastructure.dao.po.GroupBuyOrder;
 import top.licodetech.market.infrastructure.dao.po.GroupBuyOrderList;
 import top.licodetech.market.infrastructure.dao.po.NotifyTask;
+import top.licodetech.market.infrastructure.dcc.DCCService;
 import top.licodetech.market.types.common.Constants;
 import top.licodetech.market.types.enums.ActivityStatusEnumVO;
 import top.licodetech.market.types.enums.GroupBuyOrderEnumVO;
@@ -28,6 +29,8 @@ import top.licodetech.market.types.enums.ResponseCode;
 import top.licodetech.market.types.exception.AppException;
 
 import javax.annotation.Resource;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -50,6 +53,9 @@ public class TradeRepository implements ITradeRepository {
 
     @Resource
     private INotifyTaskDao notifyTaskDao;
+
+    @Resource
+    private DCCService dccService;
 
     @Override
     public MarketPayOrderEntity queryMarketPayOrderEntityByOutTradeNo(String userId, String outTradeNo) {
@@ -83,6 +89,11 @@ public class TradeRepository implements ITradeRepository {
         if (StringUtils.isBlank(teamId)) {
             // 使用 RandomStringUtils.randomNumeric 替代公司里使用的雪花算法UUID
             teamId = RandomStringUtils.randomNumeric(8);
+            // 日期处理
+            Date currentDate = new Date();
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(currentDate);
+            calendar.add(Calendar.MINUTE, payActivityEntity.getValidTime());
 
             // 构建拼团订单
             GroupBuyOrder groupBuyOrder = GroupBuyOrder.builder()
@@ -96,6 +107,8 @@ public class TradeRepository implements ITradeRepository {
                     .targetCount(payActivityEntity.getTargetCount())
                     .completeCount(0)
                     .lockCount(1)
+                    .validStartTime(currentDate)
+                    .validEndTime(calendar.getTime())
                     .build();
 
             // 写入记录
@@ -193,6 +206,7 @@ public class TradeRepository implements ITradeRepository {
         GroupBuyOrderList groupBuyOrderListReq = new GroupBuyOrderList();
         groupBuyOrderListReq.setUserId(userEntity.getUserId());
         groupBuyOrderListReq.setOutTradeNo(tradePaySuccessEntity.getOutTradeNo());
+        groupBuyOrderListReq.setOutTradeTime(tradePaySuccessEntity.getOutTradeTime());
         int updateOrderListStatusCount = groupBuyOrderListDao.updateOrderStatus2COMPLETE(groupBuyOrderListReq);
         if (1 != updateOrderListStatusCount) {
             throw new AppException(ResponseCode.E0005);
@@ -234,12 +248,19 @@ public class TradeRepository implements ITradeRepository {
     public GroupBuyTeamEntity queryGroupTeamByTeamId(String teamId) {
         GroupBuyOrder groupBuyOrder = groupBuyOrderDao.queryGroupTeamByTeamId(teamId);
         return GroupBuyTeamEntity.builder()
-                      .teamId(groupBuyOrder.getTeamId())
-                      .activityId(groupBuyOrder.getActivityId())
-                      .targetCount(groupBuyOrder.getTargetCount())
-                      .completeCount(groupBuyOrder.getCompleteCount())
-                      .lockCount(groupBuyOrder.getLockCount())
-                      .status(GroupBuyOrderEnumVO.valueOf(groupBuyOrder.getStatus()))
-                      .build();
+                .teamId(groupBuyOrder.getTeamId())
+                .activityId(groupBuyOrder.getActivityId())
+                .targetCount(groupBuyOrder.getTargetCount())
+                .completeCount(groupBuyOrder.getCompleteCount())
+                .lockCount(groupBuyOrder.getLockCount())
+                .status(GroupBuyOrderEnumVO.valueOf(groupBuyOrder.getStatus()))
+                .validStartTime(groupBuyOrder.getValidStartTime())
+                .validEndTime(groupBuyOrder.getValidEndTime())
+                .build();
+    }
+
+    @Override
+    public boolean isSCBlackIntercept(String source, String channel) {
+        return dccService.isSCBlackIntercept(source, channel);
     }
 }
