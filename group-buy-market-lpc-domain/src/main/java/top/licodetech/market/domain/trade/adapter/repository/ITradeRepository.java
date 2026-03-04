@@ -5,7 +5,10 @@ import top.licodetech.market.domain.trade.model.aggregate.GroupBuyTeamSettlement
 import top.licodetech.market.domain.trade.model.entity.GroupBuyActivityEntity;
 import top.licodetech.market.domain.trade.model.entity.GroupBuyTeamEntity;
 import top.licodetech.market.domain.trade.model.entity.MarketPayOrderEntity;
+import top.licodetech.market.domain.trade.model.entity.NotifyTaskEntity;
 import top.licodetech.market.domain.trade.model.valobj.GroupBuyProgressVO;
+
+import java.util.List;
 
 /**
  * @author LiPC
@@ -24,9 +27,20 @@ public interface ITradeRepository {
 
     Integer queryOrderCountByActivityId(Long activityId, String userId);
 
-    void settlementMarketPayOrder(GroupBuyTeamSettlementAggregate groupBuyTeamSettlementAggregate);
+    boolean settlementMarketPayOrder(GroupBuyTeamSettlementAggregate groupBuyTeamSettlementAggregate);
 
     GroupBuyTeamEntity queryGroupTeamByTeamId(String teamId);
 
     boolean isSCBlackIntercept(String source, String channel);
+
+    List<NotifyTaskEntity> queryUnExecutedNotifyTaskList();
+
+    List<NotifyTaskEntity> queryUnExecutedNotifyTaskList(String teamId);
+
+    int updateNotifyTaskStatusSuccess(String teamId);
+
+    int updateNotifyTaskStatusError(String teamId);
+
+    int updateNotifyTaskStatusRetry(String teamId);
+
 }

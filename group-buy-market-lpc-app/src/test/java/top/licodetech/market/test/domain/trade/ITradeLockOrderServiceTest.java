@@ -59,7 +59,7 @@ public class ITradeLockOrderServiceTest {
     public void test_lockMarketPayOrder() throws Exception {
         // 入参信息
         Long activityId = 100123L;
-        String userId = "xiaoming07";
+        String userId = "lipeicheng";
         String goodsId = "9890001";
         String source = "s01";
         String channel = "c01";

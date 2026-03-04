@@ -56,10 +56,11 @@ public class MarketTradeController implements IMarketTradeService {
             Long activityId = lockMarketPayOrderRequestDTO.getActivityId();
             String outTradeNo = lockMarketPayOrderRequestDTO.getOutTradeNo();
             String teamId = lockMarketPayOrderRequestDTO.getTeamId();
+            String notifyUrl = lockMarketPayOrderRequestDTO.getNotifyUrl();
 
             log.info("营销交易锁单:{} LockMarketPayOrderRequestDTO:{}", userId, JSON.toJSONString(lockMarketPayOrderRequestDTO));
 
-            if (StringUtils.isBlank(userId) || StringUtils.isBlank(source) || StringUtils.isBlank(channel) || StringUtils.isBlank(goodsId) || null == activityId) {
+            if (StringUtils.isBlank(userId) || StringUtils.isBlank(source) || StringUtils.isBlank(channel) || StringUtils.isBlank(goodsId) || null == activityId || StringUtils.isBlank(notifyUrl)) {
                 return Response.<LockMarketPayOrderResponseDTO>builder()
                         .code(ResponseCode.ILLEGAL_PARAMETER.getCode())
                         .info(ResponseCode.ILLEGAL_PARAMETER.getInfo())
@@ -123,6 +124,7 @@ public class MarketTradeController implements IMarketTradeService {
                             .activityName(groupBuyActivityDiscountVO.getActivityName())
                             .startTime(groupBuyActivityDiscountVO.getStartTime())
                             .endTime(groupBuyActivityDiscountVO.getEndTime())
+                            .validTime(groupBuyActivityDiscountVO.getValidTime())
                             .targetCount(groupBuyActivityDiscountVO.getTarget())
                             .build(),
                     PayDiscountEntity.builder()
@@ -133,6 +135,7 @@ public class MarketTradeController implements IMarketTradeService {
                             .originalPrice(trialBalanceEntity.getOriginalPrice())
                             .deductionPrice(trialBalanceEntity.getDeductionPrice())
                             .outTradeNo(outTradeNo)
+                            .notifyUrl(notifyUrl)
                             .build());
 
             log.info("交易锁单记录(新):{} marketPayOrderEntity:{}", userId, JSON.toJSONString(marketPayOrderEntity));
