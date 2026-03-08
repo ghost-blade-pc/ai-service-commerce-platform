@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>商品拼团 - 商品详情</title>
+    <link rel="stylesheet" href="css/index.css">
+</head>
+<body>
+    <div class="header-bar">
+        <div class="header-title">商品拼团</div>
+        <div class="user-info" id="userInfo"></div>
+    </div>
+
+    <div class="carousel-container">
+        <div class="carousel-wrapper" id="carouselWrapper">
+            <div class="carousel-slide">
+                <img src="./images/sku-13811216-01.png" alt="轮播图1">
+            </div>
+            <div class="carousel-slide">
+                <img src="./images/sku-13811216-02.png" alt="轮播图2">
+            </div>
+            <div class="carousel-slide">
+                <img src="./images/sku-13811216-03.png" alt="轮播图3">
+            </div>
+        </div>
+        <div class="carousel-indicators" id="indicators"></div>
+    </div>
+
+    <div class="product-info">
+        <h1 class="product-title">手写MyBatis：渐进式源码实践（全彩）</h1>
+        <div class="promo-banner">大促优惠 | 直降 ¥60，76人再抢，参与马上抢到</div>
+    </div>
+
+    <div class="group-section-title">正在拼团的用户</div>
+    <div class="group-list">
+        <div class="group-item">
+            <div class="avatar">小</div>
+            <div class="group-info">
+                <div class="group-user">小傅哥</div>
+                <div class="group-time">拼单即将结束 <span class="countdown" data-total="349" id="countdown1">00:05:49</span></div>
+            </div>
+            <button class="join-btn" onclick="openPaymentModal(40, '抢单拼团')">立即抢单</button>
+        </div>
+        <div class="group-item">
+            <div class="avatar">李</div>
+            <div class="group-info">
+                <div class="group-user">李二狗</div>
+                <div class="group-time">拼单即将结束 <span class="countdown" data-total="349" id="countdown2">00:05:49</span></div>
+            </div>
+            <button class="join-btn" onclick="openPaymentModal(40, '抢单拼团')">立即抢单</button>
+        </div>
+    </div>
+
+    <div class="bottom-bar">
+        <div class="bottom-bar-left">
+            <div class="current-price">100</div>
+            <div class="original-price">80</div>
+        </div>
+        <div class="bottom-bar-right">
+            <button class="bottom-btn single-buy" onclick="openPaymentModal(100, '单独购买')">单独购买</button>
+            <button class="bottom-btn group-buy" onclick="openPaymentModal(80, '开团购买')">开团购买</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="paymentModal">
+        <div class="payment-modal">
+            <div class="modal-title">请扫码支付</div>
+            <div class="modal-info">
+                <span class="modal-label">支付金额</span>
+                <span class="modal-value">¥<span id="payAmount">40</span></span>
+                <span class="modal-separator">|</span>
+                <span class="modal-label">支付类型</span>
+                <span class="modal-value" id="paymentType">抢单拼团</span>
+            </div>
+            <div class="qr-container">
+                <img src="./images/sku-13811216-04.png" alt="支付二维码" class="qr-code">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn cancel-btn" onclick="closePaymentModal()">取消支付</button>
+                <button class="modal-btn confirm-btn" onclick="confirmPayment()">支付完成</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/index.js"></script>
+</body>
+</html>

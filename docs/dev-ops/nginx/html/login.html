@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>小傅哥拼团 - 登录</title>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="back-btn" onclick="goBack()">
+            <span class="back-arrow">←</span>
+            <span>返回</span>
+        </div>
+        <div class="login-title">欢迎登录 - 小傅哥拼团</div>
+        <div class="login-tips">
+            拼团需要不同用户一起参与，登录后可参与拼团享受优惠价格！<br>
+            输入任意用户名和密码即可登录体验
+        </div>
+        
+        <div class="input-group">
+            <input type="text" id="username" placeholder="用户名">
+        </div>
+        
+        <div class="input-group">
+            <input type="password" id="password" placeholder="密码">
+        </div>
+        
+        <button class="login-btn" onclick="handleLogin()">登录</button>
+        
+        <div class="footer">© 2026 小傅哥拼团</div>
+    </div>
+
+    <script src="js/login.js"></script>
+</body>
+</html>
