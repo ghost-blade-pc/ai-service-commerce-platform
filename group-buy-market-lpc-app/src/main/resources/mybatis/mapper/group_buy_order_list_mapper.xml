@@ -18,6 +18,7 @@
         <result column="status" property="status"/>
         <result column="biz_id" property="bizId"/>
         <result column="out_trade_no" property="outTradeNo"/>
+        <result column="out_trade_time" property="outTradeTime"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
     </resultMap>
@@ -57,6 +58,36 @@
         select out_trade_no
         from group_buy_order_list
         where team_id = #{teamId} and status = 1
+    </select>
+
+    <select id="queryInProgressUserGroupBuyOrderDetailListByUserId"
+            parameterType="top.licodetech.market.infrastructure.dao.po.GroupBuyOrderList" resultMap="dataMap">
+        select user_id, team_id, out_trade_no
+        from group_buy_order_list
+        where activity_id = #{activityId} and user_id = #{userId} and status in (0, 1) and end_time > now()
+        order by id desc
+        limit #{count}
+    </select>
+
+    <select id="queryInProgressUserGroupBuyOrderDetailListByRandom"
+            parameterType="top.licodetech.market.infrastructure.dao.po.GroupBuyOrderList" resultMap="dataMap">
+        select user_id, team_id, out_trade_no
+        from group_buy_order_list
+        where
+            activity_id = #{activityId} and
+            team_id in (select team_id from group_buy_order where activity_id = #{activityId} and status = 0) and
+            user_id != #{userId} and
+            status in (0, 1)
+          and end_time > now()
+        order by id desc
+        limit #{count}
+    </select>
+
+    <select id="queryInProgressUserGroupBuyOrderDetailListByActivityId" parameterType="java.lang.Long"
+            resultMap="dataMap">
+        select distinct team_id
+        from group_buy_order_list
+        where activity_id = #{activityId} and status in (0, 1)
     </select>
 
 </mapper>
