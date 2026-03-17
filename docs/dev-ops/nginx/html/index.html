@@ -29,16 +29,16 @@
 
     <div class="product-info">
         <h1 class="product-title">手写MyBatis：渐进式源码实践（全彩）</h1>
-        <div class="promo-banner">大促优惠 | 直降 ¥60，76人再抢，参与马上抢到</div>
+        <div class="promo-banner">大促优惠 | 直降 ¥60，76人在抢，参与马上抢到</div>
     </div>
 
     <div class="group-section-title">正在拼团的用户</div>
     <div class="group-list">
-        <div class="group-item">
+        <!-- <div class="group-item">
             <div class="avatar">小</div>
             <div class="group-info">
                 <div class="group-user">小傅哥</div>
-                <div class="group-time">拼单即将结束 <span class="countdown" data-total="349" id="countdown1">00:05:49</span></div>
+                <div class="group-time">拼单即将结束 <span class="countdown" data-total="349" id="countdown1">00:30:00</span></div>
             </div>
             <button class="join-btn" onclick="openPaymentModal(40, '抢单拼团')">立即抢单</button>
         </div>
@@ -46,20 +46,16 @@
             <div class="avatar">李</div>
             <div class="group-info">
                 <div class="group-user">李二狗</div>
-                <div class="group-time">拼单即将结束 <span class="countdown" data-total="349" id="countdown2">00:05:49</span></div>
+                <div class="group-time">拼单即将结束 <span class="countdown" data-total="349" id="countdown2">00:30:00</span></div>
             </div>
             <button class="join-btn" onclick="openPaymentModal(40, '抢单拼团')">立即抢单</button>
-        </div>
+        </div> -->
     </div>
 
     <div class="bottom-bar">
-        <div class="bottom-bar-left">
-            <div class="current-price">100</div>
-            <div class="original-price">80</div>
-        </div>
         <div class="bottom-bar-right">
-            <button class="bottom-btn single-buy" onclick="openPaymentModal(100, '单独购买')">单独购买</button>
-            <button class="bottom-btn group-buy" onclick="openPaymentModal(80, '开团购买')">开团购买</button>
+            <button class="bottom-btn single-buy" id="singleBuyBtn" onclick="openPaymentModal(100, '单独购买')">单独购买(¥<span id="singleBuyPrice">100</span>)</button>
+            <button class="bottom-btn group-buy" id="groupBuyBtn" onclick="openPaymentModal(80, '开团购买')">开团购买(¥<span id="groupBuyPrice">80</span>)</button>
         </div>
     </div>
 

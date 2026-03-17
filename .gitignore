@@ -39,3 +39,4 @@ build/
 /.idea/
 /.mvn/
 /group-buy-market-lpc-app/data/log/
+/data/log/
