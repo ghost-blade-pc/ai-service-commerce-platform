@@ -10,6 +10,7 @@ import top.licodetech.mall.api.dto.CreatePayRequestDTO;
 import top.licodetech.mall.api.response.Response;
 import top.licodetech.mall.domain.order.model.entity.PayOrderEntity;
 import top.licodetech.mall.domain.order.model.entity.ShopCartEntity;
+import top.licodetech.mall.domain.order.model.valobj.MarketTypeVO;
 import top.licodetech.mall.domain.order.service.IOrderService;
 import top.licodetech.mall.types.common.Constants;
 
@@ -44,10 +45,14 @@ public class AliPayController implements IPayService {
             log.info("商品下单，根据商品ID创建支付单开始 userId:{} productId:{}", createPayRequestDTO.getUserId(), createPayRequestDTO.getProductId());
             String userId = createPayRequestDTO.getUserId();
             String productId = createPayRequestDTO.getProductId();
+            String teamId = createPayRequestDTO.getTeamId();
+            Integer marketType = createPayRequestDTO.getMarketType();
             // 下单
             PayOrderEntity payOrderEntity = orderService.createOrder(ShopCartEntity.builder()
                     .userId(userId)
                     .productId(productId)
+                    .teamId(teamId)
+                    .marketTypeVO(MarketTypeVO.valueOf(marketType))
                     .build());
 
             log.info("商品下单，根据商品ID创建支付单完成 userId:{} productId:{} orderId:{}", userId, productId, payOrderEntity.getOrderId());

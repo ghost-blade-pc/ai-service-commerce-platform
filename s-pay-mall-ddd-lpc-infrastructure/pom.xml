@@ -39,6 +39,10 @@
             <groupId>top.licodetech.mall</groupId>
             <artifactId>s-pay-mall-ddd-lpc-domain</artifactId>
         </dependency>
+        <dependency>
+            <groupId>top.licodetech.mall</groupId>
+            <artifactId>s-pay-mall-ddd-lpc-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

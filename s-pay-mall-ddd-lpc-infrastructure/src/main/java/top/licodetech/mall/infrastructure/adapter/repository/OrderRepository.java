@@ -10,6 +10,7 @@ import top.licodetech.mall.domain.order.model.entity.OrderEntity;
 import top.licodetech.mall.domain.order.model.entity.PayOrderEntity;
 import top.licodetech.mall.domain.order.model.entity.ProductEntity;
 import top.licodetech.mall.domain.order.model.entity.ShopCartEntity;
+import top.licodetech.mall.domain.order.model.valobj.MarketTypeVO;
 import top.licodetech.mall.domain.order.model.valobj.OrderStatusVO;
 import top.licodetech.mall.infrastructure.dao.IOrderDao;
 import top.licodetech.mall.infrastructure.dao.po.PayOrder;
@@ -17,6 +18,7 @@ import top.licodetech.mall.types.common.Constants;
 import top.licodetech.mall.types.event.BaseEvent;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -52,6 +54,9 @@ public class OrderRepository implements IOrderRepository {
                 .orderTime(order.getOrderTime())
                 .totalAmount(order.getTotalAmount())
                 .payUrl(order.getPayUrl())
+                .marketType(order.getMarketType())
+                .marketDeductionAmount(order.getMarketDeductionAmount())
+                .payAmount(order.getPayAmount())
                 .build();
 
     }
@@ -86,6 +91,10 @@ public class OrderRepository implements IOrderRepository {
         order.setOrderTime(orderEntity.getOrderTime());
         order.setTotalAmount(productEntity.getPrice());
         order.setStatus(orderEntity.getOrderStatusVO().getCode());
+        order.setMarketType(MarketTypeVO.NO_MARKET.getCode());
+        order.setMarketDeductionAmount(BigDecimal.ZERO);
+        order.setPayAmount(productEntity.getPrice());
+        order.setMarketType(orderEntity.getMarketType());
 
         orderDao.insert(order);
 
@@ -98,6 +107,9 @@ public class OrderRepository implements IOrderRepository {
                 .orderId(payOrderEntity.getOrderId())
                 .status(payOrderEntity.getOrderStatus().getCode())
                 .payUrl(payOrderEntity.getPayUrl())
+                .marketType(payOrderEntity.getMarketType())
+                .marketDeductionAmount(payOrderEntity.getMarketDeductionAmount())
+                .payAmount(payOrderEntity.getPayAmount())
                 .build();
         orderDao.updateOrderPayInfo(payOrderReq);
 

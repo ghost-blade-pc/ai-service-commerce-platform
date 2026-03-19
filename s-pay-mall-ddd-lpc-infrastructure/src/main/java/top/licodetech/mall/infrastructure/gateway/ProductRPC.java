@@ -12,9 +12,9 @@ public class ProductRPC {
 
         ProductDTO productVO = new ProductDTO();
         productVO.setProductId(productId);
-        productVO.setProductName("testGoods");
-        productVO.setProductDesc("testGoods");
-        productVO.setPrice(new BigDecimal("1.68"));
+        productVO.setProductName("MyBatisBook");
+        productVO.setProductDesc("MyBatisBook");
+        productVO.setPrice(new BigDecimal("100.00"));
         return productVO;
 
     }
