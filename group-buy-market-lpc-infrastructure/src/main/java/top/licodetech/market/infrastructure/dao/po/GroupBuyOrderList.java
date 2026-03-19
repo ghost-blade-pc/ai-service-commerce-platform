@@ -1,9 +1,6 @@
 package top.licodetech.market.infrastructure.dao.po;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import top.licodetech.market.infrastructure.dao.po.base.Page;
 
 import java.math.BigDecimal;
@@ -12,6 +9,7 @@ import java.util.Date;
 /**
  * @author LiPC
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @AllArgsConstructor
@@ -42,6 +40,8 @@ public class GroupBuyOrderList extends Page {
     private BigDecimal originalPrice;
     /** 折扣金额 */
     private BigDecimal deductionPrice;
+    /** 支付金额 */
+    private BigDecimal payPrice;
     /** 状态；0初始锁定、1消费完成 */
     private Integer status;
     /** 外部交易单号-确保外部调用唯一幂等 */

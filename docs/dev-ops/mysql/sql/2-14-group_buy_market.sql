@@ -243,6 +243,7 @@ CREATE TABLE `group_buy_order_list` (
   `channel` varchar(8) NOT NULL COMMENT '来源',
   `original_price` decimal(8,2) NOT NULL COMMENT '原始价格',
   `deduction_price` decimal(8,2) NOT NULL COMMENT '折扣金额',
+  `pay_price` decimal(8,2) NOT NULL COMMENT '支付金额',
   `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '状态；0初始锁定、1消费完成、2用户退单',
   `out_trade_no` varchar(12) NOT NULL COMMENT '外部交易单号-确保外部调用唯一幂等',
   `out_trade_time` datetime DEFAULT NULL COMMENT '外部交易时间',
@@ -253,18 +254,6 @@ CREATE TABLE `group_buy_order_list` (
   UNIQUE KEY `uq_order_id` (`order_id`),
   KEY `idx_user_id_activity_id` (`user_id`,`activity_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-LOCK TABLES `group_buy_order_list` WRITE;
-/*!40000 ALTER TABLE `group_buy_order_list` DISABLE KEYS */;
-
-INSERT INTO `group_buy_order_list` (`id`, `user_id`, `team_id`, `order_id`, `activity_id`, `start_time`, `end_time`, `goods_id`, `source`, `channel`, `original_price`, `deduction_price`, `status`, `out_trade_no`, `out_trade_time`, `biz_id`, `create_time`, `update_time`)
-VALUES
-	(1,'xfg01','80759049','768908837527',100123,'2024-12-07 10:19:40','2026-12-07 10:19:40','9890001','s01','c01',100.00,10.00,1,'555024425070','2025-01-31 17:31:49','100123_xfg01_1','2025-01-31 17:28:19','2025-01-31 17:31:48'),
-	(2,'xfg02','80759049','873986192460',100123,'2024-12-07 10:19:40','2026-12-07 10:19:40','9890001','s01','c01',100.00,10.00,1,'812787347025','2025-01-31 17:32:09','100123_xfg02_1','2025-01-31 17:30:29','2025-01-31 17:32:09'),
-	(3,'xfg03','80759049','490257193870',100123,'2024-12-07 10:19:40','2026-12-07 10:19:40','9890001','s01','c01',100.00,10.00,1,'536311764349','2025-01-31 17:51:38','100123_xfg03_1','2025-01-31 17:31:22','2025-01-31 17:51:38');
-
-/*!40000 ALTER TABLE `group_buy_order_list` ENABLE KEYS */;
-UNLOCK TABLES;
 
 
 # 转储表 notify_task
