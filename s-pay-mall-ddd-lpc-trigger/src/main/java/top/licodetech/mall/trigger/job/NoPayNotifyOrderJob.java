@@ -30,7 +30,9 @@ public class NoPayNotifyOrderJob {
         try{
             log.info("任务；检测未接收到或未正确处理的支付回调通知");
             List<String> orderIds = orderService.queryNoPayNotifyOrder();
-            if (null == orderIds || orderIds.isEmpty()) return;
+            if (null == orderIds || orderIds.isEmpty()) {
+                return;
+            }
 
             for (String orderId : orderIds) {
                 AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
@@ -47,7 +49,7 @@ public class NoPayNotifyOrderJob {
                 String tradeStatus = alipayTradeQueryResponse.getTradeStatus();
 
                 if (tradeStatus != null && tradeStatus.equals("TRADE_SUCCESS")) {
-                    orderService.changeOrderPaySuccess(orderId);
+                    orderService.changeOrderPaySuccess(orderId, alipayTradeQueryResponse.getSendPayDate());
                 }
             }
         } catch (Exception e) {

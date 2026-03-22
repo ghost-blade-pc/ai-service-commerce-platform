@@ -69,5 +69,24 @@
         LIMIT 10
     </select>
 
+    <update id="changeOrderMarketSettlement" parameterType="java.util.List">
+        update pay_order set status = 'MARKET', update_time = now()
+        where order_id in
+        <foreach item="orderId" collection="outTradeNoList" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
+    </update>
+
+    <select id="queryOrderByOrderId" parameterType="java.lang.String" resultMap="dataMap">
+        select user_id, product_id, product_name, order_id, order_time, total_amount, status, pay_url, market_type, market_deduction_amount, pay_amount
+        from pay_order
+        where order_id = #{orderId}
+    </select>
+
+    <update id="changeOrderDealDone" parameterType="java.lang.String">
+        update pay_order set status = 'DEAL_DONE', update_time = now()
+        where order_id = #{orderId}
+    </update>
+
 </mapper>
 

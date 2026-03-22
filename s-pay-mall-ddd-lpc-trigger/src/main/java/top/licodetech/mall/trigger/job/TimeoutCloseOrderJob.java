@@ -5,6 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import top.licodetech.mall.domain.order.service.IOrderService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -14,6 +15,7 @@ import java.util.List;
 @Component()
 public class TimeoutCloseOrderJob {
 
+    @Resource
     private IOrderService orderService;
 
     @Scheduled(cron = "0 0/10 * * * ?")

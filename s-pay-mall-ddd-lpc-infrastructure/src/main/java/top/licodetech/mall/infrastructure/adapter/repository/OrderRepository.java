@@ -19,6 +19,7 @@ import top.licodetech.mall.types.event.BaseEvent;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -116,16 +117,29 @@ public class OrderRepository implements IOrderRepository {
     }
 
     @Override
-    public void changeOrderPaySuccess(String orderId) {
+    public void changeOrderPaySuccess(String orderId, Date payTime) {
+        PayOrder payOrderReq = new PayOrder();
+        payOrderReq.setOrderId(orderId);
+        payOrderReq.setStatus(OrderStatusVO.PAY_SUCCESS.getCode());
+        payOrderReq.setPayTime(payTime);
+        orderDao.changeOrderPaySuccess(payOrderReq);
+
+        /// 不走拼团营销的直接结算发货
+        BaseEvent.EventMessage<PaySuccessMessageEvent.PaySuccessMessage> paySuccessMessageEventMessage = paySuccessMessageEvent.buildEventMessage(
+                PaySuccessMessageEvent.PaySuccessMessage.builder()
+                        .tradeNo(orderId)
+                        .build());
+        PaySuccessMessageEvent.PaySuccessMessage paySuccessMessage = paySuccessMessageEventMessage.getData();
+
+        eventBus.post(JSON.toJSONString(paySuccessMessage));
+    }
+
+    @Override
+    public void changeMarketOrderPaySuccess(String orderId) {
         PayOrder payOrderReq = new PayOrder();
         payOrderReq.setOrderId(orderId);
         payOrderReq.setStatus(OrderStatusVO.PAY_SUCCESS.getCode());
         orderDao.changeOrderPaySuccess(payOrderReq);
-
-        BaseEvent.EventMessage<PaySuccessMessageEvent.PaySuccessMessage> paySuccessMessageEventMessage = paySuccessMessageEvent.buildEventMessage(PaySuccessMessageEvent.PaySuccessMessage.builder().tradeNo(orderId).build());
-        PaySuccessMessageEvent.PaySuccessMessage paySuccessMessage = paySuccessMessageEventMessage.getData();
-
-        eventBus.post(paySuccessMessage);
     }
 
     @Override
@@ -141,5 +155,42 @@ public class OrderRepository implements IOrderRepository {
     @Override
     public boolean changeOrderClose(String orderId) {
         return orderDao.changeOrderClose(orderId);
+    }
+
+    @Override
+    public void changeOrderMarketSettlement(List<String> outTradeNoList) {
+        // 更新拼团结算状态
+        orderDao.changeOrderMarketSettlement(outTradeNoList);
+
+        // 循环成功发送消息 - 一般在公司的场景里，还会有job任务扫描超时没有结算的订单，查询订单状态。查询对方服务端的接口，会被限制一次查询多少，频次多少。
+        outTradeNoList.forEach(outTradeNo -> {
+            BaseEvent.EventMessage<PaySuccessMessageEvent.PaySuccessMessage> paySuccessMessageEventMessage = paySuccessMessageEvent.buildEventMessage(
+                    PaySuccessMessageEvent.PaySuccessMessage.builder()
+                            .tradeNo(outTradeNo)
+                            .build());
+            PaySuccessMessageEvent.PaySuccessMessage paySuccessMessage = paySuccessMessageEventMessage.getData();
+            eventBus.post(JSON.toJSONString(paySuccessMessage));
+        });
+    }
+
+    @Override
+    public OrderEntity queryOrderByOrderId(String orderId) {
+        PayOrder payOrder = orderDao.queryOrderByOrderId(orderId);
+        if (null == orderId) {
+            return null;
+        }
+
+        return OrderEntity.builder()
+                .userId(payOrder.getUserId())
+                .productId(payOrder.getProductId())
+                .productName(payOrder.getProductName())
+                .orderId(payOrder.getOrderId())
+                .orderTime(payOrder.getOrderTime())
+                .totalAmount(payOrder.getTotalAmount())
+                .payUrl(payOrder.getPayUrl())
+                .marketType(payOrder.getMarketType())
+                .marketDeductionAmount(payOrder.getMarketDeductionAmount())
+                .payAmount(payOrder.getPayAmount())
+                .build();
     }
 }

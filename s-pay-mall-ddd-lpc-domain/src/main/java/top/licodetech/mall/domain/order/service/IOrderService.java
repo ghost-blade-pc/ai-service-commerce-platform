@@ -3,6 +3,7 @@ package top.licodetech.mall.domain.order.service;
 import top.licodetech.mall.domain.order.model.entity.PayOrderEntity;
 import top.licodetech.mall.domain.order.model.entity.ShopCartEntity;
 
+import java.util.Date;
 import java.util.List;
 
 public interface IOrderService {
@@ -10,7 +11,9 @@ public interface IOrderService {
     PayOrderEntity createOrder(ShopCartEntity shopCartEntity) throws Exception;
 
 
-    void changeOrderPaySuccess(String orderId);
+    void changeOrderPaySuccess(String orderId, Date payTime);
+
+    void changeOrderMarketSettlement(List<String> outTradeNoList);
 
     List<String> queryNoPayNotifyOrder();
 

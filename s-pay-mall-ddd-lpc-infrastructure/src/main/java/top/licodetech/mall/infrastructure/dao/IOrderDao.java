@@ -16,9 +16,16 @@ public interface IOrderDao {
 
     void changeOrderPaySuccess(PayOrder payOrderReq);
 
+    boolean changeOrderClose(String orderId);
+
+    void changeOrderDealDone(String orderId);
+
     List<String> queryNoPayNotifyOrder();
 
     List<String> queryTimeoutCloseOrderList();
 
-    boolean changeOrderClose(String orderId);
+    void changeOrderMarketSettlement(List<String> outTradeNoList);
+
+    PayOrder queryOrderByOrderId(String orderId);
+
 }

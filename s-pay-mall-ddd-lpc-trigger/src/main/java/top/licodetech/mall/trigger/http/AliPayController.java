@@ -1,5 +1,6 @@
 package top.licodetech.mall.trigger.http;
 
+import com.alibaba.fastjson2.JSON;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import top.licodetech.mall.api.IPayService;
 import top.licodetech.mall.api.dto.CreatePayRequestDTO;
+import top.licodetech.mall.api.dto.NotifyRequestDTO;
 import top.licodetech.mall.api.response.Response;
 import top.licodetech.mall.domain.order.model.entity.PayOrderEntity;
 import top.licodetech.mall.domain.order.model.entity.ShopCartEntity;
@@ -16,6 +18,8 @@ import top.licodetech.mall.types.common.Constants;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,7 +78,7 @@ public class AliPayController implements IPayService {
      * http://licodetech.top:8080/api/v1/alipay/alipay_notify_url
      */
     @RequestMapping(value = "alipay_notify_url", method = RequestMethod.POST)
-    public String payNotify(HttpServletRequest request) throws AlipayApiException {
+    public String payNotify(HttpServletRequest request) throws AlipayApiException, ParseException {
         log.info("支付回调，消息接收 {}", request.getParameter("trade_status"));
 
         if (!request.getParameter("trade_status").equals("TRADE_SUCCESS")) {
@@ -110,9 +114,23 @@ public class AliPayController implements IPayService {
         log.info("支付回调，买家付款金额: {}", params.get("buyer_pay_amount"));
         log.info("支付回调，支付回调，更新订单 {}", tradeNo);
 
-        orderService.changeOrderPaySuccess(tradeNo);
+        orderService.changeOrderPaySuccess(tradeNo, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(gmtPayment));
 
         return "success";
+    }
+
+    @RequestMapping(value = "group_buy_notify", method = RequestMethod.POST)
+    @Override
+    public String groupBuyNotify(@RequestBody NotifyRequestDTO requestDTO) {
+        log.info("拼团回调，组队完成，结算开始 {}", JSON.toJSONString(requestDTO));
+        try {
+            // 营销结算
+            orderService.changeOrderMarketSettlement(requestDTO.getOutTradeNoList());
+            return "success";
+        } catch (Exception e) {
+            log.info("拼团回调，组队完成，结算失败 {}", JSON.toJSONString(requestDTO));
+            return "error";
+        }
     }
 
 }

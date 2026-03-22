@@ -34,9 +34,9 @@ public class OrderServiceTest {
     @Test
     public void testCreateOrder() throws Exception {
         ShopCartEntity shopCartEntity = new ShopCartEntity();
-        shopCartEntity.setUserId("yanxinyao"); // 每次测试用个新的id就可以，不限制人群的情况下，可以随意编写。
+        shopCartEntity.setUserId("xiaoming02"); // 每次测试用个新的id就可以，不限制人群的情况下，可以随意编写。
         shopCartEntity.setProductId("9890001");
-        shopCartEntity.setTeamId("89821049");
+        shopCartEntity.setTeamId(null);
         shopCartEntity.setActivityId(100123L);
         shopCartEntity.setMarketTypeVO(MarketTypeVO.GROUP_BUY_MARKET);
 

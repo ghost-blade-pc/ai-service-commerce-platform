@@ -10,11 +10,11 @@ import top.licodetech.mall.domain.order.model.entity.MarketPayDiscountEntity;
 import top.licodetech.mall.domain.order.model.entity.ProductEntity;
 import top.licodetech.mall.infrastructure.gateway.IGroupBuyMarketService;
 import top.licodetech.mall.infrastructure.gateway.ProductRPC;
-import top.licodetech.mall.infrastructure.gateway.dto.LockMarketPayOrderRequestDTO;
-import top.licodetech.mall.infrastructure.gateway.dto.LockMarketPayOrderResponseDTO;
-import top.licodetech.mall.infrastructure.gateway.dto.ProductDTO;
+import top.licodetech.mall.infrastructure.gateway.dto.*;
 import top.licodetech.mall.infrastructure.gateway.response.Response;
 import top.licodetech.mall.types.exception.AppException;
+
+import java.util.Date;
 
 @Slf4j
 @Component
@@ -89,6 +89,34 @@ public class ProductPort implements IProductPort {
         } catch (Exception e) {
             log.error("营销锁单失败{}", userId, e);
             return null;
+        }
+    }
+
+    @Override
+    public void settlementMarketPayOrder(String userId, String orderId, Date payTime) {
+        SettlementMarketPayOrderRequestDTO requestDTO = new SettlementMarketPayOrderRequestDTO();
+        requestDTO.setSource(source);
+        requestDTO.setChannel(chanel);
+        requestDTO.setUserId(userId);
+        requestDTO.setOutTradeNo(orderId);
+        requestDTO.setOutTradeTime(payTime);
+
+        try {
+            Call<Response<SettlementMarketPayOrderResponseDTO>> call = groupBuyMarketService.settlementMarketPayOrder(requestDTO);
+
+            // 获取结果
+            Response<SettlementMarketPayOrderResponseDTO> response = call.execute().body();
+            log.info("营销结算{} requestDTO:{} responseDTO:{}", userId, JSON.toJSONString(requestDTO), JSON.toJSONString(response));
+            if (null == response) {
+                return;
+            }
+
+            // 异常判断
+            if (!"0000".equals(response.getCode())) {
+                throw new AppException(response.getCode(), response.getInfo());
+            }
+        } catch (Exception e) {
+            log.error("营销结算失败{}", userId, e);
         }
     }
 }
