@@ -25,7 +25,7 @@ public class NoPayNotifyOrderJob {
     @Resource
     private AlipayClient alipayClient;
 
-    @Scheduled(cron = "0/3 * * * * ?")
+    @Scheduled(cron = "0 0/30 * * * ?")
     public void exec() {
         try{
             log.info("任务；检测未接收到或未正确处理的支付回调通知");

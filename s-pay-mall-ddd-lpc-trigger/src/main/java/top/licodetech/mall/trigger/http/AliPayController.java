@@ -57,6 +57,7 @@ public class AliPayController implements IPayService {
                     .productId(productId)
                     .teamId(teamId)
                     .marketTypeVO(MarketTypeVO.valueOf(marketType))
+                    .activityId(createPayRequestDTO.getActivityId())
                     .build());
 
             log.info("商品下单，根据商品ID创建支付单完成 userId:{} productId:{} orderId:{}", userId, productId, payOrderEntity.getOrderId());
