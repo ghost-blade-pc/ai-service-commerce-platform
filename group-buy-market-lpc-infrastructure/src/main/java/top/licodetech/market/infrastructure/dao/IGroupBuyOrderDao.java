@@ -1,6 +1,7 @@
 package top.licodetech.market.infrastructure.dao;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import top.licodetech.market.infrastructure.dao.po.GroupBuyOrder;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public interface IGroupBuyOrderDao {
 
     int updateOrderStatus2COMPLETE(String teamId);
 
-    List<GroupBuyOrder> queryGroupBuyProgressByTeamIds(Set<String> teamIds);
+    List<GroupBuyOrder> queryGroupBuyProgressByTeamIds(@Param("teamIds") Set<String> teamIds);
 
     Integer queryAllTeamCount(Set<String> teamIds);
 
