@@ -141,11 +141,11 @@ async function openPaymentModal(amount, type, teamId = '') {
                 source: "s01",
                 channel: "c01",
                 outTradeNo: currentOutTradeNo,
-                notifyUrl: "http://licodetech.top:8091/api/v1/test/group_buy_notify"
+                notifyUrl: "http://117.72.145.235:8091/api/v1/test/group_buy_notify"
             };
             
             try {
-                const response = await fetch('http://licodetech.top:8091/api/v1/gbm/trade/lock_market_pay_order', {
+                const response = await fetch('http://117.72.145.235:8091/api/v1/gbm/trade/lock_market_pay_order', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -290,7 +290,7 @@ async function confirmPayment() {
         };
         
         try {
-            const response = await fetch('http://licodetech.top:8091/api/v1/gbm/trade/settlement_market_pay_order', {
+            const response = await fetch('http://117.72.145.235:8091/api/v1/gbm/trade/settlement_market_pay_order', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -362,7 +362,7 @@ async function fetchGroupBuyMarketConfig() {
     };
     
     try {
-        const response = await fetch('http://licodetech.top:8091/api/v1/gbm/index/query_group_buy_market_config', {
+        const response = await fetch('http://117.72.145.235:8091/api/v1/gbm/index/query_group_buy_market_config', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
