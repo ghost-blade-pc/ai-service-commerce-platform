@@ -16,7 +16,7 @@ services:
 
   # 部署后端项目 - 小型支付商城
   s-pay-mall-app:
-    image: lipeicheng/s-pay-mall-ddd-app:2.0
+    image: lipeicheng/s-pay-mall-ddd-lpc-app:2.0
     container_name: s-pay-mall-app
     restart: on-failure
     ports:
