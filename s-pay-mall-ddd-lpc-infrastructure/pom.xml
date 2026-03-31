@@ -34,6 +34,10 @@
             <groupId>com.squareup.retrofit2</groupId>
             <artifactId>adapter-rxjava2</artifactId>
         </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
         <!-- 系统模块 -->
         <dependency>
             <groupId>top.licodetech.mall</groupId>

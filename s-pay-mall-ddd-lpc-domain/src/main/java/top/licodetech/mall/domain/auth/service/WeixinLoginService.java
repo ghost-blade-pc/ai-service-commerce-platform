@@ -2,6 +2,7 @@ package top.licodetech.mall.domain.auth.service;
 
 import com.google.common.cache.Cache;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import top.licodetech.mall.domain.auth.adapter.port.ILoginPort;
 
@@ -26,8 +27,25 @@ public class WeixinLoginService implements ILoginService{
     }
 
     @Override
+    public String createQrCodeTicket(String sceneStr) throws Exception {
+        String ticket = loginPort.createQrCodeTicket(sceneStr);
+        // 保存浏览器指纹信息和ticket映射关系
+        openidToken.put(sceneStr, ticket);
+        return ticket;
+    }
+
+    @Override
     public String checkLogin(String ticket) {
         return openidToken.getIfPresent(ticket);
+    }
+
+    @Override
+    public String checkLogin(String ticket, String sceneStr) {
+        String cacheTicket = openidToken.getIfPresent(sceneStr);
+        if (StringUtils.isBlank(cacheTicket) || !cacheTicket.equals(ticket)) {
+            return null;
+        }
+        return checkLogin(ticket);
     }
 
     @Override
