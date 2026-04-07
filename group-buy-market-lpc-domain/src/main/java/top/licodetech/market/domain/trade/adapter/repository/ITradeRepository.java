@@ -27,7 +27,7 @@ public interface ITradeRepository {
 
     Integer queryOrderCountByActivityId(Long activityId, String userId);
 
-    boolean settlementMarketPayOrder(GroupBuyTeamSettlementAggregate groupBuyTeamSettlementAggregate);
+    NotifyTaskEntity settlementMarketPayOrder(GroupBuyTeamSettlementAggregate groupBuyTeamSettlementAggregate);
 
     GroupBuyTeamEntity queryGroupTeamByTeamId(String teamId);
 

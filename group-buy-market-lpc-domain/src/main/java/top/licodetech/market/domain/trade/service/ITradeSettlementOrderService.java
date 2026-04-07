@@ -1,5 +1,6 @@
 package top.licodetech.market.domain.trade.service;
 
+import top.licodetech.market.domain.trade.model.entity.NotifyTaskEntity;
 import top.licodetech.market.domain.trade.model.entity.TradePaySettlementEntity;
 import top.licodetech.market.domain.trade.model.entity.TradePaySuccessEntity;
 
@@ -35,4 +36,5 @@ public interface ITradeSettlementOrderService {
      */
     Map<String, Integer> execSettlementNotifyJob(String teamId) throws Exception;
 
+    Map<String, Integer> execSettlementNotifyJob(NotifyTaskEntity notifyTaskEntity) throws Exception;
 }
