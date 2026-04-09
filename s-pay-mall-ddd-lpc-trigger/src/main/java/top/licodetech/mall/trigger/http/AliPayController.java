@@ -129,7 +129,7 @@ public class AliPayController implements IPayService {
             orderService.changeOrderMarketSettlement(requestDTO.getOutTradeNoList());
             return "success";
         } catch (Exception e) {
-            log.info("拼团回调，组队完成，结算失败 {}", JSON.toJSONString(requestDTO));
+            log.error("拼团回调，组队完成，结算失败 {}", JSON.toJSONString(requestDTO));
             return "error";
         }
     }

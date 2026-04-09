@@ -14,6 +14,7 @@ import top.licodetech.mall.domain.order.model.valobj.MarketTypeVO;
 import top.licodetech.mall.domain.order.model.valobj.OrderStatusVO;
 import top.licodetech.mall.infrastructure.dao.IOrderDao;
 import top.licodetech.mall.infrastructure.dao.po.PayOrder;
+import top.licodetech.mall.infrastructure.event.EventPublisher;
 import top.licodetech.mall.types.common.Constants;
 import top.licodetech.mall.types.event.BaseEvent;
 
@@ -34,6 +35,9 @@ public class OrderRepository implements IOrderRepository {
     @Resource
     private EventBus eventBus;
 
+    @Resource
+    private EventPublisher eventPublisher;
+
     @Override
     public OrderEntity queryUnPayOrder(ShopCartEntity shopCartEntity) {
 
@@ -44,7 +48,9 @@ public class OrderRepository implements IOrderRepository {
 
         // 2. 查询到订单
         PayOrder order = orderDao.queryUnPayOrder(orderReq);
-        if (null == order) return null;
+        if (null == order) {
+            return null;
+        }
 
         // 3. 返回结果
         return OrderEntity.builder()
@@ -131,7 +137,9 @@ public class OrderRepository implements IOrderRepository {
                         .build());
         PaySuccessMessageEvent.PaySuccessMessage paySuccessMessage = paySuccessMessageEventMessage.getData();
 
-        eventBus.post(JSON.toJSONString(paySuccessMessage));
+        // 旧版发送消息方式
+        // eventBus.post(JSON.toJSONString(paySuccessMessage));
+        eventPublisher.publish(paySuccessMessageEvent.topic(), JSON.toJSONString(paySuccessMessage));
     }
 
     @Override
@@ -169,7 +177,9 @@ public class OrderRepository implements IOrderRepository {
                             .tradeNo(outTradeNo)
                             .build());
             PaySuccessMessageEvent.PaySuccessMessage paySuccessMessage = paySuccessMessageEventMessage.getData();
-            eventBus.post(JSON.toJSONString(paySuccessMessage));
+            // 旧版发送消息方式
+            // eventBus.post(JSON.toJSONString(paySuccessMessage));
+            eventPublisher.publish(paySuccessMessageEvent.topic(), JSON.toJSONString(paySuccessMessage));
         });
     }
 
