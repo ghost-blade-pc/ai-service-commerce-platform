@@ -27,7 +27,6 @@ import java.util.concurrent.*;
 @Slf4j
 @Service
 public class MarketNode extends AbstractGroupBuyMarketSupport<MarketProductEntity, DefaultActivityStrategyFactory.DynamicContext, TrialBalanceEntity> {
-
     @Resource
     private EndNode endNode;
 

@@ -7,7 +7,7 @@ import top.licodetech.market.domain.trade.model.aggregate.GroupBuyOrderAggregate
 import top.licodetech.market.domain.trade.model.entity.*;
 import top.licodetech.market.domain.trade.model.valobj.GroupBuyProgressVO;
 import top.licodetech.market.domain.trade.service.ITradeLockOrderService;
-import top.licodetech.market.domain.trade.service.lock.factory.TradeRuleFilterFactory;
+import top.licodetech.market.domain.trade.service.lock.factory.TradeLockRuleFilterFactory;
 import top.licodetech.market.types.design.framwork.link.model2.chain.BusinessLinkedList;
 
 import javax.annotation.Resource;
@@ -25,7 +25,7 @@ public class TradeLockOrderService implements ITradeLockOrderService {
     private ITradeRepository repository;
 
     @Resource
-    private BusinessLinkedList<TradeLockRuleCommandEntity, TradeRuleFilterFactory.DynamicContext, TradeLockRuleFilterBackEntity> tradeRuleFilter;
+    private BusinessLinkedList<TradeLockRuleCommandEntity, TradeLockRuleFilterFactory.DynamicContext, TradeLockRuleFilterBackEntity> tradeRuleFilter;
 
     @Override
     public MarketPayOrderEntity queryNoPayMarketPayOrderByOutTradeNo(String userId, String outTradeNo) {
@@ -46,8 +46,9 @@ public class TradeLockOrderService implements ITradeLockOrderService {
         TradeLockRuleFilterBackEntity tradeLockRuleFilterBackEntity = tradeRuleFilter.apply(TradeLockRuleCommandEntity.builder()
                         .activityId(payActivityEntity.getActivityId())
                         .userId(userEntity.getUserId())
+                        .teamId(payActivityEntity.getTeamId())
                         .build(),
-                new TradeRuleFilterFactory.DynamicContext());
+                new TradeLockRuleFilterFactory.DynamicContext());
 
 
         // 已参与拼团量 - 用于构建数据库唯一索引使用，确保用户只能在一个活动上参与固定的次数
@@ -61,7 +62,13 @@ public class TradeLockOrderService implements ITradeLockOrderService {
                 .userTakeOrderCount(userTakeOrderCount)
                 .build();
 
-        // 锁定聚合订单 - 这会用户只是下单还没有支付。后续会有2个流程；支付成功、超时未支付（回退）
-        return repository.lockMarketPayOrder(groupBuyOrderAggregate);
+        try {
+            // 锁定聚合订单 - 这会用户只是下单还没有支付。后续会有2个流程；支付成功、超时未支付（回退）
+            return repository.lockMarketPayOrder(groupBuyOrderAggregate);
+        } catch (Exception e) {
+            // 记录失败恢复量
+            repository.recoveryTeamStock(tradeLockRuleFilterBackEntity.getRecoveryTeamStockKey(), payActivityEntity.getValidTime());
+            throw e;
+        }
     }
 }

@@ -6,7 +6,7 @@ import top.licodetech.market.domain.trade.adapter.repository.ITradeRepository;
 import top.licodetech.market.domain.trade.model.entity.GroupBuyActivityEntity;
 import top.licodetech.market.domain.trade.model.entity.TradeLockRuleCommandEntity;
 import top.licodetech.market.domain.trade.model.entity.TradeLockRuleFilterBackEntity;
-import top.licodetech.market.domain.trade.service.lock.factory.TradeRuleFilterFactory;
+import top.licodetech.market.domain.trade.service.lock.factory.TradeLockRuleFilterFactory;
 import top.licodetech.market.types.design.framwork.link.model2.handler.ILogicHandler;
 import top.licodetech.market.types.enums.ResponseCode;
 import top.licodetech.market.types.exception.AppException;
@@ -20,13 +20,13 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Service
-public class UserTakeLimitRuleFilter implements ILogicHandler<TradeLockRuleCommandEntity, TradeRuleFilterFactory.DynamicContext, TradeLockRuleFilterBackEntity> {
+public class UserTakeLimitRuleFilter implements ILogicHandler<TradeLockRuleCommandEntity, TradeLockRuleFilterFactory.DynamicContext, TradeLockRuleFilterBackEntity> {
 
     @Resource
     private ITradeRepository repository;
 
     @Override
-    public TradeLockRuleFilterBackEntity apply(TradeLockRuleCommandEntity requestParameter, TradeRuleFilterFactory.DynamicContext dynamicContext) throws Exception {
+    public TradeLockRuleFilterBackEntity apply(TradeLockRuleCommandEntity requestParameter, TradeLockRuleFilterFactory.DynamicContext dynamicContext) throws Exception {
         log.info("交易规则过滤-用户参与次数校验{} activityId:{}", requestParameter.getUserId(), requestParameter.getActivityId());
 
         GroupBuyActivityEntity groupBuyActivity = dynamicContext.getGroupBuyActivity();
@@ -39,8 +39,9 @@ public class UserTakeLimitRuleFilter implements ILogicHandler<TradeLockRuleComma
             throw new AppException(ResponseCode.E0103);
         }
 
-        return TradeLockRuleFilterBackEntity.builder()
-                .userTakeOrderCount(count)
-                .build();
+        dynamicContext.setUserTakeOrderCount(count);
+
+        // 走到下一个责任链节点
+        return next(requestParameter, dynamicContext);
     }
 }
