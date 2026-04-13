@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
  * @author LiPC
  */
 @Repository
-public class ActivityRepository implements IActivityRepository {
+public class ActivityRepository extends AbstractRepository implements IActivityRepository {
 
     @Resource
     private IGroupBuyDiscountDao groupBuyDiscountDao;
@@ -72,17 +72,17 @@ public class ActivityRepository implements IActivityRepository {
 
     @Override
     public GroupBuyActivityDiscountVO queryGroupBuyActivityDiscountVO(Long activityId) {
-        // 根据SC渠道值查询配置中最新的1个有效的活动
-//        GroupBuyActivity groupBuyActivityReq = new GroupBuyActivity();
-//        groupBuyActivityReq.setActivityId(activityId);
-        GroupBuyActivity groupBuyActivityRes = groupBuyActivityDao.queryValidGroupBuyActivityId(activityId);
+        // 优先从缓存中获取&写缓存，注意如果实现了后台配置，在更新时要更新库，删缓存
+        GroupBuyActivity groupBuyActivityRes = getFromCacheOrDb(GroupBuyActivity.cacheRedisKey(activityId),
+                () -> groupBuyActivityDao.queryValidGroupBuyActivityId(activityId));
         if (null == groupBuyActivityRes) {
             return null;
         }
 
         String discountId = groupBuyActivityRes.getDiscountId();
-
-        GroupBuyDiscount groupBuyDiscountRes = groupBuyDiscountDao.queryGroupBuyActivityDiscountByDiscountId(discountId);
+        // 优先从缓存中获取&写缓存，注意如果实现了后台配置，在更新时要更新库，删缓存
+        GroupBuyDiscount groupBuyDiscountRes = getFromCacheOrDb(GroupBuyDiscount.cacheRedisKey(discountId),
+                () -> groupBuyDiscountDao.queryGroupBuyActivityDiscountByDiscountId(discountId));
         if (null == groupBuyDiscountRes) {
             return null;
         }
