@@ -1,5 +1,6 @@
 package top.licodetech.market.domain.activity.service;
 
+import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import org.springframework.stereotype.Service;
 import top.licodetech.market.domain.activity.adapter.repository.IActivityRepository;
 import top.licodetech.market.domain.activity.model.entity.MarketProductEntity;
@@ -7,7 +8,6 @@ import top.licodetech.market.domain.activity.model.entity.TrialBalanceEntity;
 import top.licodetech.market.domain.activity.model.entity.UserGroupBuyOrderDetailEntity;
 import top.licodetech.market.domain.activity.model.valobj.TeamStatisticVO;
 import top.licodetech.market.domain.activity.service.trial.factory.DefaultActivityStrategyFactory;
-import top.licodetech.market.types.design.framwork.tree.StrategyHandler;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;

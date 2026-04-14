@@ -1,10 +1,9 @@
 package top.licodetech.market.infrastructure.dcc;
 
+import cn.bugstack.wrench.dynamic.config.center.types.annotations.DCCValue;
 import org.springframework.stereotype.Service;
-import top.licodetech.market.types.annotations.DCCValue;
 import top.licodetech.market.types.common.Constants;
 
-import javax.annotation.sql.DataSourceDefinition;
 import java.util.Arrays;
 import java.util.List;
 

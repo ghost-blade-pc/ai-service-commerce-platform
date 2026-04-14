@@ -1,5 +1,6 @@
 package top.licodetech.market.domain.activity.service.trial.node;
 
+import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import com.alibaba.fastjson.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -9,7 +10,6 @@ import top.licodetech.market.domain.activity.model.valobj.GroupBuyActivityDiscou
 import top.licodetech.market.domain.activity.model.valobj.SkuVO;
 import top.licodetech.market.domain.activity.service.trial.AbstractGroupBuyMarketSupport;
 import top.licodetech.market.domain.activity.service.trial.factory.DefaultActivityStrategyFactory;
-import top.licodetech.market.types.design.framwork.tree.StrategyHandler;
 
 import java.math.BigDecimal;
 

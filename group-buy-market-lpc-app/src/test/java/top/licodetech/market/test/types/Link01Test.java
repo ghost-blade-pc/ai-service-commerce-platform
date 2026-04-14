@@ -1,5 +1,6 @@
 package top.licodetech.market.test.types;
 
+import cn.bugstack.wrench.design.framework.link.model1.ILogicLink;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -7,7 +8,6 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import top.licodetech.market.test.types.rule01.factory.Rule01TradeRuleFactory;
-import top.licodetech.market.types.design.framwork.link.model1.ILogicLink;
 
 import javax.annotation.Resource;
 

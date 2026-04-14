@@ -1,5 +1,7 @@
 package top.licodetech.market.domain.trade.service.settlement.factory;
 
+import cn.bugstack.wrench.design.framework.link.model2.LinkArmory;
+import cn.bugstack.wrench.design.framework.link.model2.chain.BusinessLinkedList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +17,7 @@ import top.licodetech.market.domain.trade.service.settlement.filter.EndRuleFilte
 import top.licodetech.market.domain.trade.service.settlement.filter.OutTradeNoRuleFilter;
 import top.licodetech.market.domain.trade.service.settlement.filter.SCRuleFilter;
 import top.licodetech.market.domain.trade.service.settlement.filter.SettableRuleFilter;
-import top.licodetech.market.types.design.framwork.link.model2.LinkArmory;
-import top.licodetech.market.types.design.framwork.link.model2.chain.BusinessLinkedList;
+
 
 /**
  * @author LiPC
@@ -28,7 +29,7 @@ import top.licodetech.market.types.design.framwork.link.model2.chain.BusinessLin
 public class TradeSettlementRuleFilterFactory {
 
     @Bean("tradeSettlementRuleFilter")
-    public BusinessLinkedList<TradeSettlementRuleCommandEntity, TradeSettlementRuleFilterFactory.DynamicContext, TradeSettlementRuleFilterBackEntity> tradeSettlementRuleFilter(
+    public BusinessLinkedList<TradeSettlementRuleCommandEntity, DynamicContext, TradeSettlementRuleFilterBackEntity> tradeSettlementRuleFilter(
             SCRuleFilter scRuleFilter,
             OutTradeNoRuleFilter outTradeNoRuleFilter,
             SettableRuleFilter settableRuleFilter,

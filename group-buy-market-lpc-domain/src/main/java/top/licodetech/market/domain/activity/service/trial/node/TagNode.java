@@ -1,5 +1,6 @@
 package top.licodetech.market.domain.activity.service.trial.node;
 
+import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,6 @@ import top.licodetech.market.domain.activity.service.trial.AbstractGroupBuyMarke
 import top.licodetech.market.domain.activity.service.trial.factory.DefaultActivityStrategyFactory;
 import top.licodetech.market.domain.activity.service.trial.thread.QueryGroupBuyActivityDiscountVOThreadTask;
 import top.licodetech.market.domain.activity.service.trial.thread.QuerySkuVOFromDBThreadTask;
-import top.licodetech.market.types.design.framwork.tree.StrategyHandler;
 
 import javax.annotation.Resource;
 import java.util.concurrent.*;
@@ -44,7 +44,7 @@ public class TagNode extends AbstractGroupBuyMarketSupport<MarketProductEntity, 
      * 使用: TagNode 的 @Service 注释掉，TagNode2CompletableFuture 的 @Service 打开，就可以使用了。
      */
     @Override
-    protected void mutiThread(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws ExecutionException, InterruptedException, TimeoutException {
+    protected void multiThread(MarketProductEntity requestParameter, DefaultActivityStrategyFactory.DynamicContext dynamicContext) throws ExecutionException, InterruptedException, TimeoutException {
         log.info("拼团商品查询试算服务-TagNode多线程加载数据...");
         // 异步查询活动配置
         QueryGroupBuyActivityDiscountVOThreadTask queryGroupBuyActivityDiscountVOThreadTask = new QueryGroupBuyActivityDiscountVOThreadTask(requestParameter.getSource(), requestParameter.getChannel(), requestParameter.getGoodsId(), activityRepository);
@@ -58,7 +58,7 @@ public class TagNode extends AbstractGroupBuyMarketSupport<MarketProductEntity, 
 
         // 写入上下文 - 对于一些复杂场景，获取数据的操作，有时候会在下N个节点获取，这样前置查询数据，可以提高接口响应效率
         dynamicContext.setGroupBuyActivityDiscountVO(groupBuyActivityDiscountVOFutureTask.get(timeout, TimeUnit.MINUTES));
-        dynamicContext.setSkuVO(skuVOFutureTask.get(timeout, TimeUnit.MINUTES));
+        dynamicContext.setSkuVO(skuVOFutureTask.get(timeout, TimeUnit.MILLISECONDS));
 
         log.info("拼团商品查询试算服务-TagNode userId:{} 异步线程加载数据「GroupBuyActivityDiscountVO、SkuVO」完成", requestParameter.getUserId());
     }

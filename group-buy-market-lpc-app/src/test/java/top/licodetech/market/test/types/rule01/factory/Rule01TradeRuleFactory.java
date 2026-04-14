@@ -1,5 +1,6 @@
 package top.licodetech.market.test.types.rule01.factory;
 
+import cn.bugstack.wrench.design.framework.link.model1.ILogicLink;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -7,7 +8,6 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 import top.licodetech.market.test.types.rule01.logic.RuleLogic101;
 import top.licodetech.market.test.types.rule01.logic.RuleLogic102;
-import top.licodetech.market.types.design.framwork.link.model1.ILogicLink;
 
 import javax.annotation.Resource;
 
@@ -25,7 +25,7 @@ public class Rule01TradeRuleFactory {
     @Resource
     private RuleLogic102 ruleLogic102;
 
-    public ILogicLink<String, Rule01TradeRuleFactory.DynamicContext, String> openLogicLink() {
+    public ILogicLink<String, DynamicContext, String> openLogicLink() {
         ruleLogic101.appendNext(ruleLogic102);
         return ruleLogic101;
     }

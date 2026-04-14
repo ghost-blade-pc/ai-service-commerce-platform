@@ -1,5 +1,7 @@
 package top.licodetech.market.domain.trade.service.lock.factory;
 
+import cn.bugstack.wrench.design.framework.link.model2.LinkArmory;
+import cn.bugstack.wrench.design.framework.link.model2.chain.BusinessLinkedList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,8 +16,6 @@ import top.licodetech.market.domain.trade.model.entity.TradeLockRuleFilterBackEn
 import top.licodetech.market.domain.trade.service.lock.filter.ActivityUsabilityRuleFilter;
 import top.licodetech.market.domain.trade.service.lock.filter.TeamStockOccupyRuleFilter;
 import top.licodetech.market.domain.trade.service.lock.filter.UserTakeLimitRuleFilter;
-import top.licodetech.market.types.design.framwork.link.model2.LinkArmory;
-import top.licodetech.market.types.design.framwork.link.model2.chain.BusinessLinkedList;
 
 /**
  * @author LiPC
@@ -27,13 +27,13 @@ import top.licodetech.market.types.design.framwork.link.model2.chain.BusinessLin
 public class TradeLockRuleFilterFactory {
 
     @Bean("tradeRuleFilter")
-    public BusinessLinkedList<TradeLockRuleCommandEntity, TradeLockRuleFilterFactory.DynamicContext, TradeLockRuleFilterBackEntity> tradeRuleFilter(
+    public BusinessLinkedList<TradeLockRuleCommandEntity, DynamicContext, TradeLockRuleFilterBackEntity> tradeRuleFilter(
             ActivityUsabilityRuleFilter activityUsabilityRuleFilter,
             UserTakeLimitRuleFilter userTakeLimitRuleFilter,
             TeamStockOccupyRuleFilter teamStockOccupyRuleFilter) {
 
         // 组装链
-        LinkArmory<TradeLockRuleCommandEntity, TradeLockRuleFilterFactory.DynamicContext, TradeLockRuleFilterBackEntity> linkArmory =
+        LinkArmory<TradeLockRuleCommandEntity, DynamicContext, TradeLockRuleFilterBackEntity> linkArmory =
                 new LinkArmory<>("交易规则过滤链",
                         activityUsabilityRuleFilter,
                         userTakeLimitRuleFilter,

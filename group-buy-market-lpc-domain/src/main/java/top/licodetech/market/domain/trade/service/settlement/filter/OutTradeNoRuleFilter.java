@@ -1,5 +1,6 @@
 package top.licodetech.market.domain.trade.service.settlement.filter;
 
+import cn.bugstack.wrench.design.framework.link.model2.handler.ILogicHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.licodetech.market.domain.trade.adapter.repository.ITradeRepository;
@@ -7,7 +8,6 @@ import top.licodetech.market.domain.trade.model.entity.MarketPayOrderEntity;
 import top.licodetech.market.domain.trade.model.entity.TradeSettlementRuleCommandEntity;
 import top.licodetech.market.domain.trade.model.entity.TradeSettlementRuleFilterBackEntity;
 import top.licodetech.market.domain.trade.service.settlement.factory.TradeSettlementRuleFilterFactory;
-import top.licodetech.market.types.design.framwork.link.model2.handler.ILogicHandler;
 import top.licodetech.market.types.enums.ResponseCode;
 import top.licodetech.market.types.exception.AppException;
 

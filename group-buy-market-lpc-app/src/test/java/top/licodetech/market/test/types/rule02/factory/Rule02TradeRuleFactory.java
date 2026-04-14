@@ -1,5 +1,7 @@
 package top.licodetech.market.test.types.rule02.factory;
 
+import cn.bugstack.wrench.design.framework.link.model2.LinkArmory;
+import cn.bugstack.wrench.design.framework.link.model2.chain.BusinessLinkedList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,8 +11,7 @@ import org.springframework.stereotype.Service;
 import top.licodetech.market.test.types.rule02.logic.RuleLogic201;
 import top.licodetech.market.test.types.rule02.logic.RuleLogic202;
 import top.licodetech.market.test.types.rule02.logic.XxxResponse;
-import top.licodetech.market.types.design.framwork.link.model2.LinkArmory;
-import top.licodetech.market.types.design.framwork.link.model2.chain.BusinessLinkedList;
+
 
 /**
  * @author LiPC

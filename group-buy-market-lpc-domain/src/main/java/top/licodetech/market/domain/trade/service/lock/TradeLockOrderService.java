@@ -1,5 +1,6 @@
 package top.licodetech.market.domain.trade.service.lock;
 
+import cn.bugstack.wrench.design.framework.link.model2.chain.BusinessLinkedList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.licodetech.market.domain.trade.adapter.repository.ITradeRepository;
@@ -8,7 +9,6 @@ import top.licodetech.market.domain.trade.model.entity.*;
 import top.licodetech.market.domain.trade.model.valobj.GroupBuyProgressVO;
 import top.licodetech.market.domain.trade.service.ITradeLockOrderService;
 import top.licodetech.market.domain.trade.service.lock.factory.TradeLockRuleFilterFactory;
-import top.licodetech.market.types.design.framwork.link.model2.chain.BusinessLinkedList;
 
 import javax.annotation.Resource;
 

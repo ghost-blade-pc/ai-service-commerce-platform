@@ -1,5 +1,6 @@
 package top.licodetech.market.domain.activity.service.trial.node;
 
+import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -7,7 +8,6 @@ import top.licodetech.market.domain.activity.model.entity.MarketProductEntity;
 import top.licodetech.market.domain.activity.model.entity.TrialBalanceEntity;
 import top.licodetech.market.domain.activity.service.trial.AbstractGroupBuyMarketSupport;
 import top.licodetech.market.domain.activity.service.trial.factory.DefaultActivityStrategyFactory;
-import top.licodetech.market.types.design.framwork.tree.StrategyHandler;
 import top.licodetech.market.types.enums.ResponseCode;
 import top.licodetech.market.types.exception.AppException;
 

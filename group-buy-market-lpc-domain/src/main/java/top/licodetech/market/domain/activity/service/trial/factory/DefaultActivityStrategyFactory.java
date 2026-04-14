@@ -1,6 +1,7 @@
 package top.licodetech.market.domain.activity.service.trial.factory;
 
 
+import cn.bugstack.wrench.design.framework.tree.StrategyHandler;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,7 +12,6 @@ import top.licodetech.market.domain.activity.model.entity.TrialBalanceEntity;
 import top.licodetech.market.domain.activity.model.valobj.GroupBuyActivityDiscountVO;
 import top.licodetech.market.domain.activity.model.valobj.SkuVO;
 import top.licodetech.market.domain.activity.service.trial.node.RootNode;
-import top.licodetech.market.types.design.framwork.tree.StrategyHandler;
 
 import java.math.BigDecimal;
 
@@ -24,7 +24,7 @@ public class DefaultActivityStrategyFactory {
         this.rootNode = rootNode;
     }
 
-    public StrategyHandler<MarketProductEntity, DefaultActivityStrategyFactory.DynamicContext, TrialBalanceEntity> strategyHandler(){
+    public StrategyHandler<MarketProductEntity, DynamicContext, TrialBalanceEntity> strategyHandler(){
         return rootNode;
     }
 

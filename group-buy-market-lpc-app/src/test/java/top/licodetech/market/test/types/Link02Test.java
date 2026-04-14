@@ -1,5 +1,6 @@
 package top.licodetech.market.test.types;
 
+import cn.bugstack.wrench.design.framework.link.model2.chain.BusinessLinkedList;
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -8,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import top.licodetech.market.test.types.rule02.factory.Rule02TradeRuleFactory;
 import top.licodetech.market.test.types.rule02.logic.XxxResponse;
-import top.licodetech.market.types.design.framwork.link.model2.chain.BusinessLinkedList;
 
 import javax.annotation.Resource;
 
