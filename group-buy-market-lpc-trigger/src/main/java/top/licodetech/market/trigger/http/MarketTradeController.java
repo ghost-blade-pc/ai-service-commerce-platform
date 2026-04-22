@@ -18,6 +18,7 @@ import top.licodetech.market.domain.trade.model.entity.*;
 import top.licodetech.market.domain.trade.model.valobj.GroupBuyProgressVO;
 import top.licodetech.market.domain.trade.model.valobj.NotifyConfigVO;
 import top.licodetech.market.domain.trade.model.valobj.NotifyTypeEnumVO;
+import top.licodetech.market.domain.trade.model.valobj.TradeOrderStatusEnumVO;
 import top.licodetech.market.domain.trade.service.ITradeLockOrderService;
 import top.licodetech.market.domain.trade.service.ITradeSettlementOrderService;
 import top.licodetech.market.types.enums.ResponseCode;
@@ -75,7 +76,7 @@ public class MarketTradeController implements IMarketTradeService {
 
             // 查询 outTradeNo 是否已经存在交易记录
             MarketPayOrderEntity marketPayOrderEntity = tradeOrderService.queryNoPayMarketPayOrderByOutTradeNo(userId, outTradeNo);
-            if (null != marketPayOrderEntity) {
+            if (null != marketPayOrderEntity && TradeOrderStatusEnumVO.CLOSE.equals(marketPayOrderEntity.getTradeOrderStatusEnumVO())) {
                 LockMarketPayOrderResponseDTO lockMarketPayOrderResponseDTO = LockMarketPayOrderResponseDTO.builder()
                         .orderId(marketPayOrderEntity.getOrderId())
                         .originalPrice(marketPayOrderEntity.getOriginalPrice())
