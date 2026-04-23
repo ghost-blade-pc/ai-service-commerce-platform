@@ -63,6 +63,11 @@ spring:
           routing_key: topic.team_success
           # 消费队列
           queue: group_buy_market_queue_2_topic_team_success
+        topic_team_refund:
+          # 消息主题
+          routing_key: topic.team_refund
+          # 消费队列
+          queue: group_buy_market_queue_2_topic_team_refund
 
 
 

@@ -12,7 +12,6 @@ import top.licodetech.market.domain.trade.service.ITradeSettlementOrderService;
 
 import javax.annotation.Resource;
 import java.util.Date;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * @author Fuzhengwei bugstack.cn @小傅哥
@@ -32,15 +31,15 @@ public class TradeSettlementOrderServiceTest {
         TradePaySuccessEntity tradePaySuccessEntity = new TradePaySuccessEntity();
         tradePaySuccessEntity.setSource("s01");
         tradePaySuccessEntity.setChannel("c01");
-        tradePaySuccessEntity.setUserId("xiaoming02");
-        tradePaySuccessEntity.setOutTradeNo("525995429648");
+        tradePaySuccessEntity.setUserId("yanxinyao");
+        tradePaySuccessEntity.setOutTradeNo("134416187396");
         tradePaySuccessEntity.setOutTradeTime(new Date());
         TradePaySettlementEntity tradePaySettlementEntity = tradeSettlementOrderService.settlementMarketPayOrder(tradePaySuccessEntity);
         log.info("请求参数:{}", JSON.toJSONString(tradePaySuccessEntity));
         log.info("测试结果:{}", JSON.toJSONString(tradePaySettlementEntity));
 
         // 暂停，等待MQ消息。处理完后，手动关闭程序
-        new CountDownLatch(1).await();
+//        new CountDownLatch(1).await();
     }
 
 }

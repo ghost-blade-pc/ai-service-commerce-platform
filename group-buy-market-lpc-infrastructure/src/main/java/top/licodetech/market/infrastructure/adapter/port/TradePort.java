@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author LiPC
- * @description
+ * @description 交易接口服务
  * @create 2026-03-04 18:04
  */
 @Service

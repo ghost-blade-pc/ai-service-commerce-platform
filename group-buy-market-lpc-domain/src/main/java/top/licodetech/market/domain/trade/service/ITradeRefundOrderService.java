@@ -10,6 +10,6 @@ import top.licodetech.market.domain.trade.model.entity.TradeRefundCommandEntity;
  */
 public interface ITradeRefundOrderService {
 
-    TradeRefundBehaviorEntity refundOrder(TradeRefundCommandEntity tradeRefundCommandEntity);
+    TradeRefundBehaviorEntity refundOrder(TradeRefundCommandEntity tradeRefundCommandEntity) throws Exception;
 
 }

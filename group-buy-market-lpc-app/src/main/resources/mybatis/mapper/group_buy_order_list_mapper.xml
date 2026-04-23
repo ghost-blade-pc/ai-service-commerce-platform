@@ -100,4 +100,13 @@
             status = 0
     </update>
 
+    <update id="paid2Refund" parameterType="top.licodetech.market.infrastructure.dao.po.GroupBuyOrderList">
+        update group_buy_order_list
+        set status = 2, update_time = now()
+        where
+            user_id = #{userId} and
+            order_id = #{orderId} and
+            status = 1
+    </update>
+
 </mapper>
