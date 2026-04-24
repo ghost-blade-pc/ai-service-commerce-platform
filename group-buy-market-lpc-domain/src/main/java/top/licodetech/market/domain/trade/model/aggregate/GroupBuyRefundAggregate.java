@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import top.licodetech.market.domain.trade.model.entity.TradeRefundOrderEntity;
 import top.licodetech.market.domain.trade.model.valobj.GroupBuyProgressVO;
+import top.licodetech.market.types.enums.GroupBuyOrderEnumVO;
 
 /**
  * @author LiPC
@@ -28,6 +29,11 @@ public class GroupBuyRefundAggregate {
      */
     private GroupBuyProgressVO groupBuyProgressVO;
 
+    /**
+     * 拼团枚举
+     */
+    private GroupBuyOrderEnumVO groupBuyOrderEnumVO;
+
     public static GroupBuyRefundAggregate buildUnpaid2RefundAggregate(TradeRefundOrderEntity tradeRefundOrderEntity, Integer lockCount) {
         GroupBuyRefundAggregate groupBuyRefundAggregate = new GroupBuyRefundAggregate();
         groupBuyRefundAggregate.setTradeRefundOrderEntity(tradeRefundOrderEntity);
@@ -49,6 +55,22 @@ public class GroupBuyRefundAggregate {
                         .lockCount(lockCount)
                         .completeCount(completeCount)
                         .build());
+        return groupBuyRefundAggregate;
+    }
+
+    public static GroupBuyRefundAggregate buildPaidTeam2RefundAggregate(TradeRefundOrderEntity tradeRefundOrderEntity,
+                                                                        Integer lockCount,
+                                                                        Integer completeCount,
+                                                                        GroupBuyOrderEnumVO groupBuyOrderEnumVO) {
+        GroupBuyRefundAggregate groupBuyRefundAggregate = new GroupBuyRefundAggregate();
+        groupBuyRefundAggregate.setTradeRefundOrderEntity(tradeRefundOrderEntity);
+        groupBuyRefundAggregate.setGroupBuyProgressVO(
+                GroupBuyProgressVO.builder()
+                        .lockCount(lockCount)
+                        .completeCount(completeCount)
+                        .build());
+        groupBuyRefundAggregate.setGroupBuyOrderEnumVO(groupBuyOrderEnumVO);
+
         return groupBuyRefundAggregate;
     }
 

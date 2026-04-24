@@ -30,8 +30,8 @@ public class ITradeRefundOrderServiceTest {
     @Test
     public void test_refundOrder() throws Exception {
         TradeRefundCommandEntity tradeRefundCommandEntity = TradeRefundCommandEntity.builder()
-                .userId("yanxinyao")
-                .outTradeNo("134416187396")
+                .userId("xfg04")
+                .outTradeNo("727869517356")
                 .source("s01")
                 .channel("c01")
                 .build();
