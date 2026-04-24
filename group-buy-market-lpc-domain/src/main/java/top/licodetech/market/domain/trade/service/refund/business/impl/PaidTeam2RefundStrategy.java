@@ -8,6 +8,7 @@ import top.licodetech.market.domain.trade.model.aggregate.GroupBuyRefundAggregat
 import top.licodetech.market.domain.trade.model.entity.GroupBuyTeamEntity;
 import top.licodetech.market.domain.trade.model.entity.NotifyTaskEntity;
 import top.licodetech.market.domain.trade.model.entity.TradeRefundOrderEntity;
+import top.licodetech.market.domain.trade.model.valobj.TeamRefundSuccess;
 import top.licodetech.market.domain.trade.service.ITradeTaskService;
 import top.licodetech.market.domain.trade.service.refund.business.IRefundOrderStrategy;
 import top.licodetech.market.types.enums.GroupBuyOrderEnumVO;
@@ -58,5 +59,10 @@ public class PaidTeam2RefundStrategy implements IRefundOrderStrategy {
                 }
             });
         }
+    }
+
+    @Override
+    public void reverseStock(TeamRefundSuccess teamRefundSuccess) throws Exception {
+        log.info("退单；已支付、已成团，队伍组队结束，不需要恢复锁单量 {} {} {}", teamRefundSuccess.getUserId(), teamRefundSuccess.getActivityId(), teamRefundSuccess.getTeamId());
     }
 }

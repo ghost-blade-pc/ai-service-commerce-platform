@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import top.licodetech.market.domain.trade.adapter.repository.ITradeRepository;
 import top.licodetech.market.domain.trade.model.entity.*;
 import top.licodetech.market.domain.trade.model.valobj.RefundTypeEnumVO;
+import top.licodetech.market.domain.trade.model.valobj.TeamRefundSuccess;
 import top.licodetech.market.domain.trade.model.valobj.TradeOrderStatusEnumVO;
 import top.licodetech.market.domain.trade.service.ITradeRefundOrderService;
 import top.licodetech.market.domain.trade.service.refund.business.IRefundOrderStrategy;
@@ -70,5 +71,19 @@ public class TradeRefundOrderService implements ITradeRefundOrderService {
                 .orderId(orderId)
                 .tradeRefundBehaviorEnum(TradeRefundBehaviorEntity.TradeRefundBehaviorEnum.SUCCESS)
                 .build();
+    }
+
+    @Override
+    public void restoreTeamLockStock(TeamRefundSuccess teamRefundSuccess) throws Exception {
+        log.info("逆向流程，恢复锁单量 userId:{} activityId:{} teamId:{}", teamRefundSuccess.getUserId(), teamRefundSuccess.getActivityId(), teamRefundSuccess.getTeamId());
+        String type = teamRefundSuccess.getType();
+
+        // 根据枚举值获取对应的退单类型
+        RefundTypeEnumVO refundType = RefundTypeEnumVO.getRefundTypeEnumVOByCode(type);
+        IRefundOrderStrategy refundOrderStrategy = refundOrderStrategyMap.get(refundType.getStrategy());
+
+        // 逆向库存操作，恢复锁单量
+        refundOrderStrategy.reverseStock(teamRefundSuccess);
+
     }
 }

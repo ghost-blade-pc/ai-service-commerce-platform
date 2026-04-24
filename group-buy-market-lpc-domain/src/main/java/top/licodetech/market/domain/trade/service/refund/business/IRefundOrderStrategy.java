@@ -1,6 +1,7 @@
 package top.licodetech.market.domain.trade.service.refund.business;
 
 import top.licodetech.market.domain.trade.model.entity.TradeRefundOrderEntity;
+import top.licodetech.market.domain.trade.model.valobj.TeamRefundSuccess;
 
 /**
  * @author LiPC
@@ -10,5 +11,7 @@ import top.licodetech.market.domain.trade.model.entity.TradeRefundOrderEntity;
 public interface IRefundOrderStrategy {
 
     void refundOrder(TradeRefundOrderEntity tradeRefundOrderEntity) throws Exception;
+
+    void reverseStock(TeamRefundSuccess teamRefundSuccess) throws Exception;
 
 }

@@ -7,7 +7,9 @@ import top.licodetech.market.domain.trade.adapter.repository.ITradeRepository;
 import top.licodetech.market.domain.trade.model.aggregate.GroupBuyRefundAggregate;
 import top.licodetech.market.domain.trade.model.entity.NotifyTaskEntity;
 import top.licodetech.market.domain.trade.model.entity.TradeRefundOrderEntity;
+import top.licodetech.market.domain.trade.model.valobj.TeamRefundSuccess;
 import top.licodetech.market.domain.trade.service.ITradeTaskService;
+import top.licodetech.market.domain.trade.service.lock.factory.TradeLockRuleFilterFactory;
 import top.licodetech.market.domain.trade.service.refund.business.IRefundOrderStrategy;
 import top.licodetech.market.types.exception.AppException;
 
@@ -50,5 +52,14 @@ public class Unpaid2RefundStrategy implements IRefundOrderStrategy {
                 }
             });
         }
+    }
+
+    @Override
+    public void reverseStock(TeamRefundSuccess teamRefundSuccess) throws Exception {
+        log.info("退单；恢复锁单量 - 未支付，未成团，但有锁单记录，要恢复锁单库存 {} {} {}", teamRefundSuccess.getUserId(), teamRefundSuccess.getActivityId(), teamRefundSuccess.getTeamId());
+        // 1. 恢复库存key
+        String recoveryTeamStockKey = TradeLockRuleFilterFactory.generateRecoveryTeamStockKey(teamRefundSuccess.getActivityId(), teamRefundSuccess.getTeamId());
+        // 2. 退单恢复「未支付，未成团，但有锁单记录，要恢复锁单库存」
+        repository.refund2AddRecovery(recoveryTeamStockKey, teamRefundSuccess.getOrderId());
     }
 }
