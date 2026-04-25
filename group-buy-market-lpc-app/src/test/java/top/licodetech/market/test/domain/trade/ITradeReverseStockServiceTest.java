@@ -39,7 +39,7 @@ public class ITradeReverseStockServiceTest {
     public void test_refundOrder() throws Exception {
         TradeRefundCommandEntity tradeRefundCommandEntity = TradeRefundCommandEntity.builder()
                 .userId("xiaoming03")
-                .outTradeNo("977537450931")
+                .outTradeNo("882266878387")
                 .source("s01")
                 .channel("c01")
                 .build();
@@ -79,7 +79,7 @@ public class ITradeReverseStockServiceTest {
     public void test_lockMarketPayOrder_reverse() throws InterruptedException {
         LockMarketPayOrderRequestDTO lockMarketPayOrderRequestDTO = new LockMarketPayOrderRequestDTO();
         lockMarketPayOrderRequestDTO.setUserId("xiaoming04");
-        lockMarketPayOrderRequestDTO.setTeamId("69588868");
+        lockMarketPayOrderRequestDTO.setTeamId("40914921");
         lockMarketPayOrderRequestDTO.setActivityId(100123L);
         lockMarketPayOrderRequestDTO.setGoodsId("9890001");
         lockMarketPayOrderRequestDTO.setSource("s01");

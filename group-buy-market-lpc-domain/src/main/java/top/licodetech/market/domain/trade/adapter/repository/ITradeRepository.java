@@ -38,11 +38,11 @@ public interface ITradeRepository {
 
     List<NotifyTaskEntity> queryUnExecutedNotifyTaskList(String teamId);
 
-    int updateNotifyTaskStatusSuccess(String teamId);
+    int updateNotifyTaskStatusSuccess(NotifyTaskEntity notifyTask);
 
-    int updateNotifyTaskStatusError(String teamId);
+    int updateNotifyTaskStatusError(NotifyTaskEntity notifyTask);
 
-    int updateNotifyTaskStatusRetry(String teamId);
+    int updateNotifyTaskStatusRetry(NotifyTaskEntity notifyTask);
 
     boolean occupyTeamStock(String teamStockKey, String recoveryTeamStockKey, Integer target, Integer validTime);
 

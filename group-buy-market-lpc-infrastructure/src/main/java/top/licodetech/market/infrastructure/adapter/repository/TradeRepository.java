@@ -346,18 +346,30 @@ public class TradeRepository implements ITradeRepository {
     }
 
     @Override
-    public int updateNotifyTaskStatusSuccess(String teamId) {
-        return notifyTaskDao.updateNotifyTaskStatusSuccess(teamId);
+    public int updateNotifyTaskStatusSuccess(NotifyTaskEntity notifyTaskEntity) {
+        NotifyTask notifyTask = NotifyTask.builder()
+                .teamId(notifyTaskEntity.getTeamId())
+                .uuid(notifyTaskEntity.getUuid())
+                .build();
+        return notifyTaskDao.updateNotifyTaskStatusSuccess(notifyTask);
     }
 
     @Override
-    public int updateNotifyTaskStatusError(String teamId) {
-        return notifyTaskDao.updateNotifyTaskStatusError(teamId);
+    public int updateNotifyTaskStatusError(NotifyTaskEntity notifyTaskEntity) {
+        NotifyTask notifyTask = NotifyTask.builder()
+                .teamId(notifyTaskEntity.getTeamId())
+                .uuid(notifyTaskEntity.getUuid())
+                .build();
+        return notifyTaskDao.updateNotifyTaskStatusError(notifyTask);
     }
 
     @Override
-    public int updateNotifyTaskStatusRetry(String teamId) {
-        return notifyTaskDao.updateNotifyTaskStatusRetry(teamId);
+    public int updateNotifyTaskStatusRetry(NotifyTaskEntity notifyTaskEntity) {
+        NotifyTask notifyTask = NotifyTask.builder()
+                .teamId(notifyTaskEntity.getTeamId())
+                .uuid(notifyTaskEntity.getUuid())
+                .build();
+        return notifyTaskDao.updateNotifyTaskStatusRetry(notifyTask);
 
     }
 
@@ -594,7 +606,7 @@ public class TradeRepository implements ITradeRepository {
         String lockKey = "refund_lock_" + orderId;
 
         // 尝试获取分布式锁，防止重复操作 30天过期
-        Boolean lockAcquired = redisService.setNx(lockKey, 30 * 24 * 60 * 60 * 1000L, TimeUnit.MINUTES);
+        Boolean lockAcquired = redisService.setNx(lockKey, 30 * 24 * 60 * 60 * 1000L, TimeUnit.MILLISECONDS);
 
         if (!lockAcquired) {
             log.warn("订单 {} 恢复库存操作已在进行中，跳过重复操作", orderId);
