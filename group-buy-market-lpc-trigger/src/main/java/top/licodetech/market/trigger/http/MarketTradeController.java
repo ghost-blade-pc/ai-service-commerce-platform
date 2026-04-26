@@ -5,10 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import top.licodetech.market.api.IMarketTradeService;
-import top.licodetech.market.api.dto.LockMarketPayOrderRequestDTO;
-import top.licodetech.market.api.dto.LockMarketPayOrderResponseDTO;
-import top.licodetech.market.api.dto.SettlementMarketPayOrderRequestDTO;
-import top.licodetech.market.api.dto.SettlementMarketPayOrderResponseDTO;
+import top.licodetech.market.api.dto.*;
 import top.licodetech.market.api.response.Response;
 import top.licodetech.market.domain.activity.model.entity.MarketProductEntity;
 import top.licodetech.market.domain.activity.model.entity.TrialBalanceEntity;
@@ -20,6 +17,7 @@ import top.licodetech.market.domain.trade.model.valobj.NotifyConfigVO;
 import top.licodetech.market.domain.trade.model.valobj.NotifyTypeEnumVO;
 import top.licodetech.market.domain.trade.model.valobj.TradeOrderStatusEnumVO;
 import top.licodetech.market.domain.trade.service.ITradeLockOrderService;
+import top.licodetech.market.domain.trade.service.ITradeRefundOrderService;
 import top.licodetech.market.domain.trade.service.ITradeSettlementOrderService;
 import top.licodetech.market.types.enums.ResponseCode;
 import top.licodetech.market.types.exception.AppException;
@@ -46,6 +44,9 @@ public class MarketTradeController implements IMarketTradeService {
 
     @Resource
     private ITradeSettlementOrderService tradeSettlementOrderService;
+
+    @Resource
+    private ITradeRefundOrderService tradeRefundOrderService;
 
 
     /**
@@ -115,7 +116,7 @@ public class MarketTradeController implements IMarketTradeService {
                     .build());
 
             // 人群限定
-            if (!trialBalanceEntity.getIsVisible() || !trialBalanceEntity.getIsEnable()){
+            if (!trialBalanceEntity.getIsVisible() || !trialBalanceEntity.getIsEnable()) {
                 return Response.<LockMarketPayOrderResponseDTO>builder()
                         .code(ResponseCode.E0007.getCode())
                         .info(ResponseCode.E0007.getInfo())
@@ -233,9 +234,65 @@ public class MarketTradeController implements IMarketTradeService {
                     .code(e.getCode())
                     .info(e.getInfo())
                     .build();
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("营销交易组队结算失败:{} LockMarketPayOrderRequestDTO:{}", requestDTO.getUserId(), com.alibaba.fastjson.JSON.toJSONString(requestDTO), e);
             return Response.<SettlementMarketPayOrderResponseDTO>builder()
+                    .code(ResponseCode.UN_ERROR.getCode())
+                    .info(ResponseCode.UN_ERROR.getInfo())
+                    .build();
+        }
+    }
+
+    /**
+     * 拼团营销退单
+     */
+    @RequestMapping(value = "refund_market_pay_order", method = RequestMethod.POST)
+    @Override
+    public Response<RefundMarketPayOrderResponseDTO> refundMarketPayOrder(@RequestBody RefundMarketPayOrderRequestDTO requestDTO) {
+        try {
+            log.info("营销拼团退单开始:{} outTradeNo:{}", requestDTO.getUserId(), requestDTO.getOutTradeNo());
+
+            if (StringUtils.isBlank(requestDTO.getUserId()) || StringUtils.isBlank(requestDTO.getOutTradeNo()) || StringUtils.isBlank(requestDTO.getSource()) || StringUtils.isBlank(requestDTO.getChannel())) {
+                return Response.<RefundMarketPayOrderResponseDTO>builder()
+                        .code(ResponseCode.ILLEGAL_PARAMETER.getCode())
+                        .info(ResponseCode.ILLEGAL_PARAMETER.getInfo())
+                        .build();
+            }
+
+            TradeRefundBehaviorEntity tradeRefundBehaviorEntity = tradeRefundOrderService.refundOrder(TradeRefundCommandEntity.builder()
+                    .userId(requestDTO.getUserId())
+                    .outTradeNo(requestDTO.getOutTradeNo())
+                    .source(requestDTO.getSource())
+                    .channel(requestDTO.getChannel())
+                    .build());
+
+            RefundMarketPayOrderResponseDTO responseDTO = RefundMarketPayOrderResponseDTO.builder()
+                    .userId(tradeRefundBehaviorEntity.getUserId())
+                    .orderId(tradeRefundBehaviorEntity.getOrderId())
+                    .teamId(tradeRefundBehaviorEntity.getTeamId())
+                    .code(tradeRefundBehaviorEntity.getTradeRefundBehaviorEnum().getCode())
+                    .info(tradeRefundBehaviorEntity.getTradeRefundBehaviorEnum().getInfo())
+                    .build();
+
+            Response<RefundMarketPayOrderResponseDTO> response = Response.<RefundMarketPayOrderResponseDTO>builder()
+                    .code(ResponseCode.SUCCESS.getCode())
+                    .info(ResponseCode.SUCCESS.getInfo())
+                    .data(responseDTO)
+                    .build();
+
+            log.info("营销拼团退单完成:{} outTradeNo:{} response:{}", requestDTO.getUserId(), requestDTO.getOutTradeNo(), com.alibaba.fastjson.JSON.toJSONString(response));
+
+            return response;
+
+        } catch (AppException e) {
+            log.error("营销拼团退单异常:{} RefundMarketPayOrderRequestDTO:{}", requestDTO.getUserId(), com.alibaba.fastjson.JSON.toJSONString(requestDTO), e);
+            return Response.<RefundMarketPayOrderResponseDTO>builder()
+                    .code(e.getCode())
+                    .info(e.getInfo())
+                    .build();
+        } catch (Exception e) {
+            log.error("营销拼团退单失败:{} RefundMarketPayOrderRequestDTO:{}", requestDTO.getUserId(), com.alibaba.fastjson.JSON.toJSONString(requestDTO), e);
+            return Response.<RefundMarketPayOrderResponseDTO>builder()
                     .code(ResponseCode.UN_ERROR.getCode())
                     .info(ResponseCode.UN_ERROR.getInfo())
                     .build();

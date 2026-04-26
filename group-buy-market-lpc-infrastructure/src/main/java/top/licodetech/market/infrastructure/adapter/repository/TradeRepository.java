@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import top.licodetech.market.domain.activity.model.entity.UserGroupBuyOrderDetailEntity;
 import top.licodetech.market.domain.trade.adapter.repository.ITradeRepository;
 import top.licodetech.market.domain.trade.model.aggregate.GroupBuyOrderAggregate;
 import top.licodetech.market.domain.trade.model.aggregate.GroupBuyRefundAggregate;
@@ -33,6 +34,7 @@ import top.licodetech.market.types.exception.AppException;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author LiPC
@@ -101,11 +103,6 @@ public class TradeRepository implements ITradeRepository {
         if (StringUtils.isBlank(teamId)) {
             // 使用 RandomStringUtils.randomNumeric 替代公司里使用的雪花算法UUID
             teamId = RandomStringUtils.randomNumeric(8);
-            // 日期处理
-            Date currentDate = new Date();
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(currentDate);
-            calendar.add(Calendar.MINUTE, payActivityEntity.getValidTime());
 
             // 构建拼团订单
             GroupBuyOrder groupBuyOrder = GroupBuyOrder.builder()
@@ -121,8 +118,8 @@ public class TradeRepository implements ITradeRepository {
                     .lockCount(1)
                     .notifyType(notifyConfigVO.getNotifyType().getCode())
                     .notifyUrl(notifyConfigVO.getNotifyUrl())
-                    .validStartTime(currentDate)
-                    .validEndTime(calendar.getTime())
+                    .validStartTime(payActivityEntity.getStartTime())
+                    .validEndTime(payActivityEntity.getEndTime())
                     .build();
 
             // 写入记录
@@ -135,6 +132,12 @@ public class TradeRepository implements ITradeRepository {
             }
         }
 
+        // 日期处理
+        Date currentDate = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentDate);
+        calendar.add(Calendar.MINUTE, payActivityEntity.getValidTime());
+
         // 使用 RandomStringUtils.randomNumeric 替代公司里使用的雪花算法UUID
         String orderId = RandomStringUtils.randomNumeric(12);
         GroupBuyOrderList groupBuyOrderListReq = GroupBuyOrderList.builder()
@@ -142,8 +145,8 @@ public class TradeRepository implements ITradeRepository {
                 .teamId(teamId)
                 .orderId(orderId)
                 .activityId(payActivityEntity.getActivityId())
-                .startTime(payActivityEntity.getStartTime())
-                .endTime(payActivityEntity.getEndTime())
+                .startTime(currentDate)
+                .endTime(calendar.getTime())
                 .goodsId(payDiscountEntity.getGoodsId())
                 .source(payDiscountEntity.getSource())
                 .channel(payDiscountEntity.getChannel())
@@ -457,6 +460,7 @@ public class TradeRepository implements ITradeRepository {
             put("userId", tradeRefundOrderEntity.getUserId());
             put("teamId", tradeRefundOrderEntity.getTeamId());
             put("orderId", tradeRefundOrderEntity.getOrderId());
+            put("outTradeNo", tradeRefundOrderEntity.getOutTradeNo());
             put("activityId", tradeRefundOrderEntity.getActivityId());
         }}));
 
@@ -515,6 +519,7 @@ public class TradeRepository implements ITradeRepository {
             put("userId", tradeRefundOrderEntity.getUserId());
             put("teamId", tradeRefundOrderEntity.getTeamId());
             put("orderId", tradeRefundOrderEntity.getOrderId());
+            put("outTradeNo", tradeRefundOrderEntity.getOutTradeNo());
             put("activityId", tradeRefundOrderEntity.getActivityId());
         }}));
 
@@ -581,6 +586,7 @@ public class TradeRepository implements ITradeRepository {
             put("userId", tradeRefundOrderEntity.getUserId());
             put("teamId", tradeRefundOrderEntity.getTeamId());
             put("orderId", tradeRefundOrderEntity.getOrderId());
+            put("outTradeNo", tradeRefundOrderEntity.getOutTradeNo());
             put("activityId", tradeRefundOrderEntity.getActivityId());
         }}));
 
@@ -623,5 +629,55 @@ public class TradeRepository implements ITradeRepository {
             redisService.remove(lockKey);
             throw e;
         }
+    }
+
+    @Override
+    public List<UserGroupBuyOrderDetailEntity> queryTimeoutUnpaidOrderList() {
+        List<GroupBuyOrderList> groupBuyOrderLists = groupBuyOrderListDao.queryTimeoutUnpaidOrderList();
+        if (null == groupBuyOrderLists || groupBuyOrderLists.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // 获取所有teamId
+        Set<String> teamIds = groupBuyOrderLists.stream()
+                .map(GroupBuyOrderList::getTeamId)
+                .collect(Collectors.toSet());
+
+        // 查询团队信息
+        List<GroupBuyOrder> groupBuyOrders = groupBuyOrderDao.queryGroupBuyTeamByTeamIds(teamIds);
+        if (null == groupBuyOrders || groupBuyOrders.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Map<String, GroupBuyOrder> groupBuyOrderMap = groupBuyOrders.stream()
+                .collect(Collectors.toMap(GroupBuyOrder::getTeamId, order -> order));
+
+        // 转换数据
+        List<UserGroupBuyOrderDetailEntity> userGroupBuyOrderDetailEntities = new ArrayList<>();
+        for (GroupBuyOrderList groupBuyOrderList : groupBuyOrderLists) {
+            String teamId = groupBuyOrderList.getTeamId();
+            GroupBuyOrder groupBuyOrder = groupBuyOrderMap.get(teamId);
+            if (null == groupBuyOrder) {
+                continue;
+            }
+
+            UserGroupBuyOrderDetailEntity userGroupBuyOrderDetailEntity = UserGroupBuyOrderDetailEntity.builder()
+                    .userId(groupBuyOrderList.getUserId())
+                    .teamId(groupBuyOrder.getTeamId())
+                    .activityId(groupBuyOrder.getActivityId())
+                    .targetCount(groupBuyOrder.getTargetCount())
+                    .completeCount(groupBuyOrder.getCompleteCount())
+                    .lockCount(groupBuyOrder.getLockCount())
+                    .validStartTime(groupBuyOrder.getValidStartTime())
+                    .validEndTime(groupBuyOrder.getValidEndTime())
+                    .outTradeNo(groupBuyOrderList.getOutTradeNo())
+                    .source(groupBuyOrderList.getSource())
+                    .channel(groupBuyOrderList.getChannel())
+                    .build();
+
+            userGroupBuyOrderDetailEntities.add(userGroupBuyOrderDetailEntity);
+        }
+
+        return userGroupBuyOrderDetailEntities;
     }
 }

@@ -29,10 +29,10 @@ public interface ITradeTaskService {
     Map<String, Integer> execNotifyJob(String teamId) throws Exception;
 
     /**
-     * 执行结算通知任务
+     * 执行通知任务
      *
      * @param notifyTaskEntity 通知任务对象
-     * @return 结算数量
+     * @return 通知数量
      * @throws Exception 异常
      */
     Map<String, Integer> execNotifyJob(NotifyTaskEntity notifyTaskEntity) throws Exception;

@@ -1,4 +1,4 @@
-package top.licodetech.market.domain.trade.model.entity;
+package top.licodetech.market.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,13 +8,13 @@ import lombok.NoArgsConstructor;
 /**
  * @author LiPC
  * @description
- * @create 2026-04-22 15:11
+ * @create 2026-04-26 14:57
  */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class TradeRefundOrderEntity {
+public class RefundMarketPayOrderResponseDTO {
 
     /**
      * 用户ID
@@ -22,23 +22,23 @@ public class TradeRefundOrderEntity {
     private String userId;
 
     /**
-     * 拼单组队ID
-     */
-    private String teamId;
-
-    /**
-     * 活动ID
-     */
-    private Long activityId;
-
-    /**
-     * 预购订单ID
+     * 订单ID
      */
     private String orderId;
 
     /**
-     * 外部交易单号
+     * 组队ID
      */
-    private String outTradeNo;
+    private String teamId;
+
+    /**
+     * 退单行为状态码
+     */
+    private String code;
+
+    /**
+     * 退单行为状态信息
+     */
+    private String info;
 
 }

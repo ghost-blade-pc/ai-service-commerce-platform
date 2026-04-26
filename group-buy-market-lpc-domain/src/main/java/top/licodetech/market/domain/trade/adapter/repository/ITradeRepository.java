@@ -1,5 +1,6 @@
 package top.licodetech.market.domain.trade.adapter.repository;
 
+import top.licodetech.market.domain.activity.model.entity.UserGroupBuyOrderDetailEntity;
 import top.licodetech.market.domain.trade.model.aggregate.GroupBuyOrderAggregate;
 import top.licodetech.market.domain.trade.model.aggregate.GroupBuyRefundAggregate;
 import top.licodetech.market.domain.trade.model.aggregate.GroupBuyTeamSettlementAggregate;
@@ -56,4 +57,5 @@ public interface ITradeRepository {
 
     void refund2AddRecovery(String recoveryTeamStockKey, String orderId);
 
+    List<UserGroupBuyOrderDetailEntity> queryTimeoutUnpaidOrderList();
 }

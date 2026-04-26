@@ -1,8 +1,11 @@
 package top.licodetech.market.domain.trade.service;
 
+import top.licodetech.market.domain.activity.model.entity.UserGroupBuyOrderDetailEntity;
 import top.licodetech.market.domain.trade.model.entity.TradeRefundBehaviorEntity;
 import top.licodetech.market.domain.trade.model.entity.TradeRefundCommandEntity;
 import top.licodetech.market.domain.trade.model.valobj.TeamRefundSuccess;
+
+import java.util.List;
 
 /**
  * @author LiPC
@@ -21,4 +24,5 @@ public interface ITradeRefundOrderService {
     void restoreTeamLockStock(TeamRefundSuccess teamRefundSuccess) throws Exception;
 
 
+    List<UserGroupBuyOrderDetailEntity> queryTimeoutUnpaidOrderList();
 }

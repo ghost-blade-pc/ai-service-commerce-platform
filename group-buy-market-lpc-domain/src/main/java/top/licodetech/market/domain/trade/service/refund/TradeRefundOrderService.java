@@ -3,6 +3,7 @@ package top.licodetech.market.domain.trade.service.refund;
 import cn.bugstack.wrench.design.framework.link.model2.chain.BusinessLinkedList;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import top.licodetech.market.domain.activity.model.entity.UserGroupBuyOrderDetailEntity;
 import top.licodetech.market.domain.trade.adapter.repository.ITradeRepository;
 import top.licodetech.market.domain.trade.model.entity.TradeRefundBehaviorEntity;
 import top.licodetech.market.domain.trade.model.entity.TradeRefundCommandEntity;
@@ -13,6 +14,7 @@ import top.licodetech.market.domain.trade.service.refund.business.IRefundOrderSt
 import top.licodetech.market.domain.trade.service.refund.factory.TradeRefundRuleFilterFactory;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,14 +26,17 @@ import java.util.Map;
 @Service
 public class TradeRefundOrderService implements ITradeRefundOrderService {
 
+    @Resource
+    private BusinessLinkedList<TradeRefundCommandEntity, TradeRefundRuleFilterFactory.DynamicContext, TradeRefundBehaviorEntity> tradeRefundRuleFiler;
+
+    private final ITradeRepository repository;
+
     private final Map<String, IRefundOrderStrategy> refundOrderStrategyMap;
 
     public TradeRefundOrderService(ITradeRepository repository, Map<String, IRefundOrderStrategy> refundOrderStrategyMap) {
+        this.repository = repository;
         this.refundOrderStrategyMap = refundOrderStrategyMap;
     }
-
-    @Resource
-    private BusinessLinkedList<TradeRefundCommandEntity, TradeRefundRuleFilterFactory.DynamicContext, TradeRefundBehaviorEntity> tradeRefundRuleFiler;
 
     @Override
     public TradeRefundBehaviorEntity refundOrder(TradeRefundCommandEntity tradeRefundCommandEntity) throws Exception {
@@ -51,5 +56,11 @@ public class TradeRefundOrderService implements ITradeRefundOrderService {
         // 逆向库存操作，恢复锁单量
         refundOrderStrategy.reverseStock(teamRefundSuccess);
 
+    }
+
+    @Override
+    public List<UserGroupBuyOrderDetailEntity> queryTimeoutUnpaidOrderList() {
+        log.info("扫描数据，超时组队未支付订单");
+        return repository.queryTimeoutUnpaidOrderList();
     }
 }
