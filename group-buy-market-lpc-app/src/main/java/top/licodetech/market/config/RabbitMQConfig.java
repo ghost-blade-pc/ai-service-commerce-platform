@@ -38,4 +38,13 @@ public class RabbitMQConfig {
                 .to(topicExchange())
                 .with(routingKey);
     }
+
+    @Bean
+    public Binding topicTeamRefundBinding(
+            @Value("${spring.rabbitmq.config.producer.topic_team_refund.routing_key}") String routingKey,
+            @Value("${spring.rabbitmq.config.producer.topic_team_refund.queue}") String queue) {
+        return BindingBuilder.bind(new Queue(queue, true))
+                .to(topicExchange())
+                .with(routingKey);
+    }
 }

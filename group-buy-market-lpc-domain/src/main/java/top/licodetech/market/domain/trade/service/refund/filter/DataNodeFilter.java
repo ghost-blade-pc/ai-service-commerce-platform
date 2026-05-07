@@ -10,6 +10,8 @@ import top.licodetech.market.domain.trade.model.entity.TradeRefundBehaviorEntity
 import top.licodetech.market.domain.trade.model.entity.TradeRefundCommandEntity;
 import top.licodetech.market.domain.trade.service.refund.factory.TradeRefundRuleFilterFactory;
 import top.licodetech.market.types.enums.GroupBuyOrderEnumVO;
+import top.licodetech.market.types.enums.ResponseCode;
+import top.licodetech.market.types.exception.AppException;
 
 import javax.annotation.Resource;
 
@@ -31,10 +33,18 @@ public class DataNodeFilter implements ILogicHandler<TradeRefundCommandEntity, T
 
         // 1. 查询外部交易单，组队id、orderId、拼团状态
         MarketPayOrderEntity marketPayOrderEntity = repository.queryMarketPayOrderEntityByOutTradeNo(tradeRefundCommandEntity.getUserId(), tradeRefundCommandEntity.getOutTradeNo());
+        if (null == marketPayOrderEntity) {
+            log.warn("逆向流程-退单操作，不存在的外部交易单号 userId:{} outTradeNo:{}", tradeRefundCommandEntity.getUserId(), tradeRefundCommandEntity.getOutTradeNo());
+            throw new AppException(ResponseCode.E0104);
+        }
         String teamId = marketPayOrderEntity.getTeamId();
 
         // 2. 查询拼团状态
         GroupBuyTeamEntity groupBuyTeamEntity = repository.queryGroupTeamByTeamId(teamId);
+        if (null == groupBuyTeamEntity) {
+            log.warn("逆向流程-退单操作，不存在的拼团队伍 userId:{} outTradeNo:{} teamId:{}", tradeRefundCommandEntity.getUserId(), tradeRefundCommandEntity.getOutTradeNo(), teamId);
+            throw new AppException(ResponseCode.E0104);
+        }
         GroupBuyOrderEnumVO groupBuyOrderEnumVO = groupBuyTeamEntity.getStatus();
 
         // 3. 写入上下文；如果查询数据是比较多的，可以参考 MarketNode2CompletableFuture 通过多线程进行加载
