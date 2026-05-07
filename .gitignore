@@ -40,3 +40,4 @@ build/
 /data/
 s-pay-mall-ddd-lpc-app/data/log/log_error.log
 s-pay-mall-ddd-lpc-app/data/log/log_info.log
+/.idea/
