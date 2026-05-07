@@ -157,13 +157,38 @@
   - `mvn -f /home/lpc/project/group-buy-market/pom.xml -pl group-buy-market-lpc-app -DskipTests=false test`
 - **完成**: done
 
+## Task 7: 收尾运行期 bug 修复与文档归档
+
+- **目标**: 根据联调日志修复已暴露的退款链路时序问题，并把后续非本期问题沉淀为独立 change。
+- **DDD 层级**: domain / app-test / code_copilot
+- **涉及文件**:
+  - `s-pay-mall-ddd-lpc-domain/src/main/java/top/licodetech/mall/domain/order/service/OrderService.java` — `queryRefundingOrRefundedOrder` 增加短暂重查，覆盖 MQ 快于本地事务提交的场景。
+  - `s-pay-mall-ddd-lpc-app/src/test/java/top/licodetech/mall/test/domain/OrderServiceRefundTest.java` — 新增 `test_changeOrderRefundSuccess_payWait_inFlightRefundingRetry_success`。
+  - `code_copilot/changes/refund-market-mq-integration/log.md` — 补齐运行日志分析、踩坑记录、验证证据。
+  - `code_copilot/changes/payment-callback-realtime/*` — 后续支付回调实时化 bug 的 propose 文档。
+  - `code_copilot/changes/group-buy-join-discount/*` — 后续参团优惠 bug 的 propose 文档。
+- **关键签名**:
+  ```java
+  private OrderEntity queryRefundingOrRefundedOrder(String orderId, String errorInfo);
+  ```
+- **依赖**: Task 1-6 完成；联调日志确认退款最终状态无误。
+- **风险标记**: 状态 / MQ / 资金
+- **验收标准**: 退款 MQ 在本地 `REFUNDING` 事务提交稍慢时不再首次报错；目标单测通过；后续两个 bug 不混入本期已完成退款任务。
+- **验证命令（可选）**:
+  - `mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests=false -DfailIfNoTests=false -Dtest=OrderServiceRefundTest test`
+- **完成**: done
+
 ## 变更摘要
 > /apply 全部完成后填写
 
-- **总文件数**: 支付商城 20 个文件变更/新增；拼团营销 2 个文件变更。
+- **总文件数**: 支付商城 20+ 个文件变更/新增；拼团营销 2 个文件变更；`code_copilot` 文档补齐本期归档和后续 bug propose。
 - **Spec-Plan 偏差记录**:
   - `application-test.yml` 未同步 MQ 配置，因为当前测试配置未承载 RabbitMQ consumer 配置。
   - 未新增 `RefundOrderEntity`，现有 `OrderEntity` 足够表达本期状态流转。
   - 未新增 Listener 单测，优先用领域单测覆盖核心规则，并用 Maven 编译校验 Listener。
   - 新增 `s-pay-mall-ddd-lpc-app/pom.xml` 测试开关，使默认跳过测试不变，但允许 `-DskipTests=false` 执行单测。
-- **遗留问题**: 本期为模拟退款成功；真实支付宝退款接入时需补充支付宝退款端口实现、失败补偿和集成测试。
+  - 运行期追加 `queryRefundingOrRefundedOrder` 短暂重查，处理 MQ 快于本地事务提交的真实联调时序。
+- **遗留问题**:
+  - 本期为模拟退款成功；真实支付宝退款接入时需补充支付宝退款端口实现、失败补偿和集成测试。
+  - 支付回调不能总等定时任务，已拆到 `payment-callback-realtime`。
+  - 参团未享受拼团优惠，已拆到 `group-buy-join-discount`。

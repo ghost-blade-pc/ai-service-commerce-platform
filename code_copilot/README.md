@@ -10,6 +10,7 @@ code_copilot/
   rules/               项目长期规则，优先级高于一次性需求
   knowledge/           可复用业务知识索引
   changes/templates/   需求 Spec、任务、日志、测试模板
+  changes/<name>/      单个需求或 bug 的 Spec、任务、日志、测试计划
 ```
 
 ## 使用方式
@@ -50,9 +51,18 @@ code_copilot/changes/<change-name>/log.md
 - 外部交互：支付宝、微信、拼团营销服务、RabbitMQ、MySQL
 - HTTP 客户端：Retrofit2，优先沿用 `infrastructure/gateway` 模式
 
+## 当前 Change 状态
+
+| Change | 状态 | 说明 |
+|--------|------|------|
+| `refund-market-mq-integration` | done | 退单退款服务对接，包含模拟退款、拼团退款 MQ、幂等和运行期时序修复 |
+| `payment-callback-realtime` | propose | 后续 bug：支付成功不能总等待 `NoPayNotifyOrderJob` 兜底 |
+| `group-buy-join-discount` | propose | 后续 bug：参团时疑似没有享受拼团优惠 |
+
 ## 基本原则
 
 - 先 Spec，后代码；先小范围 Research，后设计方案。
 - 领域规则进入 `domain`，外部系统适配进入 `infrastructure`。
 - `trigger` 只做协议接入、参数转换、响应封装，不承载核心业务规则。
 - 涉及资金、退款、订单状态、支付回调、拼团结算的变更必须人工复核。
+- 一个已完成 change 不继续塞入新需求；运行期发现的新问题应拆成新的 `changes/<bug-name>`，避免任务边界失控。

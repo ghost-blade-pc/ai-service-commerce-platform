@@ -32,6 +32,8 @@ public class OrderService extends AbstractOrderService{
 
     private static final int DEFAULT_PAGE_SIZE = 10;
     private static final int MAX_PAGE_SIZE = 50;
+    private static final int REFUND_STATUS_QUERY_RETRY_TIMES = 3;
+    private static final long REFUND_STATUS_QUERY_RETRY_INTERVAL_MILLIS = 100L;
 
     @Value("${alipay.notify_url}")
     private String notifyUrl;
@@ -180,7 +182,7 @@ public class OrderService extends AbstractOrderService{
             port.refundMarketPayOrder(userId, orderId);
             int updateCount = repository.changeOrderRefunding(userId, orderId);
             if (1 != updateCount) {
-                throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "退单申请失败，请稍后重试");
+                return queryRefundingOrRefundedOrder(orderId, "退单申请失败，请稍后重试");
             }
 
             orderEntity.setOrderStatusVO(OrderStatusVO.REFUNDING);
@@ -189,7 +191,10 @@ public class OrderService extends AbstractOrderService{
 
         int updateCount = repository.changeOrderRefunding(userId, orderId);
         if (1 != updateCount) {
-            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "退单申请失败，请稍后重试");
+            OrderEntity latestOrderEntity = queryRefundingOrRefundedOrder(orderId, "退单申请失败，请稍后重试");
+            if (OrderStatusVO.isRefunded(latestOrderEntity.getOrderStatusVO().getCode())) {
+                return latestOrderEntity;
+            }
         }
 
         return changeOrderRefundSuccess(orderId);
@@ -211,6 +216,21 @@ public class OrderService extends AbstractOrderService{
         if (null != orderStatusVO && OrderStatusVO.isRefunded(orderStatusVO.getCode())) {
             return orderEntity;
         }
+
+        if (null != orderStatusVO && OrderStatusVO.canRefund(orderStatusVO.getCode())) {
+            int refundingCount = repository.changeOrderRefunding(orderEntity.getUserId(), orderId);
+            if (1 != refundingCount) {
+                orderEntity = queryRefundingOrRefundedOrder(orderId, "更新退单中状态失败");
+                orderStatusVO = orderEntity.getOrderStatusVO();
+                if (OrderStatusVO.isRefunded(orderStatusVO.getCode())) {
+                    return orderEntity;
+                }
+            } else {
+                orderEntity.setOrderStatusVO(OrderStatusVO.REFUNDING);
+                orderStatusVO = OrderStatusVO.REFUNDING;
+            }
+        }
+
         if (null == orderStatusVO || !OrderStatusVO.isRefunding(orderStatusVO.getCode())) {
             throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "当前订单状态不允许完成退款");
         }
@@ -228,10 +248,46 @@ public class OrderService extends AbstractOrderService{
 
         int updateCount = repository.changeOrderRefunded(orderId);
         if (1 != updateCount) {
+            OrderEntity latestOrderEntity = repository.queryOrderByOrderId(orderId);
+            if (null != latestOrderEntity
+                    && null != latestOrderEntity.getOrderStatusVO()
+                    && OrderStatusVO.isRefunded(latestOrderEntity.getOrderStatusVO().getCode())) {
+                return latestOrderEntity;
+            }
             throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "更新退款完成状态失败");
         }
 
         orderEntity.setOrderStatusVO(OrderStatusVO.REFUNDED);
         return orderEntity;
+    }
+
+    private OrderEntity queryRefundingOrRefundedOrder(String orderId, String errorInfo) {
+        for (int retry = 0; retry <= REFUND_STATUS_QUERY_RETRY_TIMES; retry++) {
+            OrderEntity latestOrderEntity = repository.queryOrderByOrderId(orderId);
+            if (null == latestOrderEntity) {
+                throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "订单不存在");
+            }
+
+            OrderStatusVO latestStatus = latestOrderEntity.getOrderStatusVO();
+            if (null != latestStatus
+                    && (OrderStatusVO.isRefunding(latestStatus.getCode()) || OrderStatusVO.isRefunded(latestStatus.getCode()))) {
+                return latestOrderEntity;
+            }
+
+            if (retry < REFUND_STATUS_QUERY_RETRY_TIMES) {
+                sleepBeforeRetry(orderId);
+            }
+        }
+
+        throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), errorInfo);
+    }
+
+    private void sleepBeforeRetry(String orderId) {
+        try {
+            Thread.sleep(REFUND_STATUS_QUERY_RETRY_INTERVAL_MILLIS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "等待退款状态提交被中断 orderId:" + orderId);
+        }
     }
 }

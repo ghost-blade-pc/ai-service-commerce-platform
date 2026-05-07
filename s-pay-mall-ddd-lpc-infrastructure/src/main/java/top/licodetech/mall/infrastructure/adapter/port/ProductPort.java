@@ -71,7 +71,7 @@ public class ProductPort implements IProductPort {
             Response<LockMarketPayOrderResponseDTO> response = call.execute().body();
             log.info("营销锁单{} requestDTO:{} responseDTO:{}", userId, JSON.toJSONString(requestDTO), JSON.toJSONString(response));
             if (null == response) {
-                return null;
+                throw new AppException("MARKET_LOCK_ERROR", "营销锁单响应为空");
             }
 
             // 异常判断
@@ -80,6 +80,9 @@ public class ProductPort implements IProductPort {
             }
 
             LockMarketPayOrderResponseDTO responseDTO = response.getData();
+            if (null == responseDTO) {
+                throw new AppException("MARKET_LOCK_ERROR", "营销锁单响应数据为空");
+            }
 
             // 获取拼团优惠
             return MarketPayDiscountEntity.builder()
@@ -87,9 +90,11 @@ public class ProductPort implements IProductPort {
                     .deductionPrice(responseDTO.getDeductionPrice())
                     .payPrice(responseDTO.getPayPrice())
                     .build();
+        } catch (AppException e) {
+            throw e;
         } catch (Exception e) {
             log.error("营销锁单失败{}", userId, e);
-            return null;
+            throw new AppException("MARKET_LOCK_ERROR", "营销锁单失败");
         }
     }
 
@@ -116,8 +121,11 @@ public class ProductPort implements IProductPort {
             if (!"0000".equals(response.getCode())) {
                 throw new AppException(response.getCode(), response.getInfo());
             }
+        } catch (AppException e) {
+            throw e;
         } catch (Exception e) {
             log.error("营销结算失败{}", userId, e);
+            throw new AppException("MARKET_SETTLEMENT_ERROR", "营销结算失败");
         }
     }
 

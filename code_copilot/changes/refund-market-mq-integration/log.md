@@ -16,6 +16,14 @@
 | 2026-05-07 | Apply | 完成拼团侧两个小补强 | `DataNodeFilter` 空数据保护、`topic_team_refund` 显式 Binding |
 | 2026-05-07 | Verify | 支付商城 `OrderServiceRefundTest` 执行通过 | 7 tests, 0 failures, 0 errors |
 | 2026-05-07 | Verify | 拼团项目 reactor 编译通过 | 测试按项目配置跳过，但源码/测试源码编译通过 |
+| 2026-05-07 | Fix | 修复退款 MQ 毒消息反复重投 | MQ 到达时支付订单仍处于可退状态则收敛到 `REFUNDED`；永久业务异常由 Listener 记录并确认 |
+| 2026-05-07 | Verify | 支付商城 `OrderServiceRefundTest` 重新执行通过 | 8 tests, 0 failures, 0 errors |
+| 2026-05-07 | Fix | 修复拼团锁单响应 DTO 不兼容导致支付商城降级为普通订单 | 补齐 `LockMarketPayOrderResponseDTO#teamId`，锁单/结算失败不再静默吞掉 |
+| 2026-05-07 | Verify | 支付商城 `OrderServiceRefundTest` 重新执行通过 | 8 tests, 0 failures, 0 errors |
+| 2026-05-07 | Runtime Analysis | 分析支付后拼团侧未结算落库问题 | 根因是锁单响应 DTO 缺 `teamId` 导致订单被保存为普通订单，已修复 |
+| 2026-05-07 | Runtime Analysis | 分析支付宝支付回调延迟问题 | 当前依赖支付宝异步通知和 `NoPayNotifyOrderJob` 兜底；后续应新开 bug 修复支付成功主动查询/同步确认链路 |
+| 2026-05-07 | Fix | 修复退款 MQ 快于本地 `REFUNDING` 提交导致首次消费报错 | `OrderService#queryRefundingOrRefundedOrder` 增加 3 次短暂重查，覆盖事务提交中的瞬时并发 |
+| 2026-05-07 | Verify | 支付商城 `OrderServiceRefundTest` 重新执行通过 | 11 tests, 0 failures, 0 errors |
 
 ## 技术决策
 
@@ -56,6 +64,11 @@
 | `topic.team_refund` 既要拼团消费又要支付消费 | RabbitMQ topic 事件广播语义需要多队列绑定 | 两个服务各自队列绑定同一 exchange/routing key | 是 |
 | 退单 HTTP 响应和退款最终完成不是同一时刻 | 拼团本地消息表异步发送 MQ | 支付商城返回 `REFUNDING`，监听 MQ 后置 `REFUNDED` | 是 |
 | app 模块固定 `skipTests=true` 导致目标单测无法执行 | `s-pay-mall-ddd-lpc-app/pom.xml` surefire 写死跳过测试 | 改为默认属性 `skipTests=true`，允许 `-DskipTests=false` 覆盖 | 是 |
+| 退款 MQ 反复刷屏 | Listener 抛出永久业务异常后 RabbitMQ 默认 requeue | `changeOrderRefundSuccess` 接受可退状态收敛；Listener 对订单不存在/永久不合法状态记录后 ack | 是 |
+| 支付后拼团侧没有结算落库 | 支付商城锁单响应 DTO 缺 `teamId`，Jackson 反序列化失败后 `ProductPort#lockMarketPayOrder` 返回 null，订单被保存为非拼团订单 | 补齐 DTO 字段；锁单失败和结算失败改为抛业务异常，避免静默生成错误订单或吞掉结算失败 | 是 |
+| 退款 MQ 首次消费仍偶发报错 | 拼团退单接口返回和 `topic.team_refund` 投递速度快于支付商城本地 `REFUNDING` 事务提交 | 在领域服务确认退款成功时短暂重查 `REFUNDING/REFUNDED` 状态，避免把事务提交中的瞬时状态当成永久失败 | 是 |
+| 支付回调不能完全依赖定时任务 | 支付宝异步通知到达时间不可控，当前 `NoPayNotifyOrderJob` 每分钟兜底查询已支付未通知订单 | 后续新开 `payment-callback-realtime` bug，考虑支付返回页/查询接口主动查单并调用 `changeOrderPaySuccess` | 待沉淀 |
+| 参团未享受拼团优惠 | 目前疑似创建支付单复用 `CREATE` 订单时走了 `payAmount` 或锁单参数/营销响应分支不一致 | 后续新开 `group-buy-join-discount` bug，重点排查 `AbstractOrderService#createOrder` 和拼团 `MarketTradeController#lockMarketPayOrder` | 待沉淀 |
 
 ## 知识发现
 > 每个 task 后实时记录，/archive 时逐条确认沉淀到 knowledge/
@@ -64,6 +77,7 @@
 - [ ] **拼团退单策略**: `RefundTypeEnumVO#getRefundStrategy` 按拼团状态和交易订单状态选择未支付未成团、已支付未成团、已支付已成团三种策略。
 - [ ] **拼团退单 MQ**: `TradeRepository` 在退单事务中插入 `NotifyTask`，通过 `TradeTaskService` 和 `TradePort` 发送 `topic.team_refund`。
 - [x] **支付商城退款缺口**: 支付商城原 `OrderService#refundOrder` 直接更新 `REFUNDED`，本期已改为拼团订单先进入 `REFUNDING`，消费拼团 `topic.team_refund` 后模拟退款并置 `REFUNDED`。
+- [x] **退款 MQ 时序保护**: `OrderService#changeOrderRefundSuccess` 需要容忍 MQ 先于退单申请事务提交到达，短暂重查后再判定失败。
 
 ## Spec-Code 偏差记录
 
@@ -86,4 +100,7 @@
 | `rg refund/Refund/...` | 已完成 | Research 证据已写入 `spec.md` |
 | `sed` 读取关键类 | 已完成 | 支付商城和拼团营销关键类均已引用 |
 | `mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests=false -DfailIfNoTests=false -Dtest=OrderServiceRefundTest test` | 通过 | `Tests run: 7, Failures: 0, Errors: 0, Skipped: 0` |
+| `mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests=false -DfailIfNoTests=false -Dtest=OrderServiceRefundTest test` | 通过 | 修复退款 MQ 重投问题后重新执行：`Tests run: 8, Failures: 0, Errors: 0, Skipped: 0` |
+| `mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests=false -DfailIfNoTests=false -Dtest=OrderServiceRefundTest test` | 通过 | 修复锁单 DTO 后重新执行：`Tests run: 8, Failures: 0, Errors: 0, Skipped: 0` |
+| `mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests=false -DfailIfNoTests=false -Dtest=OrderServiceRefundTest test` | 通过 | 修复退款 MQ 快于本地事务提交后重新执行：`Tests run: 11, Failures: 0, Errors: 0, Skipped: 0` |
 | `mvn -pl group-buy-market-lpc-app -am -DskipTests -DfailIfNoTests=false test` | 通过 | reactor `BUILD SUCCESS`；项目配置跳过测试 |

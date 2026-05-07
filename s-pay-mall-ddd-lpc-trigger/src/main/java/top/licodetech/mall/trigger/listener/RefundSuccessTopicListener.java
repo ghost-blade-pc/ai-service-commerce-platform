@@ -11,6 +11,7 @@ import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import top.licodetech.mall.domain.order.service.IOrderService;
+import top.licodetech.mall.types.exception.AppException;
 
 import javax.annotation.Resource;
 
@@ -41,10 +42,23 @@ public class RefundSuccessTopicListener {
             }
 
             orderService.changeOrderRefundSuccess(orderId);
+        } catch (AppException e) {
+            if (isPermanentBusinessException(e)) {
+                log.warn("拼团退单成功消息无法在支付商城落地，按永久业务异常确认消息 message:{} code:{} info:{}", message, e.getCode(), e.getInfo());
+                return;
+            }
+            log.error("处理拼团退单成功消息失败 {}", message, e);
+            throw e;
         } catch (Exception e) {
             log.error("处理拼团退单成功消息失败 {}", message, e);
             throw e;
         }
+    }
+
+    private boolean isPermanentBusinessException(AppException e) {
+        String info = e.getInfo();
+        return "订单不存在".equals(info)
+                || "当前订单状态不允许完成退款".equals(info);
     }
 
     @Data

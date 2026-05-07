@@ -164,6 +164,7 @@
 - ⚠️ 外部服务失败风险：拼团退单 HTTP 成功但 MQ 未发送、HTTP 失败但拼团状态已变化、网络超时返回不确定。
 - ⚠️ 重复请求/重复消息风险：用户重复点击退单、拼团重复发送 `topic.team_refund`、RabbitMQ 重试。
 - ⚠️ 数据一致性风险：本期模拟退款成功，真实支付宝退款失败补偿暂不处理，后续接入真实退款时必须补齐。
+- ⚠️ 时序风险：拼团 `topic.team_refund` 可能快于支付商城退单申请事务提交，支付商城退款确认需要短暂容忍 `REFUNDING` 尚未可见的状态。
 
 ## 8.5 测试策略
 
@@ -219,10 +220,16 @@
 | Task 4 | done | `RefundSuccessTopicListener`、`IRefundPort`、`RefundPort` | 支付商城消费拼团退款 MQ 并模拟退款成功 |
 | Task 5 | done | `OrderServiceRefundTest`、`test-spec.md`、`s-pay-mall-ddd-lpc-app/pom.xml` | 单测扩展并修正测试开关 |
 | Task 6 | done | `/home/lpc/project/group-buy-market/.../DataNodeFilter.java`、`/home/lpc/project/group-buy-market/.../RabbitMQConfig.java` | 拼团侧空值保护和 MQ Binding 补强 |
+| Task 7 | done | `OrderService#queryRefundingOrRefundedOrder`、`OrderServiceRefundTest`、`code_copilot/changes/*` | 运行期补齐退款 MQ 快于本地事务提交的短暂重查，并拆出后续两个 bug |
 
 ## 12. 审查结论
 
-已按用户确认进入 apply 并完成实现。需要真实支付宝退款时，应新开 Spec 补充真实退款端口、失败补偿和集成测试。
+已按用户确认进入 apply 并完成实现。退款链路目前模拟退款成功，已通过单元测试和联调日志验证；需要真实支付宝退款时，应新开 Spec 补充真实退款端口、失败补偿和集成测试。
+
+后续已拆分为独立 change：
+
+- `code_copilot/changes/payment-callback-realtime`：解决支付成功后不能总等待定时任务兜底的问题。
+- `code_copilot/changes/group-buy-join-discount`：解决参团时疑似未享受拼团优惠的问题。
 
 ## 13. 确认记录（HARD-GATE）
 

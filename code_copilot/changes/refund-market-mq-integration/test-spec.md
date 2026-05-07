@@ -55,6 +55,8 @@
 | `OrderService#refundOrder` | 非本人订单 | userId 不匹配 | 不更新仓储 | 抛业务异常 |
 | `OrderService#refundOrder` | 非法状态 | `CLOSE` | 不更新仓储 | 抛业务异常 |
 | `OrderService#changeOrderRefundSuccess` | MQ 确认退款成功 | `REFUNDING` 订单 | `changeOrderRefunded` 成功 | 返回 `REFUNDED` |
+| `OrderService#changeOrderRefundSuccess` | MQ 先于本地 `REFUNDING` 到达 | `PAY_WAIT` 订单 | `changeOrderRefunding` 成功，`changeOrderRefunded` 成功 | 返回 `REFUNDED` |
+| `OrderService#changeOrderRefundSuccess` | MQ 快于退单申请事务提交 | 首次查询 `PAY_WAIT`，重查后 `REFUNDING` | `changeOrderRefunding` 返回 0，短暂重查后 `changeOrderRefunded` 成功 | 返回 `REFUNDED`，不抛首次并发误报 |
 | `OrderService#changeOrderRefundSuccess` | 重复 MQ | `REFUNDED` 订单 | 不再更新仓储 | 幂等返回 `REFUNDED` |
 
 ### P1 — 适配层
@@ -96,5 +98,6 @@ mvn -pl group-buy-market-lpc-app -am -DskipTests -DfailIfNoTests=false test
 
 | 测试类/项目 | 测试类型 | 命令 | 结果 | 备注 |
 |-------------|----------|------|------|------|
-| `OrderServiceRefundTest` | 单元测试 + Mock | `mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests=false -DfailIfNoTests=false -Dtest=OrderServiceRefundTest test` | 7 tests, 0 failures, 0 errors, BUILD SUCCESS | 覆盖核心退款状态流转 |
+| `OrderServiceRefundTest` | 单元测试 + Mock | `mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests=false -DfailIfNoTests=false -Dtest=OrderServiceRefundTest test` | 8 tests, 0 failures, 0 errors, BUILD SUCCESS | 覆盖核心退款状态流转和 MQ 先到收敛场景 |
+| `OrderServiceRefundTest` | 单元测试 + Mock | `mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests=false -DfailIfNoTests=false -Dtest=OrderServiceRefundTest test` | 11 tests, 0 failures, 0 errors, BUILD SUCCESS | 追加覆盖 MQ 快于本地事务提交的短暂重试场景 |
 | `group-buy-market-lpc-app` reactor | 编译校验 | `mvn -pl group-buy-market-lpc-app -am -DskipTests -DfailIfNoTests=false test` | BUILD SUCCESS | 测试被项目配置跳过，但主/测试源码均编译通过 |
