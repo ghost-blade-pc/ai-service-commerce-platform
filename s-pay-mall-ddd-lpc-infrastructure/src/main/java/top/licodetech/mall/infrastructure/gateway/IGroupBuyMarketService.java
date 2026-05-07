@@ -5,6 +5,8 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 import top.licodetech.mall.infrastructure.gateway.dto.LockMarketPayOrderRequestDTO;
 import top.licodetech.mall.infrastructure.gateway.dto.LockMarketPayOrderResponseDTO;
+import top.licodetech.mall.infrastructure.gateway.dto.RefundMarketPayOrderRequestDTO;
+import top.licodetech.mall.infrastructure.gateway.dto.RefundMarketPayOrderResponseDTO;
 import top.licodetech.mall.infrastructure.gateway.dto.SettlementMarketPayOrderRequestDTO;
 import top.licodetech.mall.infrastructure.gateway.dto.SettlementMarketPayOrderResponseDTO;
 import top.licodetech.mall.infrastructure.gateway.response.Response;
@@ -34,5 +36,14 @@ public interface IGroupBuyMarketService {
      */
     @POST("api/v1/gbm/trade/settlement_market_pay_order")
     Call<Response<SettlementMarketPayOrderResponseDTO>> settlementMarketPayOrder(@Body SettlementMarketPayOrderRequestDTO requestDTO);
+
+    /**
+     * 营销退单
+     *
+     * @param requestDTO 退单商品信息
+     * @return 退单结果信息
+     */
+    @POST("api/v1/gbm/trade/refund_market_pay_order")
+    Call<Response<RefundMarketPayOrderResponseDTO>> refundMarketPayOrder(@Body RefundMarketPayOrderRequestDTO requestDTO);
 
 }

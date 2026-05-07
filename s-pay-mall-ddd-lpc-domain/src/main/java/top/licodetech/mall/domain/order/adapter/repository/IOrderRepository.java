@@ -33,4 +33,8 @@ public interface IOrderRepository {
 
     int refundOrder(String userId, String orderId);
 
+    int changeOrderRefunding(String userId, String orderId);
+
+    int changeOrderRefunded(String orderId);
+
 }

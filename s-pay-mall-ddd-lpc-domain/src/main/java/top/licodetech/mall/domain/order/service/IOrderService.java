@@ -25,4 +25,6 @@ public interface IOrderService {
     List<OrderEntity> queryUserOrderList(String userId, Long lastId, Integer pageSize);
 
     OrderEntity refundOrder(String userId, String orderId);
+
+    OrderEntity changeOrderRefundSuccess(String orderId);
 }

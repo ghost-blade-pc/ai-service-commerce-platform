@@ -213,6 +213,16 @@ public class OrderRepository implements IOrderRepository {
         return orderDao.refundOrder(userId, orderId);
     }
 
+    @Override
+    public int changeOrderRefunding(String userId, String orderId) {
+        return orderDao.changeOrderRefunding(userId, orderId);
+    }
+
+    @Override
+    public int changeOrderRefunded(String orderId) {
+        return orderDao.changeOrderRefunded(orderId);
+    }
+
     private OrderEntity buildOrderEntity(PayOrder payOrder) {
         return OrderEntity.builder()
                 .id(payOrder.getId())

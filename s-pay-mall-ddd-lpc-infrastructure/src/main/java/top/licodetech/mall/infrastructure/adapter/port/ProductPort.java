@@ -120,4 +120,40 @@ public class ProductPort implements IProductPort {
             log.error("营销结算失败{}", userId, e);
         }
     }
+
+    @Override
+    public boolean refundMarketPayOrder(String userId, String orderId) {
+        RefundMarketPayOrderRequestDTO requestDTO = new RefundMarketPayOrderRequestDTO();
+        requestDTO.setSource(source);
+        requestDTO.setChannel(chanel);
+        requestDTO.setUserId(userId);
+        requestDTO.setOutTradeNo(orderId);
+
+        try {
+            Call<Response<RefundMarketPayOrderResponseDTO>> call = groupBuyMarketService.refundMarketPayOrder(requestDTO);
+            Response<RefundMarketPayOrderResponseDTO> response = call.execute().body();
+            log.info("营销退单{} requestDTO:{} responseDTO:{}", userId, JSON.toJSONString(requestDTO), JSON.toJSONString(response));
+            if (null == response) {
+                throw new AppException("MARKET_REFUND_ERROR", "营销退单响应为空");
+            }
+            if (!"0000".equals(response.getCode())) {
+                throw new AppException(response.getCode(), response.getInfo());
+            }
+
+            RefundMarketPayOrderResponseDTO responseDTO = response.getData();
+            if (null == responseDTO) {
+                throw new AppException("MARKET_REFUND_ERROR", "营销退单响应数据为空");
+            }
+            if (!"success".equals(responseDTO.getCode()) && !"repeat".equals(responseDTO.getCode())) {
+                throw new AppException(responseDTO.getCode(), responseDTO.getInfo());
+            }
+
+            return true;
+        } catch (AppException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("营销退单失败{}", userId, e);
+            throw new AppException("MARKET_REFUND_ERROR", "营销退单失败");
+        }
+    }
 }

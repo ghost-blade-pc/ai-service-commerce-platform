@@ -33,4 +33,8 @@ public interface IOrderDao {
 
     int refundOrder(@Param("userId") String userId, @Param("orderId") String orderId);
 
+    int changeOrderRefunding(@Param("userId") String userId, @Param("orderId") String orderId);
+
+    int changeOrderRefunded(@Param("orderId") String orderId);
+
 }

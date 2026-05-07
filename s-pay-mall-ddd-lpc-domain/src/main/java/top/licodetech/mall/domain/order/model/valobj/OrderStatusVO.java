@@ -21,7 +21,18 @@ public enum OrderStatusVO {
     private final String desc;
 
     public static boolean canRefund(String code) {
-        return PAY_WAIT.code.equals(code) || PAY_SUCCESS.code.equals(code);
+        return PAY_WAIT.code.equals(code)
+                || PAY_SUCCESS.code.equals(code)
+                || MARKET.code.equals(code)
+                || DEAL_DONE.code.equals(code);
+    }
+
+    public static boolean isRefunding(String code) {
+        return REFUNDING.code.equals(code);
+    }
+
+    public static boolean isRefunded(String code) {
+        return REFUNDED.code.equals(code);
     }
 
 }

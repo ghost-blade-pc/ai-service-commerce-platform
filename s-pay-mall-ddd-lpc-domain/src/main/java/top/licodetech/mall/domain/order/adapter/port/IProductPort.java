@@ -14,4 +14,6 @@ public interface IProductPort {
     MarketPayDiscountEntity lockMarketPayOrder(String userId, String teamId, Long activityId, String productId, String orderId);
 
     void settlementMarketPayOrder(String userId, String orderId, Date payTime);
+
+    boolean refundMarketPayOrder(String userId, String orderId);
 }

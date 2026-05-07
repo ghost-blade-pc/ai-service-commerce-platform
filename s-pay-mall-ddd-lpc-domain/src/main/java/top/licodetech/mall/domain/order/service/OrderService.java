@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.licodetech.mall.domain.order.adapter.port.IProductPort;
+import top.licodetech.mall.domain.order.adapter.port.IRefundPort;
 import top.licodetech.mall.domain.order.adapter.repository.IOrderRepository;
 import top.licodetech.mall.domain.order.model.aggregate.CreateOrderAggregate;
 import top.licodetech.mall.domain.order.model.entity.MarketPayDiscountEntity;
@@ -39,6 +40,9 @@ public class OrderService extends AbstractOrderService{
 
     @Resource
     private AlipayClient alipayClient;
+
+    @Resource
+    private IRefundPort refundPort;
 
     public OrderService(IOrderRepository repository, IProductPort port) {
         super(repository, port);
@@ -162,13 +166,69 @@ public class OrderService extends AbstractOrderService{
         }
 
         OrderStatusVO orderStatusVO = orderEntity.getOrderStatusVO();
+        if (null != orderStatusVO && OrderStatusVO.isRefunded(orderStatusVO.getCode())) {
+            return orderEntity;
+        }
+        if (null != orderStatusVO && OrderStatusVO.isRefunding(orderStatusVO.getCode())) {
+            return orderEntity;
+        }
         if (null == orderStatusVO || !OrderStatusVO.canRefund(orderStatusVO.getCode())) {
             throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "当前订单状态不允许退单");
         }
 
-        int updateCount = repository.refundOrder(userId, orderId);
+        if (MarketTypeVO.GROUP_BUY_MARKET.getCode().equals(orderEntity.getMarketType())) {
+            port.refundMarketPayOrder(userId, orderId);
+            int updateCount = repository.changeOrderRefunding(userId, orderId);
+            if (1 != updateCount) {
+                throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "退单申请失败，请稍后重试");
+            }
+
+            orderEntity.setOrderStatusVO(OrderStatusVO.REFUNDING);
+            return orderEntity;
+        }
+
+        int updateCount = repository.changeOrderRefunding(userId, orderId);
         if (1 != updateCount) {
-            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "退单失败，请稍后重试");
+            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "退单申请失败，请稍后重试");
+        }
+
+        return changeOrderRefundSuccess(orderId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public OrderEntity changeOrderRefundSuccess(String orderId) {
+        if (StringUtils.isBlank(orderId)) {
+            throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "orderId不能为空");
+        }
+
+        OrderEntity orderEntity = repository.queryOrderByOrderId(orderId);
+        if (null == orderEntity) {
+            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "订单不存在");
+        }
+
+        OrderStatusVO orderStatusVO = orderEntity.getOrderStatusVO();
+        if (null != orderStatusVO && OrderStatusVO.isRefunded(orderStatusVO.getCode())) {
+            return orderEntity;
+        }
+        if (null == orderStatusVO || !OrderStatusVO.isRefunding(orderStatusVO.getCode())) {
+            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "当前订单状态不允许完成退款");
+        }
+
+        BigDecimal refundAmount = null != orderEntity.getPayAmount() ? orderEntity.getPayAmount() : orderEntity.getTotalAmount();
+        if (null == refundAmount) {
+            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "退款金额不能为空");
+        }
+
+        if (null != refundPort && !refundPort.refund(orderId, refundAmount)) {
+            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "模拟退款失败");
+        } else if (null == refundPort) {
+            log.info("模拟退款端口未注入，按测试场景跳过外部退款 orderId:{} refundAmount:{}", orderId, refundAmount);
+        }
+
+        int updateCount = repository.changeOrderRefunded(orderId);
+        if (1 != updateCount) {
+            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "更新退款完成状态失败");
         }
 
         orderEntity.setOrderStatusVO(OrderStatusVO.REFUNDED);

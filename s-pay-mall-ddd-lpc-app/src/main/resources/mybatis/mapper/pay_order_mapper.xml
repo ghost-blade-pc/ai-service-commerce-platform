@@ -99,7 +99,20 @@
         update pay_order set status = 'REFUNDED', update_time = now()
         where order_id = #{orderId}
           and user_id = #{userId}
-          and status in ('PAY_WAIT', 'PAY_SUCCESS')
+          and status in ('PAY_WAIT', 'PAY_SUCCESS', 'MARKET', 'DEAL_DONE')
+    </update>
+
+    <update id="changeOrderRefunding">
+        update pay_order set status = 'REFUNDING', update_time = now()
+        where order_id = #{orderId}
+          and user_id = #{userId}
+          and status in ('PAY_WAIT', 'PAY_SUCCESS', 'MARKET', 'DEAL_DONE')
+    </update>
+
+    <update id="changeOrderRefunded">
+        update pay_order set status = 'REFUNDED', update_time = now()
+        where order_id = #{orderId}
+          and status = 'REFUNDING'
     </update>
 
     <update id="changeOrderDealDone" parameterType="java.lang.String">
