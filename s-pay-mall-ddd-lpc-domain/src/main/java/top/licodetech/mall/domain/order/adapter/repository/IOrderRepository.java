@@ -29,5 +29,8 @@ public interface IOrderRepository {
 
     OrderEntity queryOrderByOrderId(String orderId);
 
+    List<OrderEntity> queryUserOrderList(String userId, Long lastId, Integer pageSize);
+
+    int refundOrder(String userId, String orderId);
 
 }

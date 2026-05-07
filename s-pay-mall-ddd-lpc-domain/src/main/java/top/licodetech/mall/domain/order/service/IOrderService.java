@@ -2,6 +2,7 @@ package top.licodetech.mall.domain.order.service;
 
 import top.licodetech.mall.domain.order.model.entity.PayOrderEntity;
 import top.licodetech.mall.domain.order.model.entity.ShopCartEntity;
+import top.licodetech.mall.domain.order.model.entity.OrderEntity;
 
 import java.util.Date;
 import java.util.List;
@@ -20,4 +21,8 @@ public interface IOrderService {
     List<String> queryTimeoutCloseOrderList();
 
     boolean changeOrderClose(String orderId);
+
+    List<OrderEntity> queryUserOrderList(String userId, Long lastId, Integer pageSize);
+
+    OrderEntity refundOrder(String userId, String orderId);
 }

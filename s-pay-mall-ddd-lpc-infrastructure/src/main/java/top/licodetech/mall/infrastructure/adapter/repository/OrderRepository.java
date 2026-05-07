@@ -20,8 +20,10 @@ import top.licodetech.mall.types.event.BaseEvent;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Repository
 public class OrderRepository implements IOrderRepository {
@@ -54,6 +56,7 @@ public class OrderRepository implements IOrderRepository {
 
         // 3. 返回结果
         return OrderEntity.builder()
+                .id(order.getId())
                 .productId(order.getProductId())
                 .productName(order.getProductName())
                 .orderId(order.getOrderId())
@@ -186,17 +189,40 @@ public class OrderRepository implements IOrderRepository {
     @Override
     public OrderEntity queryOrderByOrderId(String orderId) {
         PayOrder payOrder = orderDao.queryOrderByOrderId(orderId);
-        if (null == orderId) {
+        if (null == payOrder) {
             return null;
         }
 
+        return buildOrderEntity(payOrder);
+    }
+
+    @Override
+    public List<OrderEntity> queryUserOrderList(String userId, Long lastId, Integer pageSize) {
+        List<PayOrder> payOrderList = orderDao.queryUserOrderList(userId, lastId, pageSize);
+        if (null == payOrderList || payOrderList.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        return payOrderList.stream()
+                .map(this::buildOrderEntity)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public int refundOrder(String userId, String orderId) {
+        return orderDao.refundOrder(userId, orderId);
+    }
+
+    private OrderEntity buildOrderEntity(PayOrder payOrder) {
         return OrderEntity.builder()
+                .id(payOrder.getId())
                 .userId(payOrder.getUserId())
                 .productId(payOrder.getProductId())
                 .productName(payOrder.getProductName())
                 .orderId(payOrder.getOrderId())
                 .orderTime(payOrder.getOrderTime())
                 .totalAmount(payOrder.getTotalAmount())
+                .orderStatusVO(OrderStatusVO.valueOf(payOrder.getStatus()))
                 .payUrl(payOrder.getPayUrl())
                 .marketType(payOrder.getMarketType())
                 .marketDeductionAmount(payOrder.getMarketDeductionAmount())

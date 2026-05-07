@@ -15,6 +15,8 @@ import java.util.Date;
 @NoArgsConstructor
 public class OrderEntity {
 
+    // 自增ID
+    private Long id;
     // 用户ID
     private String userId;
     private String productId;

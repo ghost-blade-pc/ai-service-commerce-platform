@@ -50,7 +50,7 @@
         where order_id = #{orderId}
     </update>
 
-    <update id="changeOrderCloss" parameterType="java.lang.String">
+    <update id="changeOrderClose" parameterType="java.lang.String">
         update pay_order set status = 'CLOSE', pay_time = now(), update_time = now()
         where order_id = #{orderId}
     </update>
@@ -78,10 +78,29 @@
     </update>
 
     <select id="queryOrderByOrderId" parameterType="java.lang.String" resultMap="dataMap">
-        select user_id, product_id, product_name, order_id, order_time, total_amount, status, pay_url, market_type, market_deduction_amount, pay_amount
+        select id, user_id, product_id, product_name, order_id, order_time, total_amount, status, pay_url, market_type, market_deduction_amount, pay_amount
         from pay_order
         where order_id = #{orderId}
     </select>
+
+    <select id="queryUserOrderList" resultMap="dataMap">
+        select id, user_id, product_id, product_name, order_id, order_time, total_amount, status, pay_url, pay_time,
+               market_type, market_deduction_amount, pay_amount, create_time, update_time
+        from pay_order
+        where user_id = #{userId}
+        <if test="lastId != null">
+            and id &lt; #{lastId}
+        </if>
+        order by id desc
+        limit #{pageSize}
+    </select>
+
+    <update id="refundOrder">
+        update pay_order set status = 'REFUNDED', update_time = now()
+        where order_id = #{orderId}
+          and user_id = #{userId}
+          and status in ('PAY_WAIT', 'PAY_SUCCESS')
+    </update>
 
     <update id="changeOrderDealDone" parameterType="java.lang.String">
         update pay_order set status = 'DEAL_DONE', update_time = now()
@@ -89,4 +108,3 @@
     </update>
 
 </mapper>
-

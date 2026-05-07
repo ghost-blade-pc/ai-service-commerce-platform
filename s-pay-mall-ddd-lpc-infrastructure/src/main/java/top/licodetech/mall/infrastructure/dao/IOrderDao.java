@@ -1,6 +1,7 @@
 package top.licodetech.mall.infrastructure.dao;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import top.licodetech.mall.infrastructure.dao.po.PayOrder;
 
 import java.util.List;
@@ -27,5 +28,9 @@ public interface IOrderDao {
     void changeOrderMarketSettlement(List<String> outTradeNoList);
 
     PayOrder queryOrderByOrderId(String orderId);
+
+    List<PayOrder> queryUserOrderList(@Param("userId") String userId, @Param("lastId") Long lastId, @Param("pageSize") Integer pageSize);
+
+    int refundOrder(@Param("userId") String userId, @Param("orderId") String orderId);
 
 }

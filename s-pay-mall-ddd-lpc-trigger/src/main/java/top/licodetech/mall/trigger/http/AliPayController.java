@@ -9,18 +9,28 @@ import org.springframework.web.bind.annotation.*;
 import top.licodetech.mall.api.IPayService;
 import top.licodetech.mall.api.dto.CreatePayRequestDTO;
 import top.licodetech.mall.api.dto.NotifyRequestDTO;
+import top.licodetech.mall.api.dto.QueryUserOrderListRequestDTO;
+import top.licodetech.mall.api.dto.QueryUserOrderListResponseDTO;
+import top.licodetech.mall.api.dto.RefundOrderRequestDTO;
+import top.licodetech.mall.api.dto.RefundOrderResponseDTO;
+import top.licodetech.mall.api.dto.UserOrderItemDTO;
 import top.licodetech.mall.api.response.Response;
+import top.licodetech.mall.domain.order.model.entity.OrderEntity;
 import top.licodetech.mall.domain.order.model.entity.PayOrderEntity;
 import top.licodetech.mall.domain.order.model.entity.ShopCartEntity;
 import top.licodetech.mall.domain.order.model.valobj.MarketTypeVO;
+import top.licodetech.mall.domain.order.model.valobj.OrderStatusVO;
 import top.licodetech.mall.domain.order.service.IOrderService;
 import top.licodetech.mall.types.common.Constants;
+import top.licodetech.mall.types.exception.AppException;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -28,6 +38,10 @@ import java.util.Map;
 @CrossOrigin("*")
 @RequestMapping("/api/v1/alipay/")
 public class AliPayController implements IPayService {
+
+    private static final int DEFAULT_PAGE_SIZE = 10;
+    private static final int MAX_PAGE_SIZE = 50;
+    private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     @Value("${alipay.alipay_public_key}")
     private String alipayPublicKey;
@@ -72,6 +86,85 @@ public class AliPayController implements IPayService {
                     .code(Constants.ResponseCode.UN_ERROR.getCode())
                     .info(Constants.ResponseCode.UN_ERROR.getInfo())
                     .build();
+        }
+    }
+
+    /**
+     * http://localhost:8080/api/v1/alipay/query_user_order_list
+     * {
+     *     "userId": "10001",
+     *     "lastId": null,
+     *     "pageSize": 10
+     * }
+     */
+    @RequestMapping(value = "query_user_order_list", method = RequestMethod.POST)
+    @Override
+    public Response<QueryUserOrderListResponseDTO> queryUserOrderList(@RequestBody QueryUserOrderListRequestDTO requestDTO) {
+        try {
+            if (null == requestDTO) {
+                throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "请求参数不能为空");
+            }
+            int pageSize = parsePageSize(requestDTO.getPageSize());
+            log.info("用户订单查询开始 userId:{} lastId:{} pageSize:{}", requestDTO.getUserId(), requestDTO.getLastId(), pageSize);
+
+            List<OrderEntity> orderEntityList = orderService.queryUserOrderList(requestDTO.getUserId(), requestDTO.getLastId(), pageSize);
+            boolean hasMore = orderEntityList.size() > pageSize;
+            if (hasMore) {
+                orderEntityList = orderEntityList.subList(0, pageSize);
+            }
+
+            List<UserOrderItemDTO> orderList = new ArrayList<>();
+            for (OrderEntity orderEntity : orderEntityList) {
+                orderList.add(buildUserOrderItemDTO(orderEntity));
+            }
+
+            Long lastId = orderList.isEmpty() ? null : orderList.get(orderList.size() - 1).getId();
+            QueryUserOrderListResponseDTO responseDTO = QueryUserOrderListResponseDTO.builder()
+                    .orderList(orderList)
+                    .hasMore(hasMore)
+                    .lastId(lastId)
+                    .build();
+
+            log.info("用户订单查询完成 userId:{} lastId:{} hasMore:{}", requestDTO.getUserId(), lastId, hasMore);
+            return buildSuccessResponse(responseDTO);
+        } catch (AppException e) {
+            log.warn("用户订单查询失败 requestDTO:{} code:{} info:{}", JSON.toJSONString(requestDTO), e.getCode(), e.getInfo());
+            return buildErrorResponse(e.getCode(), e.getInfo());
+        } catch (Exception e) {
+            log.error("用户订单查询异常 requestDTO:{}", JSON.toJSONString(requestDTO), e);
+            return buildErrorResponse(Constants.ResponseCode.UN_ERROR.getCode(), Constants.ResponseCode.UN_ERROR.getInfo());
+        }
+    }
+
+    /**
+     * http://localhost:8080/api/v1/alipay/refund_order
+     * {
+     *     "userId": "10001",
+     *     "orderId": "1234567890123456"
+     * }
+     */
+    @RequestMapping(value = "refund_order", method = RequestMethod.POST)
+    @Override
+    public Response<RefundOrderResponseDTO> refundOrder(@RequestBody RefundOrderRequestDTO requestDTO) {
+        try {
+            if (null == requestDTO) {
+                throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "请求参数不能为空");
+            }
+            log.info("用户退单开始 userId:{} orderId:{}", requestDTO.getUserId(), requestDTO.getOrderId());
+            OrderEntity orderEntity = orderService.refundOrder(requestDTO.getUserId(), requestDTO.getOrderId());
+            RefundOrderResponseDTO responseDTO = RefundOrderResponseDTO.builder()
+                    .orderId(orderEntity.getOrderId())
+                    .status(orderEntity.getOrderStatusVO().getCode())
+                    .statusDesc(orderEntity.getOrderStatusVO().getDesc())
+                    .build();
+            log.info("用户退单完成 userId:{} orderId:{} status:{}", requestDTO.getUserId(), requestDTO.getOrderId(), responseDTO.getStatus());
+            return buildSuccessResponse(responseDTO);
+        } catch (AppException e) {
+            log.warn("用户退单失败 requestDTO:{} code:{} info:{}", JSON.toJSONString(requestDTO), e.getCode(), e.getInfo());
+            return buildErrorResponse(e.getCode(), e.getInfo());
+        } catch (Exception e) {
+            log.error("用户退单异常 requestDTO:{}", JSON.toJSONString(requestDTO), e);
+            return buildErrorResponse(Constants.ResponseCode.UN_ERROR.getCode(), Constants.ResponseCode.UN_ERROR.getInfo());
         }
     }
 
@@ -132,6 +225,46 @@ public class AliPayController implements IPayService {
             log.error("拼团回调，组队完成，结算失败 {}", JSON.toJSONString(requestDTO));
             return "error";
         }
+    }
+
+    private int parsePageSize(Integer pageSize) {
+        int size = null == pageSize ? DEFAULT_PAGE_SIZE : pageSize;
+        if (size <= 0) {
+            throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "pageSize必须大于0");
+        }
+        return Math.min(size, MAX_PAGE_SIZE);
+    }
+
+    private UserOrderItemDTO buildUserOrderItemDTO(OrderEntity orderEntity) {
+        OrderStatusVO orderStatusVO = orderEntity.getOrderStatusVO();
+        String status = null == orderStatusVO ? null : orderStatusVO.getCode();
+        String statusDesc = null == orderStatusVO ? null : orderStatusVO.getDesc();
+        return UserOrderItemDTO.builder()
+                .id(orderEntity.getId())
+                .orderId(orderEntity.getOrderId())
+                .productName(orderEntity.getProductName())
+                .totalAmount(orderEntity.getTotalAmount())
+                .payAmount(orderEntity.getPayAmount())
+                .status(status)
+                .statusDesc(statusDesc)
+                .createTime(null == orderEntity.getOrderTime() ? null : new SimpleDateFormat(DATE_TIME_PATTERN).format(orderEntity.getOrderTime()))
+                .canRefund(OrderStatusVO.canRefund(status))
+                .build();
+    }
+
+    private <T> Response<T> buildSuccessResponse(T data) {
+        return Response.<T>builder()
+                .code(Constants.ResponseCode.SUCCESS.getCode())
+                .info(Constants.ResponseCode.SUCCESS.getInfo())
+                .data(data)
+                .build();
+    }
+
+    private <T> Response<T> buildErrorResponse(String code, String info) {
+        return Response.<T>builder()
+                .code(code)
+                .info(info)
+                .build();
     }
 
 }

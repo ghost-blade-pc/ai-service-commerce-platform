@@ -5,8 +5,10 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.request.AlipayTradePagePayRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import top.licodetech.mall.domain.order.adapter.port.IProductPort;
 import top.licodetech.mall.domain.order.adapter.repository.IOrderRepository;
 import top.licodetech.mall.domain.order.model.aggregate.CreateOrderAggregate;
@@ -15,6 +17,8 @@ import top.licodetech.mall.domain.order.model.entity.OrderEntity;
 import top.licodetech.mall.domain.order.model.entity.PayOrderEntity;
 import top.licodetech.mall.domain.order.model.valobj.MarketTypeVO;
 import top.licodetech.mall.domain.order.model.valobj.OrderStatusVO;
+import top.licodetech.mall.types.common.Constants;
+import top.licodetech.mall.types.exception.AppException;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -24,6 +28,9 @@ import java.util.List;
 @Slf4j
 @Service
 public class OrderService extends AbstractOrderService{
+
+    private static final int DEFAULT_PAGE_SIZE = 10;
+    private static final int MAX_PAGE_SIZE = 50;
 
     @Value("${alipay.notify_url}")
     private String notifyUrl;
@@ -121,5 +128,50 @@ public class OrderService extends AbstractOrderService{
     @Override
     public boolean changeOrderClose(String orderId) {
         return repository.changeOrderClose(orderId);
+    }
+
+    @Override
+    public List<OrderEntity> queryUserOrderList(String userId, Long lastId, Integer pageSize) {
+        if (StringUtils.isBlank(userId)) {
+            throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "userId不能为空");
+        }
+
+        int limit = null == pageSize ? DEFAULT_PAGE_SIZE : pageSize;
+        if (limit <= 0) {
+            throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "pageSize必须大于0");
+        }
+        limit = Math.min(limit, MAX_PAGE_SIZE);
+
+        return repository.queryUserOrderList(userId, lastId, limit + 1);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public OrderEntity refundOrder(String userId, String orderId) {
+        if (StringUtils.isBlank(userId) || StringUtils.isBlank(orderId)) {
+            throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "userId和orderId不能为空");
+        }
+
+        OrderEntity orderEntity = repository.queryOrderByOrderId(orderId);
+        if (null == orderEntity) {
+            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "订单不存在");
+        }
+
+        if (!userId.equals(orderEntity.getUserId())) {
+            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "订单不属于当前用户");
+        }
+
+        OrderStatusVO orderStatusVO = orderEntity.getOrderStatusVO();
+        if (null == orderStatusVO || !OrderStatusVO.canRefund(orderStatusVO.getCode())) {
+            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "当前订单状态不允许退单");
+        }
+
+        int updateCount = repository.refundOrder(userId, orderId);
+        if (1 != updateCount) {
+            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "退单失败，请稍后重试");
+        }
+
+        orderEntity.setOrderStatusVO(OrderStatusVO.REFUNDED);
+        return orderEntity;
     }
 }
