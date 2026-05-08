@@ -5,6 +5,10 @@ import com.alibaba.fastjson2.JSONException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.amqp.core.ExchangeTypes;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import top.licodetech.mall.domain.order.model.valobj.RefundTypeVO;
@@ -19,7 +23,13 @@ public class RefundSuccessTopicListener {
     @Resource
     private IOrderService orderService;
 
-    @RabbitListener(queues = "${spring.rabbitmq.config.consumer.topic_team_refund.queue}")
+    @RabbitListener(
+            bindings = @QueueBinding(
+                    value = @Queue(value = "${spring.rabbitmq.config.consumer.topic_team_refund.queue}"),
+                    exchange = @Exchange(value = "${spring.rabbitmq.config.consumer.topic_team_refund.exchange}", type = ExchangeTypes.TOPIC),
+                    key = "${spring.rabbitmq.config.consumer.topic_team_refund.routing_key}"
+            )
+    )
     public void listener(String message) {
         try {
             log.info("收到拼团退单成功消息 {}", message);

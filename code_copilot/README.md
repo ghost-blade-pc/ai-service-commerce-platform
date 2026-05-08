@@ -56,7 +56,7 @@ code_copilot/changes/<change-name>/log.md
 | Change | 状态 | 说明 |
 |--------|------|------|
 | `refund-market-mq-integration` | done | 退单退款服务对接，包含模拟退款、拼团退款 MQ、幂等和运行期时序修复 |
-| `unpaid-refund-mq-retry-hardening` | done | 修复未支付退单误触发退款、拼团结算 MQ 无限重试，新增有限重试与 DLQ |
+| `team-success-pay-message-analysis` | done | 分析拼团成团后 `TeamSuccessTopicListener` 与 `OrderPaySuccessListener` 近乎同时收到消息的原因 |
 | `payment-callback-realtime` | propose | 后续 bug：支付成功不能总等待 `NoPayNotifyOrderJob` 兜底 |
 | `group-buy-join-discount` | propose | 后续 bug：参团时疑似没有享受拼团优惠 |
 

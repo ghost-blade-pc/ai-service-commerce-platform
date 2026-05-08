@@ -69,10 +69,12 @@
         LIMIT 10
     </select>
 
-    <update id="changeOrderMarketSettlement">
+    <update id="changeOrderMarketSettlement" parameterType="java.util.List">
         update pay_order set status = 'MARKET', update_time = now()
-        where order_id = #{orderId}
-          and status = 'DEAL_DONE'
+        where order_id in
+        <foreach item="orderId" collection="outTradeNoList" open="(" separator="," close=")">
+            #{orderId}
+        </foreach>
     </update>
 
     <select id="queryOrderByOrderId" parameterType="java.lang.String" resultMap="dataMap">
