@@ -98,6 +98,8 @@ services:
     command: rabbitmq-server
     volumes:
       - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
+    networks:
+      - my-network
 
 networks:
   my-network:
