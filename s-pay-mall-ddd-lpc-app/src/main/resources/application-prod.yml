@@ -54,7 +54,7 @@ spring:
 
   # RabbitMQ
   rabbitmq:
-    addresses: 127.0.0.1
+    addresses: rabbitmq
     port: 5672
     username: admin
     password: admin
