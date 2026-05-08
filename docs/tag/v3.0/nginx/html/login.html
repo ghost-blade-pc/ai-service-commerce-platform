@@ -108,6 +108,23 @@
     // 获取场景值
 
     document.addEventListener("DOMContentLoaded", function() {
+        // ./js/v4.js 替换 https://openfpcdn.io/fingerprintjs/v4
+        const fpPromise = import('./js/v4.js')
+            .then(FingerprintJS => FingerprintJS.load());
+
+        fpPromise
+            .then(fp => fp.get())
+            .then(result => {
+                const visitorId = result.visitorId;
+
+                // 无痕登录按钮点击事件
+                const stealthLoginBtn = document.getElementById('stealth-login-btn');
+                stealthLoginBtn.addEventListener('click', () => {
+                    // 将浏览器指纹 ID 作为 Cookie 值写入浏览器
+                    setCookie('loginToken', visitorId, 30);
+                    // 重定向到登录后的页面
+                    window.location.href = 'index.html';
+                });
         let sceneStr = visitorId.toUpperCase();
         // 获取二维码 ticket
         fetch(sPayMallUrl + '/api/v1/login/weixin_qrcode_ticket_scene?sceneStr=' + sceneStr)
