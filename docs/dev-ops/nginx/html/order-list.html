@@ -50,9 +50,9 @@
         }
 
         .order-item {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             padding: 14px;
             border: 1px solid #e5e7eb;
             border-radius: 8px;
@@ -119,8 +119,7 @@
         .actions {
             display: flex;
             align-items: center;
-            justify-content: flex-end;
-            min-width: 76px;
+            padding-top: 4px;
         }
 
         .refund-btn,
@@ -128,7 +127,6 @@
             height: 34px;
             border: none;
             border-radius: 6px;
-            background: #ef4444;
             color: #fff;
             cursor: pointer;
             font-size: 14px;
@@ -136,7 +134,8 @@
         }
 
         .refund-btn {
-            width: 76px;
+            padding: 0 20px;
+            background: #ef4444;
         }
 
         .refund-btn:disabled,
@@ -167,16 +166,8 @@
         }
 
         @media (max-width: 640px) {
-            .order-item {
-                grid-template-columns: 1fr;
-            }
-
             .meta {
                 grid-template-columns: 1fr;
-            }
-
-            .actions {
-                justify-content: flex-start;
             }
         }
     </style>
@@ -257,8 +248,8 @@
                     <span>状态：<span class="status ${statusClass(order.status)}">${escapeHtml(order.statusDesc || order.status)}</span></span>
                     <span>创建时间：${escapeHtml(order.createTime)}</span>
                 </div>
+                <div class="actions"></div>
             </div>
-            <div class="actions"></div>
         `;
 
         const actions = item.querySelector(".actions");

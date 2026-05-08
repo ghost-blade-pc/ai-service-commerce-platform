@@ -59,6 +59,7 @@ code_copilot/changes/<change-name>/log.md
 | `team-success-pay-message-analysis` | done | 分析拼团成团后 `TeamSuccessTopicListener` 与 `OrderPaySuccessListener` 近乎同时收到消息的原因 |
 | `payment-callback-realtime` | propose | 后续 bug：支付成功不能总等待 `NoPayNotifyOrderJob` 兜底 |
 | `group-buy-join-discount` | propose | 后续 bug：参团时疑似没有享受拼团优惠 |
+| `frontend-display-bug` | propose | 前端展示 bug：单独购买支付确认弹窗价格错误 + 退单按钮布局优化 |
 
 ## 基本原则
 
