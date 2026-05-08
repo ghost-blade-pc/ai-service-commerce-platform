@@ -170,11 +170,17 @@ public class OrderRepository implements IOrderRepository {
 
     @Override
     public void changeOrderMarketSettlement(List<String> outTradeNoList) {
-        // 更新拼团结算状态
-        orderDao.changeOrderMarketSettlement(outTradeNoList);
+        if (null == outTradeNoList || outTradeNoList.isEmpty()) {
+            return;
+        }
 
-        // 循环成功发送消息 - 一般在公司的场景里，还会有job任务扫描超时没有结算的订单，查询订单状态。查询对方服务端的接口，会被限制一次查询多少，频次多少。
         outTradeNoList.forEach(outTradeNo -> {
+            int updateCount = orderDao.changeOrderMarketSettlement(outTradeNo);
+            if (1 != updateCount) {
+                return;
+            }
+
+            // 只对本次从 PAY_SUCCESS 推进到 MARKET 的订单发送发货消息，重复消费不重复发货。
             BaseEvent.EventMessage<PaySuccessMessageEvent.PaySuccessMessage> paySuccessMessageEventMessage = paySuccessMessageEvent.buildEventMessage(
                     PaySuccessMessageEvent.PaySuccessMessage.builder()
                             .tradeNo(outTradeNo)

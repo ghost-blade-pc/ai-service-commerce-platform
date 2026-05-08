@@ -2,10 +2,6 @@ package top.licodetech.mall.trigger.listener;
 
 import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.ExchangeTypes;
-import org.springframework.amqp.rabbit.annotation.Exchange;
-import org.springframework.amqp.rabbit.annotation.Queue;
-import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import top.licodetech.mall.domain.goods.service.IGoodsService;
@@ -21,13 +17,7 @@ public class OrderPaySuccessListener {
     private IGoodsService goodsService;
 
 //    @Subscribe
-    @RabbitListener(
-            bindings = @QueueBinding(
-                    value = @Queue(value = "${spring.rabbitmq.config.consumer.topic_order_pay_success.queue}"),
-                    exchange = @Exchange(value = "${spring.rabbitmq.config.consumer.topic_order_pay_success.exchange}", type = ExchangeTypes.TOPIC),
-                    key = "${spring.rabbitmq.config.consumer.topic_order_pay_success.routing_key}"
-            )
-    )
+    @RabbitListener(queues = "${spring.rabbitmq.config.consumer.topic_order_pay_success.queue}")
     public void listener(String paySuccessMessageJson) {
         try {
             log.info("收到支付成功消息 {}", paySuccessMessageJson);
