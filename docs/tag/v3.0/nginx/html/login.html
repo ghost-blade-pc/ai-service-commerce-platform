@@ -107,7 +107,6 @@
     var sPayMallUrl = "http://licodetech.top";
 
     document.addEventListener("DOMContentLoaded", function() {
-        // ./js/v4.js 替换 https://openfpcdn.io/fingerprintjs/v4
         const fpPromise = import('./js/v4.js')
             .then(FingerprintJS => FingerprintJS.load());
 
@@ -115,71 +114,64 @@
             .then(fp => fp.get())
             .then(result => {
                 const visitorId = result.visitorId;
-
-                // 无痕登录按钮点击事件
-                const stealthLoginBtn = document.getElementById('stealth-login-btn');
-                stealthLoginBtn.addEventListener('click', () => {
-                    // 将浏览器指纹 ID 作为 Cookie 值写入浏览器
-                    setCookie('loginToken', visitorId, 30);
-                    // 重定向到登录后的页面
-                    window.location.href = 'index.html';
-                });
-
-                // 获取场景值
                 let sceneStr = visitorId.toUpperCase();
 
-                // 获取二维码 ticket
-                fetch(sPayMallUrl + '/api/v1/login/weixin_qrcode_ticket_scene?sceneStr=' + sceneStr)
+                const stealthLoginBtn = document.getElementById('stealth-login-btn');
+                if (stealthLoginBtn) {
+                    stealthLoginBtn.addEventListener('click', () => {
+                        setCookie('loginToken', visitorId, 30);
+                        window.location.href = 'index.html';
+                    });
+                }
+
+                fetch(sPayMallUrl + '/api/v1/login/weixin_qrcode_ticket_scene?sceneStr=' + encodeURIComponent(sceneStr))
                     .then(response => response.json())
                     .then(data => {
                         if (data.code === "0000") {
                             const ticket = data.data;
                             const qrCodeImg = document.getElementById('qr-code-img');
-                            qrCodeImg.src = `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=${ticket}`;
+
+                            qrCodeImg.src = `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=${encodeURIComponent(ticket)}`;
                             qrCodeImg.classList.remove('pulse');
 
-                            // 开始轮询检查登录状态
                             const intervalId = setInterval(() => {
                                 checkLoginStatus(ticket, intervalId);
-                            }, 3000); // 每3秒检查一次
+                            }, 3000);
                         } else {
                             console.error('获取二维码 ticket 失败:', data.info);
                         }
                     })
                     .catch(error => {
-                        console.error('请求失败:', error);
+                        console.error('请求二维码 ticket 失败:', error);
                     });
 
                 function checkLoginStatus(ticket, intervalId) {
-                    fetch(sPayMallUrl + `/api/v1/login/check_login_scene?ticket=${ticket}&sceneStr=` + sceneStr)
+                    fetch(sPayMallUrl + `/api/v1/login/check_login_scene?ticket=${encodeURIComponent(ticket)}&sceneStr=${encodeURIComponent(sceneStr)}`)
                         .then(response => response.json())
                         .then(data => {
                             if (data.code === "0000") {
-                                console.info("login success");
-                                // 停止轮询
                                 clearInterval(intervalId);
-                                // 保存登录 token 到 cookie，设置有效期为30天
                                 setCookie('loginToken', data.data, 30);
-                                // 在这里可以重定向到登录后的页面
-                                window.location.href = 'index.html'; // 假设登录成功后跳转到首页
+                                window.location.href = 'index.html';
                             } else {
                                 console.info("login wait");
                             }
                         })
                         .catch(error => {
-                            console.error('请求失败:', error);
+                            console.error('检查登录状态失败:', error);
                         });
                 }
 
                 function setCookie(name, value, days) {
                     const date = new Date();
-                    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
                     const expires = "expires=" + date.toUTCString();
                     document.cookie = name + "=" + value + ";" + expires + ";path=/";
                 }
-
+            })
+            .catch(error => {
+                console.error('FingerprintJS 加载失败:', error);
             });
-
     });
 </script>
 </body>
