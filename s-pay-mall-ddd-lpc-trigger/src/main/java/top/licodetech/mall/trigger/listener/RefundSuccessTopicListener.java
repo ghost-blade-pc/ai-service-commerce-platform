@@ -1,6 +1,7 @@
 package top.licodetech.mall.trigger.listener;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -11,7 +12,6 @@ import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 import top.licodetech.mall.domain.order.service.IOrderService;
-import top.licodetech.mall.types.exception.AppException;
 
 import javax.annotation.Resource;
 
@@ -41,24 +41,16 @@ public class RefundSuccessTopicListener {
                 return;
             }
 
-            orderService.changeOrderRefundSuccess(orderId);
-        } catch (AppException e) {
-            if (isPermanentBusinessException(e)) {
-                log.warn("拼团退单成功消息无法在支付商城落地，按永久业务异常确认消息 message:{} code:{} info:{}", message, e.getCode(), e.getInfo());
-                return;
+            boolean success = orderService.receiveRefundSuccessMessage(orderId, message);
+            if (!success) {
+                log.warn("拼团退单成功消息已落入本地退款任务，等待补偿重试 message:{}", message);
             }
-            log.error("处理拼团退单成功消息失败 {}", message, e);
-            throw e;
+        } catch (JSONException e) {
+            log.warn("拼团退单成功消息格式错误，按永久异常确认消息 message:{}", message, e);
         } catch (Exception e) {
-            log.error("处理拼团退单成功消息失败 {}", message, e);
+            log.error("处理拼团退单成功消息失败，消息未可靠落库将触发MQ重试 {}", message, e);
             throw e;
         }
-    }
-
-    private boolean isPermanentBusinessException(AppException e) {
-        String info = e.getInfo();
-        return "订单不存在".equals(info)
-                || "当前订单状态不允许完成退款".equals(info);
     }
 
     @Data

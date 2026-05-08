@@ -49,6 +49,26 @@ CREATE TABLE `pay_order` (
      KEY `idx_user_id_id` (`user_id`,`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4;
 
+# 转储表 pay_refund_task
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `pay_refund_task`;
+
+CREATE TABLE `pay_refund_task` (
+     `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+     `order_id` varchar(16) NOT NULL COMMENT '支付商城订单ID',
+     `message` text COMMENT '拼团退单成功消息',
+     `status` varchar(16) NOT NULL COMMENT '任务状态；PENDING-待处理、PROCESSING-处理中、RETRY-待重试、SUCCESS-成功、FAILED-失败',
+     `retry_count` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重试次数',
+     `error_info` varchar(512) DEFAULT NULL COMMENT '错误信息',
+     `next_retry_time` datetime DEFAULT NULL COMMENT '下次重试时间',
+     `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+     `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+     PRIMARY KEY (`id`),
+     UNIQUE KEY `uq_order_id` (`order_id`),
+     KEY `idx_status_next_retry_time` (`status`, `next_retry_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

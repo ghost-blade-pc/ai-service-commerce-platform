@@ -27,4 +27,10 @@ public interface IOrderService {
     OrderEntity refundOrder(String userId, String orderId);
 
     OrderEntity changeOrderRefundSuccess(String orderId);
+
+    boolean receiveRefundSuccessMessage(String orderId, String message);
+
+    boolean processRefundTask(String orderId);
+
+    List<String> queryPendingRefundTaskOrderList(Integer pageSize);
 }

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import top.licodetech.mall.domain.order.adapter.port.IProductPort;
 import top.licodetech.mall.domain.order.adapter.port.IRefundPort;
 import top.licodetech.mall.domain.order.adapter.repository.IOrderRepository;
+import top.licodetech.mall.domain.order.adapter.repository.IRefundTaskRepository;
 import top.licodetech.mall.domain.order.model.aggregate.CreateOrderAggregate;
 import top.licodetech.mall.domain.order.model.entity.MarketPayDiscountEntity;
 import top.licodetech.mall.domain.order.model.entity.OrderEntity;
@@ -32,6 +33,8 @@ public class OrderService extends AbstractOrderService{
 
     private static final int DEFAULT_PAGE_SIZE = 10;
     private static final int MAX_PAGE_SIZE = 50;
+    private static final int DEFAULT_REFUND_TASK_PAGE_SIZE = 20;
+    private static final int MAX_REFUND_TASK_PAGE_SIZE = 100;
     private static final int REFUND_STATUS_QUERY_RETRY_TIMES = 3;
     private static final long REFUND_STATUS_QUERY_RETRY_INTERVAL_MILLIS = 100L;
 
@@ -45,6 +48,9 @@ public class OrderService extends AbstractOrderService{
 
     @Resource
     private IRefundPort refundPort;
+
+    @Resource
+    private IRefundTaskRepository refundTaskRepository;
 
     public OrderService(IOrderRepository repository, IProductPort port) {
         super(repository, port);
@@ -261,6 +267,65 @@ public class OrderService extends AbstractOrderService{
         return orderEntity;
     }
 
+    @Override
+    public boolean receiveRefundSuccessMessage(String orderId, String message) {
+        if (StringUtils.isBlank(orderId)) {
+            throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "orderId不能为空");
+        }
+        if (null == refundTaskRepository) {
+            changeOrderRefundSuccess(orderId);
+            return true;
+        }
+
+        refundTaskRepository.saveRefundTask(orderId, message);
+        return processRefundTask(orderId);
+    }
+
+    @Override
+    public boolean processRefundTask(String orderId) {
+        if (StringUtils.isBlank(orderId)) {
+            throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "orderId不能为空");
+        }
+        if (null == refundTaskRepository) {
+            changeOrderRefundSuccess(orderId);
+            return true;
+        }
+
+        int lockCount = refundTaskRepository.lockRefundTask(orderId);
+        if (1 != lockCount) {
+            return false;
+        }
+
+        try {
+            changeOrderRefundSuccess(orderId);
+            refundTaskRepository.markRefundTaskSuccess(orderId);
+            return true;
+        } catch (AppException e) {
+            if (isPermanentRefundTaskException(e)) {
+                refundTaskRepository.markRefundTaskFailed(orderId, e.getInfo());
+                log.warn("拼团退单成功消息无法在支付商城落地，标记退款任务永久失败 orderId:{} code:{} info:{}", orderId, e.getCode(), e.getInfo());
+            } else {
+                refundTaskRepository.markRefundTaskRetry(orderId, e.getInfo());
+                log.warn("拼团退单成功消息暂未完成处理，标记退款任务重试 orderId:{} code:{} info:{}", orderId, e.getCode(), e.getInfo());
+            }
+            return false;
+        } catch (Exception e) {
+            refundTaskRepository.markRefundTaskRetry(orderId, e.getMessage());
+            log.warn("拼团退单成功消息处理异常，标记退款任务重试 orderId:{}", orderId, e);
+            return false;
+        }
+    }
+
+    @Override
+    public List<String> queryPendingRefundTaskOrderList(Integer pageSize) {
+        int limit = null == pageSize ? DEFAULT_REFUND_TASK_PAGE_SIZE : pageSize;
+        if (limit <= 0) {
+            throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "pageSize必须大于0");
+        }
+        limit = Math.min(limit, MAX_REFUND_TASK_PAGE_SIZE);
+        return refundTaskRepository.queryPendingRefundTaskOrderList(limit);
+    }
+
     private OrderEntity queryRefundingOrRefundedOrder(String orderId, String errorInfo) {
         for (int retry = 0; retry <= REFUND_STATUS_QUERY_RETRY_TIMES; retry++) {
             OrderEntity latestOrderEntity = repository.queryOrderByOrderId(orderId);
@@ -289,5 +354,11 @@ public class OrderService extends AbstractOrderService{
             Thread.currentThread().interrupt();
             throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "等待退款状态提交被中断 orderId:" + orderId);
         }
+    }
+
+    private boolean isPermanentRefundTaskException(AppException e) {
+        String info = e.getInfo();
+        return "订单不存在".equals(info)
+                || "当前订单状态不允许完成退款".equals(info);
     }
 }
