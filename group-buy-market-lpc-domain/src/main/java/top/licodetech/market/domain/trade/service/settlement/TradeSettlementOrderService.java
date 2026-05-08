@@ -35,6 +35,7 @@ public class TradeSettlementOrderService implements ITradeSettlementOrderService
     @Resource
     private ThreadPoolExecutor threadPoolExecutor;
 
+    @Resource
     private ITradeTaskService tradeTaskService;
 
     @Resource
