@@ -13,6 +13,9 @@
 - **用户订单列表**: Controller 限制 pageSize 最大 50，并通过 `lastId` 游标分页查询用户订单 → `top.licodetech.mall.trigger.http.AliPayController#queryUserOrderList`
 - **退款**: 退款入口返回订单最新状态和描述，领域层需要负责订单归属和可退款状态判断；拼团退款先进入 `REFUNDING`，消费 `topic.team_refund` 后模拟退款并置 `REFUNDED` → `top.licodetech.mall.domain.order.service.OrderService#refundOrder`
 - **退款 MQ 时序**: `topic.team_refund` 可能快于本地 `REFUNDING` 事务提交，退款确认需要短暂重查 `REFUNDING/REFUNDED` 状态 → `top.licodetech.mall.domain.order.service.OrderService#queryRefundingOrRefundedOrder`
+- **退单类型**: 支付商城必须解析拼团退款消息 `type`，`unpaid_unlock` 只完成退单状态不调用退款端口，`paid_unformed/paid_formed` 才调用退款端口 → `top.licodetech.mall.domain.order.model.valobj.RefundTypeVO`
+- **普通未支付退单**: 未选择营销拼团的 `PAY_WAIT` 普通订单退单不存在资金退款，只推进到 `REFUNDED` → `top.licodetech.mall.domain.order.service.OrderService#refundOrder`
+- **拼团结算幂等**: 消费 `topic.team_success` 时只允许 `PAY_SUCCESS -> MARKET`，只有实际更新成功的订单才发布 `topic.order_pay_success` → `top.licodetech.mall.infrastructure.adapter.repository.OrderRepository#changeOrderMarketSettlement`
 
 ## 技术约定
 
@@ -30,3 +33,5 @@
 - **敏感配置**: `application-dev.yml` 当前含沙箱密钥和数据库密码，新增文档示例不要复制真实值。
 - **拼团 DTO 字段兼容**: 外部拼团响应新增字段时，支付商城 `infrastructure/gateway/dto` 必须同步字段或配置容错，否则 Retrofit/Jackson 反序列化失败会导致错误降级。
 - **MQ 先于事务提交**: 跨服务 HTTP 返回后立刻投递 MQ 时，消费者可能先于本服务事务提交查库，不能只按第一次查询结果判断永久失败。
+- **MQ 有限重试/DLQ**: 支付商城关键 RabbitMQ listener 使用 Spring Retry 最多 3 次尝试，超过后 reject 且不 requeue，由 DLQ 承接人工处理 → `top.licodetech.mall.config.RabbitMQConfig`
+- **RabbitMQ 队列参数不可变**: 给已有队列增加 DLX 参数会触发 `PRECONDITION_FAILED`，发布前必须删除/重建旧队列或手工迁移。
