@@ -3,6 +3,7 @@ package top.licodetech.mall.trigger.job;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import top.licodetech.mall.domain.order.model.entity.RefundTaskEntity;
 import top.licodetech.mall.domain.order.service.IOrderService;
 
 import javax.annotation.Resource;
@@ -21,14 +22,15 @@ public class RefundTaskJob {
     public void exec() {
         try {
             log.info("任务；处理待补偿退款任务");
-            List<String> orderIds = orderService.queryPendingRefundTaskOrderList(PAGE_SIZE);
-            if (null == orderIds || orderIds.isEmpty()) {
+            List<RefundTaskEntity> refundTaskEntities = orderService.queryPendingRefundTaskList(PAGE_SIZE);
+            if (null == refundTaskEntities || refundTaskEntities.isEmpty()) {
                 return;
             }
 
-            for (String orderId : orderIds) {
+            for (RefundTaskEntity refundTaskEntity : refundTaskEntities) {
+                String orderId = refundTaskEntity.getOrderId();
                 try {
-                    boolean success = orderService.processRefundTask(orderId);
+                    boolean success = orderService.processRefundTask(refundTaskEntity);
                     log.info("退款任务补偿处理 orderId:{} success:{}", orderId, success);
                 } catch (Exception e) {
                     log.error("退款任务补偿处理失败 orderId:{}", orderId, e);

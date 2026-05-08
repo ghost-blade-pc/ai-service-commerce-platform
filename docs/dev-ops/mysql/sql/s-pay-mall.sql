@@ -57,6 +57,7 @@ DROP TABLE IF EXISTS `pay_refund_task`;
 CREATE TABLE `pay_refund_task` (
      `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
      `order_id` varchar(16) NOT NULL COMMENT '支付商城订单ID',
+     `refund_type` varchar(32) DEFAULT NULL COMMENT '退单类型',
      `message` text COMMENT '拼团退单成功消息',
      `status` varchar(16) NOT NULL COMMENT '任务状态；PENDING-待处理、PROCESSING-处理中、RETRY-待重试、SUCCESS-成功、FAILED-失败',
      `retry_count` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重试次数',

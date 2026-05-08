@@ -1,6 +1,7 @@
 package top.licodetech.mall.domain.order.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson2.JSON;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.request.AlipayTradePagePayRequest;
@@ -17,8 +18,10 @@ import top.licodetech.mall.domain.order.model.aggregate.CreateOrderAggregate;
 import top.licodetech.mall.domain.order.model.entity.MarketPayDiscountEntity;
 import top.licodetech.mall.domain.order.model.entity.OrderEntity;
 import top.licodetech.mall.domain.order.model.entity.PayOrderEntity;
+import top.licodetech.mall.domain.order.model.entity.RefundTaskEntity;
 import top.licodetech.mall.domain.order.model.valobj.MarketTypeVO;
 import top.licodetech.mall.domain.order.model.valobj.OrderStatusVO;
+import top.licodetech.mall.domain.order.model.valobj.RefundTypeVO;
 import top.licodetech.mall.types.common.Constants;
 import top.licodetech.mall.types.exception.AppException;
 
@@ -203,12 +206,24 @@ public class OrderService extends AbstractOrderService{
             }
         }
 
-        return changeOrderRefundSuccess(orderId);
+        return changeOrderRefundSuccess(orderId, needPayRefund(orderStatusVO));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public OrderEntity changeOrderRefundSuccess(String orderId) {
+        return changeOrderRefundSuccess(orderId, true);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public OrderEntity changeOrderRefundSuccess(String orderId, RefundTypeVO refundType) {
+        if (null == refundType) {
+            throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "refundType不能为空");
+        }
+        return changeOrderRefundSuccess(orderId, refundType.isNeedPayRefund());
+    }
+
+    private OrderEntity changeOrderRefundSuccess(String orderId, boolean needPayRefund) {
         if (StringUtils.isBlank(orderId)) {
             throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "orderId不能为空");
         }
@@ -241,15 +256,17 @@ public class OrderService extends AbstractOrderService{
             throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "当前订单状态不允许完成退款");
         }
 
-        BigDecimal refundAmount = null != orderEntity.getPayAmount() ? orderEntity.getPayAmount() : orderEntity.getTotalAmount();
-        if (null == refundAmount) {
-            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "退款金额不能为空");
-        }
+        if (needPayRefund) {
+            BigDecimal refundAmount = null != orderEntity.getPayAmount() ? orderEntity.getPayAmount() : orderEntity.getTotalAmount();
+            if (null == refundAmount) {
+                throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "退款金额不能为空");
+            }
 
-        if (null != refundPort && !refundPort.refund(orderId, refundAmount)) {
-            throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "模拟退款失败");
-        } else if (null == refundPort) {
-            log.info("模拟退款端口未注入，按测试场景跳过外部退款 orderId:{} refundAmount:{}", orderId, refundAmount);
+            if (null != refundPort && !refundPort.refund(orderId, refundAmount)) {
+                throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "模拟退款失败");
+            } else if (null == refundPort) {
+                log.info("模拟退款端口未注入，按测试场景跳过外部退款 orderId:{} refundAmount:{}", orderId, refundAmount);
+            }
         }
 
         int updateCount = repository.changeOrderRefunded(orderId);
@@ -269,25 +286,50 @@ public class OrderService extends AbstractOrderService{
 
     @Override
     public boolean receiveRefundSuccessMessage(String orderId, String message) {
+        return receiveRefundSuccessMessage(orderId, RefundTypeVO.PAID_FORMED, message);
+    }
+
+    @Override
+    public boolean receiveRefundSuccessMessage(String orderId, RefundTypeVO refundType, String message) {
         if (StringUtils.isBlank(orderId)) {
             throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "orderId不能为空");
         }
+        if (null == refundType) {
+            throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "refundType不能为空");
+        }
         if (null == refundTaskRepository) {
-            changeOrderRefundSuccess(orderId);
+            changeOrderRefundSuccess(orderId, refundType);
             return true;
         }
 
-        refundTaskRepository.saveRefundTask(orderId, message);
-        return processRefundTask(orderId);
+        refundTaskRepository.saveRefundTask(orderId, refundType, message);
+        return processRefundTask(RefundTaskEntity.builder()
+                .orderId(orderId)
+                .refundType(refundType)
+                .message(message)
+                .build());
     }
 
     @Override
     public boolean processRefundTask(String orderId) {
+        return processRefundTask(RefundTaskEntity.builder()
+                .orderId(orderId)
+                .refundType(RefundTypeVO.PAID_FORMED)
+                .build());
+    }
+
+    @Override
+    public boolean processRefundTask(RefundTaskEntity refundTaskEntity) {
+        if (null == refundTaskEntity) {
+            throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "refundTaskEntity不能为空");
+        }
+        String orderId = refundTaskEntity.getOrderId();
         if (StringUtils.isBlank(orderId)) {
             throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "orderId不能为空");
         }
+        RefundTypeVO refundType = resolveRefundType(refundTaskEntity);
         if (null == refundTaskRepository) {
-            changeOrderRefundSuccess(orderId);
+            changeOrderRefundSuccess(orderId, refundType);
             return true;
         }
 
@@ -297,7 +339,10 @@ public class OrderService extends AbstractOrderService{
         }
 
         try {
-            changeOrderRefundSuccess(orderId);
+            if (null == refundType) {
+                throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "退单类型缺失或非法");
+            }
+            changeOrderRefundSuccess(orderId, refundType);
             refundTaskRepository.markRefundTaskSuccess(orderId);
             return true;
         } catch (AppException e) {
@@ -317,13 +362,33 @@ public class OrderService extends AbstractOrderService{
     }
 
     @Override
-    public List<String> queryPendingRefundTaskOrderList(Integer pageSize) {
+    public List<RefundTaskEntity> queryPendingRefundTaskList(Integer pageSize) {
         int limit = null == pageSize ? DEFAULT_REFUND_TASK_PAGE_SIZE : pageSize;
         if (limit <= 0) {
             throw new AppException(Constants.ResponseCode.ILLEGAL_PARAMETER.getCode(), "pageSize必须大于0");
         }
         limit = Math.min(limit, MAX_REFUND_TASK_PAGE_SIZE);
-        return refundTaskRepository.queryPendingRefundTaskOrderList(limit);
+        return refundTaskRepository.queryPendingRefundTaskList(limit);
+    }
+
+    private RefundTypeVO resolveRefundType(RefundTaskEntity refundTaskEntity) {
+        if (null != refundTaskEntity.getRefundType()) {
+            return refundTaskEntity.getRefundType();
+        }
+        if (StringUtils.isBlank(refundTaskEntity.getMessage())) {
+            return null;
+        }
+        try {
+            com.alibaba.fastjson2.JSONObject messageJson = JSON.parseObject(refundTaskEntity.getMessage());
+            return RefundTypeVO.of(messageJson.getString("type"));
+        } catch (Exception e) {
+            log.warn("解析退款任务退单类型失败 orderId:{} message:{}", refundTaskEntity.getOrderId(), refundTaskEntity.getMessage(), e);
+            return null;
+        }
+    }
+
+    private boolean needPayRefund(OrderStatusVO orderStatusVO) {
+        return null != orderStatusVO && !OrderStatusVO.PAY_WAIT.equals(orderStatusVO);
     }
 
     private OrderEntity queryRefundingOrRefundedOrder(String orderId, String errorInfo) {
@@ -359,6 +424,7 @@ public class OrderService extends AbstractOrderService{
     private boolean isPermanentRefundTaskException(AppException e) {
         String info = e.getInfo();
         return "订单不存在".equals(info)
-                || "当前订单状态不允许完成退款".equals(info);
+                || "当前订单状态不允许完成退款".equals(info)
+                || "退单类型缺失或非法".equals(info);
     }
 }

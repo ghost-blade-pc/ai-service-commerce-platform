@@ -17,6 +17,8 @@ public class RefundTask {
 
     private String orderId;
 
+    private String refundType;
+
     private String message;
 
     private String status;

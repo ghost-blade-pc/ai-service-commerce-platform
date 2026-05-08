@@ -19,6 +19,6 @@ public interface IRefundTaskDao {
 
     void markRefundTaskFailed(@Param("orderId") String orderId, @Param("errorInfo") String errorInfo);
 
-    List<String> queryPendingRefundTaskOrderList(@Param("pageSize") Integer pageSize);
+    List<RefundTask> queryPendingRefundTaskList(@Param("pageSize") Integer pageSize);
 
 }

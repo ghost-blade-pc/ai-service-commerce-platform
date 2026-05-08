@@ -11,6 +11,7 @@ import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
+import top.licodetech.mall.domain.order.model.valobj.RefundTypeVO;
 import top.licodetech.mall.domain.order.service.IOrderService;
 
 import javax.annotation.Resource;
@@ -40,8 +41,14 @@ public class RefundSuccessTopicListener {
                 log.warn("拼团退单成功消息缺少订单号 message:{}", message);
                 return;
             }
+            RefundTypeVO refundType = RefundTypeVO.of(refundSuccessMessage.getType());
+            if (null == refundType) {
+                log.warn("拼团退单成功消息退单类型缺失或非法，按永久异常确认消息 orderId:{} type:{} message:{}",
+                        orderId, refundSuccessMessage.getType(), message);
+                return;
+            }
 
-            boolean success = orderService.receiveRefundSuccessMessage(orderId, message);
+            boolean success = orderService.receiveRefundSuccessMessage(orderId, refundType, message);
             if (!success) {
                 log.warn("拼团退单成功消息已落入本地退款任务，等待补偿重试 message:{}", message);
             }

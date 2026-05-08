@@ -1,8 +1,10 @@
 package top.licodetech.mall.domain.order.service;
 
 import top.licodetech.mall.domain.order.model.entity.PayOrderEntity;
+import top.licodetech.mall.domain.order.model.entity.RefundTaskEntity;
 import top.licodetech.mall.domain.order.model.entity.ShopCartEntity;
 import top.licodetech.mall.domain.order.model.entity.OrderEntity;
+import top.licodetech.mall.domain.order.model.valobj.RefundTypeVO;
 
 import java.util.Date;
 import java.util.List;
@@ -30,7 +32,11 @@ public interface IOrderService {
 
     boolean receiveRefundSuccessMessage(String orderId, String message);
 
+    boolean receiveRefundSuccessMessage(String orderId, RefundTypeVO refundType, String message);
+
     boolean processRefundTask(String orderId);
 
-    List<String> queryPendingRefundTaskOrderList(Integer pageSize);
+    boolean processRefundTask(RefundTaskEntity refundTaskEntity);
+
+    List<RefundTaskEntity> queryPendingRefundTaskList(Integer pageSize);
 }
