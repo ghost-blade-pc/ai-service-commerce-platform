@@ -1,0 +1,41 @@
+package top.licodetech.market.domain.trade.model.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import top.licodetech.market.domain.trade.model.valobj.NotifyConfigVO;
+
+import java.math.BigDecimal;
+
+/**
+ * @author LiPC
+ * @description
+ * @create 2025-12-25 19:59
+ */
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class PayDiscountEntity {
+
+    /** 渠道 */
+    private String source;
+    /** 来源 */
+    private String channel;
+    /** 商品ID */
+    private String goodsId;
+    /** 商品名称 */
+    private String goodsName;
+    /** 原始价格 */
+    private BigDecimal originalPrice;
+    /** 折扣金额 */
+    private BigDecimal deductionPrice;
+    /** 支付金额 */
+    private BigDecimal payPrice;
+    /** 外部交易单号-确保外部调用唯一幂等 */
+    private String outTradeNo;
+    /** 回调地址 */
+    private NotifyConfigVO notifyConfigVO;
+
+}

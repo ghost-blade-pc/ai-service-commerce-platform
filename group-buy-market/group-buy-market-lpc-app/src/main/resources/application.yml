@@ -1,0 +1,5 @@
+spring:
+  config:
+    name: group-buy-market-lpc-app
+  profiles:
+    active: prod
