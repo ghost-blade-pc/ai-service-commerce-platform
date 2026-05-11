@@ -1,0 +1,107 @@
+version: '3.17'
+# docker-compose -f docker-compose-app-v1.0.yml up -d
+services:
+  # 部署前端项目
+  group-buy-market-front:
+    image: registry.cn-hangzhou.aliyuncs.com/xfg-studio/nginx:latest
+    container_name: nginx
+    restart: always
+    ports:
+      - '80:80'
+    volumes:
+      - ./nginx/html:/usr/share/nginx/html
+      - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf/conf.d:/etc/nginx/conf.d
+    privileged: true
+
+  # 部署后端项目 - 小型支付商城
+  s-pay-mall-app:
+    image: lipeicheng/s-pay-mall-ddd-lpc-app:3.0
+    container_name: s-pay-mall-app
+    restart: on-failure
+    ports:
+      - "9091:8080"
+    environment:
+      - TZ=PRC
+      - SERVER_PORT=8080
+      - APP_CONFIG_GROUP_BUY_MARKET_API_URL=http://licodetech.top
+      - APP_CONFIG_GROUP_BUY_MARKET_NOTIFY_URL=http://licodetech.top/api/v1/alipay/group_buy_notify
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=qweiop123.mysql
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/s-pay-mall?serverTimezone=UTC&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_HIKARI_POOL_NAME=Retail_HikariCP
+      - WEIXIN_CONFIG_ORIGINALID=gh_aec3b0f21ae2
+      - WEIXIN_CONFIG_TOKEN=180818ly
+      - WEIXIN_CONFIG_APP_ID=wx39335001840306f6
+      - WEIXIN_CONFIG_APP_SECRET=d588ef20942027994721fba5aff6ed25
+      - WEIXIN_CONFIG_TEMPLATE_ID=Ky9LEqquuj73KUuj8UAlKWBzR_IjujNt-t7_23SWE-E
+      - ALIPAY_NOTIFY_URL=http://licodetech.top/api/v1/alipay/alipay_notify_url
+      - ALIPAY_RETURN_URL=http://licodetech.top
+    volumes:
+      - ./log:/data/log
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+  # 拼团，负载01
+  group-buy-market-01:
+    image: lipeicheng/group-buy-market-lpc-app:3.0
+    container_name: group-buy-market-app-01
+    restart: on-failure
+    ports:
+      - "8091:8091"
+    environment:
+      - TZ=PRC
+      - SERVER_PORT=8091
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=qweiop123.mysql
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/group_buy_market?serverTimezone=UTC&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_HIKARI_POOL_NAME=Retail_HikariCP
+      - REDIS_SDK_CONFIG_HOST=redis
+      - REDIS_SDK_CONFIG_PORT=6379
+      - XFG_WRENCH_CONFIG_SYSTEM=group-buy-market
+      - XFG_WRENCH_CONFIG_REGISTER_HOST=redis
+      - XFG_WRENCH_CONFIG_REGISTER_PORT=6379
+      - LOGSTASH_HOST=logstash
+    volumes:
+      - ./log:/data/log
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+  # 拼团，负载02
+  group-buy-market-02:
+    image: lipeicheng/group-buy-market-lpc-app:3.0
+    container_name: group-buy-market-app-02
+    restart: on-failure
+    ports:
+      - "8092:8091"
+    environment:
+      - TZ=PRC
+      - SERVER_PORT=8091
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=qweiop123.mysql
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/group_buy_market?serverTimezone=UTC&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
+      - SPRING_HIKARI_POOL_NAME=Retail_HikariCP
+      - REDIS_SDK_CONFIG_HOST=redis
+      - REDIS_SDK_CONFIG_PORT=6379
+      - XFG_WRENCH_CONFIG_SYSTEM=group-buy-market
+      - XFG_WRENCH_CONFIG_REGISTER_HOST=redis
+      - XFG_WRENCH_CONFIG_REGISTER_PORT=6379
+    volumes:
+      - ./log:/data/log
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  default:
+    name: software_my-network
+    external: true
