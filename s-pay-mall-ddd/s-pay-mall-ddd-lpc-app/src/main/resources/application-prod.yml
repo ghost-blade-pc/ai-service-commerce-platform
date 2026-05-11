@@ -1,0 +1,133 @@
+server:
+  port: 9091
+
+# 应用配置
+app:
+  config:
+    # 版本，方便通过接口版本升级
+    api-version: v1
+    # 跨域，开发阶段可以设置为 * 不限制
+    cross-origin: '*'
+    # SC 渠道配置 - 拼团对接渠道值、回调通知
+    group-buy-market:
+      api-url: http://licodetech.top
+      notify-url: http://licodetech.top/api/v1/alipay/group_buy_notify
+      source: s01
+      chanel: c01
+
+# 线程池配置
+thread:
+  pool:
+    executor:
+      config:
+        core-pool-size: 20
+        max-pool-size: 50
+        keep-alive-time: 5000
+        block-queue-size: 5000
+        policy: CallerRunsPolicy
+
+weixin:
+  config:
+    originalid: gh_aec3b0f21ae2
+    token: 180818ly
+    app-id: wx39335001840306f6
+    app-secret: d588ef20942027994721fba5aff6ed25
+    template_id: Ky9LEqquuj73KUuj8UAlKWBzR_IjujNt-t7_23SWE-E
+
+# 数据库配置；启动时配置数据库资源信息
+spring:
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://127.0.0.1:3306/s-pay-mall?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&useSSL=true
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  hikari:
+    pool-name: Retail_HikariCP
+    minimum-idle: 15 #最小空闲连接数量
+    idle-timeout: 180000 #空闲连接存活最大时间，默认600000（10分钟）
+    maximum-pool-size: 25 #连接池最大连接数，默认是10
+    auto-commit: true  #此属性控制从池返回的连接的默认自动提交行为,默认值：true
+    max-lifetime: 1800000 #此属性控制池中连接的最长生命周期，值0表示无限生命周期，默认1800000即30分钟
+    connection-timeout: 30000 #数据库连接超时时间,默认30秒，即30000
+    connection-test-query: SELECT 1
+  type: com.zaxxer.hikari.HikariDataSource
+
+  # RabbitMQ
+  rabbitmq:
+    addresses: rabbitmq
+    port: 5672
+    username: admin
+    password: admin
+    listener:
+      simple:
+        prefetch: 1 # 每次投递n个消息，消费完在投递n个
+    template:
+      delivery-mode: persistent # 确保全局默认设置为持久化（可选）
+    # 消息配置
+    config:
+      # 生产者
+      producer:
+        # 主题配置
+        topic_order_pay_success:
+          # 绑定交换机
+          exchange: s_pay_mall_exchange
+          # 消费主题
+          routing_key: topic.order_pay_success
+          # 消费队列
+          queue: s_pay_mall_queue_2_order_pay_success
+      # 消费者
+      consumer:
+        # 消费 topic 主题，team_success
+        topic_team_success:
+          # 绑定交换机 - 消息提供者的交换机
+          exchange: group_buy_market_exchange
+          # 消息主题
+          routing_key: topic.team_success
+          # 消费队列 - 每个系统有自己的消费队列
+          queue: s_pay_mall_queue_2_topic_team_success
+        # 消费 topic 主题，team_refund
+        topic_team_refund:
+          # 绑定交换机 - 消息提供者的交换机
+          exchange: group_buy_market_exchange
+          # 消息主题
+          routing_key: topic.team_refund
+          # 消费队列 - 每个系统有自己的消费队列
+          queue: s_pay_mall_queue_2_topic_team_refund
+        # 主题配置
+        topic_order_pay_success:
+          # 绑定交换机
+          exchange: s_pay_mall_exchange
+          # 消费主题
+          routing_key: topic.order_pay_success
+          # 消费队列
+          queue: s_pay_mall_queue_2_order_pay_success
+
+# MyBatis 配置【如需使用记得打开】
+mybatis:
+  mapper-locations: classpath:/mybatis/mapper/*.xml
+  config-location:  classpath:/mybatis/config/mybatis-config.xml
+
+# 支付宝支付 - 沙箱 https://opendocs.alipay.com/common/02kkv7
+alipay:
+  enabled: true
+  app_id: 9021000154646739
+  merchant_private_key: MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCDwcs11gMNCrKODS8iyIoqCqu+f/E0aSsGQr0n/hF2vNBWz7GpSBM8T7uU3m9jxXjF8cGw3cDhcnyHGcpi3PSdXfw45F+bKNyhiQKVRJuYcR0QzaqoGyHhsHU1SZDgcQWk/+MX9LiYcK9sBUIcwmH0UeXoqxN2kOkTyWIVQXcGQ9tWqBXk7Sln9RyXchEu4H+pKCRWgZnVmK0JLbCvynZADijpksmFOSNqMFVLI4SqfdbeUHFn/pdIu6kJzmAzvOJc/0X8Qk458RLc4AQ96UF8G+7D0678JY7Z+F8nrLhdXr28MwDP0UBRbv0w3UxwWlDSuZMJhDqCfdz/jPohdJvbAgMBAAECggEAbZP6Fo8jwG/6KiwK3KneRrLTPT8Y8tbYgn9049Lo4VCNEPXxMvGPleRWBKyuBVNRa4bx6M+0v4tAx/eKG4jaJBrrTsGYRenI/Mt/C3eg1DqWysfRu7e9CP+Bq0zAofk9kYmDbAQKljV5n6QL5PFBGDoYtNW6/SvtvJgK69SjUeBZOXTXuOhTMf/GIE3WF2g1OhvL6lJdBEM3yPJONCL+S/YyNFr5zmzcA28A4a1BTXfrV5xYIqRfTxjlkD0HbllHxd3PwgGmTIxPM43FCBXnOEb5/8Oe6nYkw5vA4p2rbI3qjmyfQmo2FCQd6eYhf14CmWPiMtLCHWmXhQOMg1UUwQKBgQDpYibtRuqpbEPsD3C30gu3l8YmNBA5cIxKbVOma5ERh5TrSiSHhJevPffwb5EqptQDUljIcRY6I/VnYKXLl552C8z8iNR12agVRz/xwU5oCfJlUyLv8vhkwSe8LOwcXdg6zODws/S0ut1ZwKQh26DdM512E9KNBtWSWw6nFw+q4QKBgQCQhnZlvPKNwxmwPyrOVyRVTey1WPBQ2Zp96lIt5Pxk0vro3u5Jn56XZI3H1wUTf2LJsyGGINVx/sy5wMfdfkbQrsmDGIUxEK9wTz+RlB4RUFDp55ZhOwrQyI7cL1vbllkXvOA7e9fr2QcnDDy9HoptYdxuUI8SYkqP7Vmjx4l6OwKBgQCFp6xbXq2s8U/EtOL8otILBmR4JIDWJFpzlUC+ogOmYlsqlH9vDMRBm9+OVpZwMrJgZJxrzjfIfCdiWLsaaW5adE+koEfsZgYYiYFZVjcs5eVnmcD8Yc1XBjdXUPK3HBdlNUftEWImzo1NhUF6EmmBxLl8kcWW9j8BXhx6HH7ggQKBgHa5312ooOGQWvQMkE++Cp0BTOmVTKY+fMnfyu7k4+q332Oab8qPlCrucgKvQv5HcZIc0/dp1a62ENyv4AC3EdmxHN3TMOeju1vZ3nDrat/ySOY+V608YaAugh2j0iRMGJiFkveKv1CCk3uic+swwasl7324NDB4CqS96RvAedGtAoGAEXPd0mPsVjdbx2Z2G8il1kUtCcNJolv4iqHmpfPQB+sAIZFNZKQMI3FjMH6EAJDNxqmE76o7E7Y/fl6748v9/8BDecVvJLdS9EwfHGMj2R7bfwj0CfYOql7FQ61krdkFA/8A87vs9RK/7ImC5O0C3Hf7KY22Z+6SsSUfOtA+yyc=
+  alipay_public_key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApjVKWfZp5e6/eyY2beWSBLxQVgepuxJBObN9rvXdIO6dLufwHJRmauzzK3v0auh9orvaTXnpkt45Kn11et5fG3Vh1bWDaNt2xO3/5rdGVRP7UHMSpBRTCVU52ibUG3cQsASn4n+4lAJtR2hfRDkFV4bOng9VgkbhdB0JzRBoUsd98BhIEpDs7omFaBsCByaF4EFOiIbie8gfVD9v8ycBpniyaz1RVRl/2rIMvXZuhUQx87KvdCiSfhAhv0FQYWJ71K9MD3e05GWTQRJLpaAcTJf3cFwp+9q9vCQEXjq+faNuyVr/u6IcNEB+VE/vlpGJYygXxP8M2lpMpmyMC/N1qQIDAQAB
+  notify_url: http://licodetech.top/api/v1/alipay/alipay_notify_url
+#  return_url: http://localhost:63342/s-pay-mall-ddd-lpc/docs/dev-ops/nginx/html/index.html
+  return_url: http://licodetech.top
+  gatewayUrl: https://openapi-sandbox.dl.alipaydev.com/gateway.do
+
+# SC 渠道配置 - 拼团对接渠道值
+sc:
+  group:
+    buy:
+      market:
+        source: s01
+        chanel: c01
+
+# 日志
+logging:
+  level:
+    root: info
+  config: classpath:logback-spring.xml

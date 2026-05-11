@@ -1,0 +1,496 @@
+package top.licodetech.mall.test.domain;
+
+import org.junit.Test;
+import org.springframework.test.util.ReflectionTestUtils;
+import top.licodetech.mall.domain.order.adapter.port.IProductPort;
+import top.licodetech.mall.domain.order.adapter.port.IRefundPort;
+import top.licodetech.mall.domain.order.adapter.repository.IOrderRepository;
+import top.licodetech.mall.domain.order.adapter.repository.IRefundTaskRepository;
+import top.licodetech.mall.domain.order.model.entity.OrderEntity;
+import top.licodetech.mall.domain.order.model.entity.RefundTaskEntity;
+import top.licodetech.mall.domain.order.model.valobj.MarketTypeVO;
+import top.licodetech.mall.domain.order.model.valobj.OrderStatusVO;
+import top.licodetech.mall.domain.order.model.valobj.RefundTypeVO;
+import top.licodetech.mall.domain.order.service.OrderService;
+import top.licodetech.mall.types.exception.AppException;
+
+import java.math.BigDecimal;
+import java.util.Collections;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+public class OrderServiceRefundTest {
+
+    @Test
+    public void test_refundOrder_noMarket_payWait_success() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        IRefundPort refundPort = mock(IRefundPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+        ReflectionTestUtils.setField(orderService, "refundPort", refundPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                        .userId("xiaofuge")
+                        .orderId("100001")
+                        .orderStatusVO(OrderStatusVO.PAY_WAIT)
+                        .marketType(MarketTypeVO.NO_MARKET.getCode())
+                        .payAmount(BigDecimal.TEN)
+                        .build(),
+                OrderEntity.builder()
+                        .userId("xiaofuge")
+                        .orderId("100001")
+                        .orderStatusVO(OrderStatusVO.REFUNDING)
+                        .marketType(MarketTypeVO.NO_MARKET.getCode())
+                        .payAmount(BigDecimal.TEN)
+                        .build());
+        when(repository.changeOrderRefunding("xiaofuge", "100001")).thenReturn(1);
+        when(repository.changeOrderRefunded("100001")).thenReturn(1);
+
+        OrderEntity orderEntity = orderService.refundOrder("xiaofuge", "100001");
+
+        assertEquals(OrderStatusVO.REFUNDED, orderEntity.getOrderStatusVO());
+        verify(refundPort, never()).refund("100001", BigDecimal.TEN);
+        verify(repository).changeOrderRefunding("xiaofuge", "100001");
+        verify(repository).changeOrderRefunded("100001");
+    }
+
+    @Test
+    public void test_refundOrder_noMarket_paySuccess_callPayRefund() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        IRefundPort refundPort = mock(IRefundPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+        ReflectionTestUtils.setField(orderService, "refundPort", refundPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                        .userId("xiaofuge")
+                        .orderId("100001")
+                        .orderStatusVO(OrderStatusVO.PAY_SUCCESS)
+                        .marketType(MarketTypeVO.NO_MARKET.getCode())
+                        .payAmount(BigDecimal.TEN)
+                        .build(),
+                OrderEntity.builder()
+                        .userId("xiaofuge")
+                        .orderId("100001")
+                        .orderStatusVO(OrderStatusVO.REFUNDING)
+                        .marketType(MarketTypeVO.NO_MARKET.getCode())
+                        .payAmount(BigDecimal.TEN)
+                        .build());
+        when(repository.changeOrderRefunding("xiaofuge", "100001")).thenReturn(1);
+        when(refundPort.refund("100001", BigDecimal.TEN)).thenReturn(true);
+        when(repository.changeOrderRefunded("100001")).thenReturn(1);
+
+        OrderEntity orderEntity = orderService.refundOrder("xiaofuge", "100001");
+
+        assertEquals(OrderStatusVO.REFUNDED, orderEntity.getOrderStatusVO());
+        verify(refundPort).refund("100001", BigDecimal.TEN);
+        verify(repository).changeOrderRefunding("xiaofuge", "100001");
+        verify(repository).changeOrderRefunded("100001");
+    }
+
+    @Test
+    public void test_refundOrder_groupBuy_paySuccess_refunding() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                .userId("xiaofuge")
+                .orderId("100001")
+                .orderStatusVO(OrderStatusVO.PAY_SUCCESS)
+                .marketType(MarketTypeVO.GROUP_BUY_MARKET.getCode())
+                .payAmount(BigDecimal.TEN)
+                .build());
+        when(productPort.refundMarketPayOrder("xiaofuge", "100001")).thenReturn(true);
+        when(repository.changeOrderRefunding("xiaofuge", "100001")).thenReturn(1);
+
+        OrderEntity orderEntity = orderService.refundOrder("xiaofuge", "100001");
+
+        assertEquals(OrderStatusVO.REFUNDING, orderEntity.getOrderStatusVO());
+        verify(productPort).refundMarketPayOrder("xiaofuge", "100001");
+        verify(repository).changeOrderRefunding("xiaofuge", "100001");
+    }
+
+    @Test
+    public void test_changeOrderRefundSuccess_refunding_success() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                .userId("xiaofuge")
+                .orderId("100001")
+                .orderStatusVO(OrderStatusVO.REFUNDING)
+                .payAmount(BigDecimal.TEN)
+                .build());
+        when(repository.changeOrderRefunded("100001")).thenReturn(1);
+
+        OrderEntity orderEntity = orderService.changeOrderRefundSuccess("100001");
+
+        assertEquals(OrderStatusVO.REFUNDED, orderEntity.getOrderStatusVO());
+        verify(repository).changeOrderRefunded("100001");
+    }
+
+    @Test
+    public void test_changeOrderRefundSuccess_payWait_success() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                .userId("xiaofuge")
+                .orderId("100001")
+                .orderStatusVO(OrderStatusVO.PAY_WAIT)
+                .payAmount(BigDecimal.TEN)
+                .build());
+        when(repository.changeOrderRefunding("xiaofuge", "100001")).thenReturn(1);
+        when(repository.changeOrderRefunded("100001")).thenReturn(1);
+
+        OrderEntity orderEntity = orderService.changeOrderRefundSuccess("100001");
+
+        assertEquals(OrderStatusVO.REFUNDED, orderEntity.getOrderStatusVO());
+        verify(repository).changeOrderRefunding("xiaofuge", "100001");
+        verify(repository).changeOrderRefunded("100001");
+    }
+
+    @Test
+    public void test_changeOrderRefundSuccess_payWait_refundingRace_success() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                        .userId("xiaofuge")
+                        .orderId("100001")
+                        .orderStatusVO(OrderStatusVO.PAY_WAIT)
+                        .payAmount(BigDecimal.TEN)
+                        .build(),
+                OrderEntity.builder()
+                        .userId("xiaofuge")
+                        .orderId("100001")
+                        .orderStatusVO(OrderStatusVO.REFUNDING)
+                        .payAmount(BigDecimal.TEN)
+                        .build());
+        when(repository.changeOrderRefunding("xiaofuge", "100001")).thenReturn(0);
+        when(repository.changeOrderRefunded("100001")).thenReturn(1);
+
+        OrderEntity orderEntity = orderService.changeOrderRefundSuccess("100001");
+
+        assertEquals(OrderStatusVO.REFUNDED, orderEntity.getOrderStatusVO());
+        verify(repository).changeOrderRefunding("xiaofuge", "100001");
+        verify(repository).changeOrderRefunded("100001");
+    }
+
+    @Test
+    public void test_changeOrderRefundSuccess_payWait_inFlightRefundingRetry_success() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                        .userId("xiaofuge")
+                        .orderId("100001")
+                        .orderStatusVO(OrderStatusVO.PAY_WAIT)
+                        .payAmount(BigDecimal.TEN)
+                        .build(),
+                OrderEntity.builder()
+                        .userId("xiaofuge")
+                        .orderId("100001")
+                        .orderStatusVO(OrderStatusVO.PAY_WAIT)
+                        .payAmount(BigDecimal.TEN)
+                        .build(),
+                OrderEntity.builder()
+                        .userId("xiaofuge")
+                        .orderId("100001")
+                        .orderStatusVO(OrderStatusVO.REFUNDING)
+                        .payAmount(BigDecimal.TEN)
+                        .build());
+        when(repository.changeOrderRefunding("xiaofuge", "100001")).thenReturn(0);
+        when(repository.changeOrderRefunded("100001")).thenReturn(1);
+
+        OrderEntity orderEntity = orderService.changeOrderRefundSuccess("100001");
+
+        assertEquals(OrderStatusVO.REFUNDED, orderEntity.getOrderStatusVO());
+        verify(repository).changeOrderRefunding("xiaofuge", "100001");
+        verify(repository).changeOrderRefunded("100001");
+    }
+
+    @Test
+    public void test_changeOrderRefundSuccess_refunding_refundedRace_success() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                        .userId("xiaofuge")
+                        .orderId("100001")
+                        .orderStatusVO(OrderStatusVO.REFUNDING)
+                        .payAmount(BigDecimal.TEN)
+                        .build(),
+                OrderEntity.builder()
+                        .userId("xiaofuge")
+                        .orderId("100001")
+                        .orderStatusVO(OrderStatusVO.REFUNDED)
+                        .payAmount(BigDecimal.TEN)
+                        .build());
+        when(repository.changeOrderRefunded("100001")).thenReturn(0);
+
+        OrderEntity orderEntity = orderService.changeOrderRefundSuccess("100001");
+
+        assertEquals(OrderStatusVO.REFUNDED, orderEntity.getOrderStatusVO());
+        verify(repository).changeOrderRefunded("100001");
+    }
+
+    @Test
+    public void test_changeOrderRefundSuccess_refunded_repeat() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                .userId("xiaofuge")
+                .orderId("100001")
+                .orderStatusVO(OrderStatusVO.REFUNDED)
+                .payAmount(BigDecimal.TEN)
+                .build());
+
+        OrderEntity orderEntity = orderService.changeOrderRefundSuccess("100001");
+
+        assertEquals(OrderStatusVO.REFUNDED, orderEntity.getOrderStatusVO());
+    }
+
+    @Test
+    public void test_changeOrderRefundSuccess_unpaidUnlock_skipPayRefund() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        IRefundPort refundPort = mock(IRefundPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+        ReflectionTestUtils.setField(orderService, "refundPort", refundPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                .userId("xiaofuge")
+                .orderId("100001")
+                .orderStatusVO(OrderStatusVO.REFUNDING)
+                .payAmount(BigDecimal.TEN)
+                .build());
+        when(repository.changeOrderRefunded("100001")).thenReturn(1);
+
+        OrderEntity orderEntity = orderService.changeOrderRefundSuccess("100001", RefundTypeVO.UNPAID_UNLOCK);
+
+        assertEquals(OrderStatusVO.REFUNDED, orderEntity.getOrderStatusVO());
+        verify(refundPort, never()).refund("100001", BigDecimal.TEN);
+        verify(repository).changeOrderRefunded("100001");
+    }
+
+    @Test
+    public void test_changeOrderRefundSuccess_paidUnformed_callPayRefund() {
+        assertPaidRefundTypeCallPayRefund(RefundTypeVO.PAID_UNFORMED);
+    }
+
+    @Test
+    public void test_changeOrderRefundSuccess_paidFormed_callPayRefund() {
+        assertPaidRefundTypeCallPayRefund(RefundTypeVO.PAID_FORMED);
+    }
+
+    @Test
+    public void test_receiveRefundSuccessMessage_saveTaskAndProcess_success() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        IRefundTaskRepository refundTaskRepository = mock(IRefundTaskRepository.class);
+        OrderService orderService = new OrderService(repository, productPort);
+        ReflectionTestUtils.setField(orderService, "refundTaskRepository", refundTaskRepository);
+
+        when(refundTaskRepository.lockRefundTask("100001")).thenReturn(1);
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                .userId("xiaofuge")
+                .orderId("100001")
+                .orderStatusVO(OrderStatusVO.REFUNDING)
+                .payAmount(BigDecimal.TEN)
+                .build());
+        when(repository.changeOrderRefunded("100001")).thenReturn(1);
+
+        boolean success = orderService.receiveRefundSuccessMessage("100001", RefundTypeVO.PAID_UNFORMED, "{\"type\":\"paid_unformed\",\"outTradeNo\":\"100001\"}");
+
+        assertTrue(success);
+        verify(refundTaskRepository).saveRefundTask("100001", RefundTypeVO.PAID_UNFORMED, "{\"type\":\"paid_unformed\",\"outTradeNo\":\"100001\"}");
+        verify(refundTaskRepository).lockRefundTask("100001");
+        verify(refundTaskRepository).markRefundTaskSuccess("100001");
+    }
+
+    @Test
+    public void test_processRefundTask_historyMessageParseUnpaidUnlock_skipPayRefund() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        IRefundPort refundPort = mock(IRefundPort.class);
+        IRefundTaskRepository refundTaskRepository = mock(IRefundTaskRepository.class);
+        OrderService orderService = new OrderService(repository, productPort);
+        ReflectionTestUtils.setField(orderService, "refundPort", refundPort);
+        ReflectionTestUtils.setField(orderService, "refundTaskRepository", refundTaskRepository);
+
+        when(refundTaskRepository.lockRefundTask("100001")).thenReturn(1);
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                .userId("xiaofuge")
+                .orderId("100001")
+                .orderStatusVO(OrderStatusVO.REFUNDING)
+                .payAmount(BigDecimal.TEN)
+                .build());
+        when(repository.changeOrderRefunded("100001")).thenReturn(1);
+
+        boolean success = orderService.processRefundTask(RefundTaskEntity.builder()
+                .orderId("100001")
+                .message("{\"type\":\"unpaid_unlock\",\"outTradeNo\":\"100001\"}")
+                .build());
+
+        assertTrue(success);
+        verify(refundPort, never()).refund("100001", BigDecimal.TEN);
+        verify(refundTaskRepository).markRefundTaskSuccess("100001");
+    }
+
+    @Test
+    public void test_processRefundTask_missingRefundType_failed() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        IRefundTaskRepository refundTaskRepository = mock(IRefundTaskRepository.class);
+        OrderService orderService = new OrderService(repository, productPort);
+        ReflectionTestUtils.setField(orderService, "refundTaskRepository", refundTaskRepository);
+
+        when(refundTaskRepository.lockRefundTask("100001")).thenReturn(1);
+
+        boolean success = orderService.processRefundTask(RefundTaskEntity.builder()
+                .orderId("100001")
+                .message("{\"outTradeNo\":\"100001\"}")
+                .build());
+
+        assertFalse(success);
+        verify(refundTaskRepository).markRefundTaskFailed("100001", "退单类型缺失或非法");
+    }
+
+    @Test
+    public void test_processRefundTask_permanentBusinessException_failed() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        IRefundTaskRepository refundTaskRepository = mock(IRefundTaskRepository.class);
+        OrderService orderService = new OrderService(repository, productPort);
+        ReflectionTestUtils.setField(orderService, "refundTaskRepository", refundTaskRepository);
+
+        when(refundTaskRepository.lockRefundTask("100001")).thenReturn(1);
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                .userId("xiaofuge")
+                .orderId("100001")
+                .orderStatusVO(OrderStatusVO.CLOSE)
+                .payAmount(BigDecimal.TEN)
+                .build());
+
+        boolean success = orderService.processRefundTask("100001");
+
+        assertFalse(success);
+        verify(refundTaskRepository).markRefundTaskFailed("100001", "当前订单状态不允许完成退款");
+    }
+
+    @Test
+    public void test_processRefundTask_transientBusinessException_retry() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        IRefundTaskRepository refundTaskRepository = mock(IRefundTaskRepository.class);
+        OrderService orderService = new OrderService(repository, productPort);
+        ReflectionTestUtils.setField(orderService, "refundTaskRepository", refundTaskRepository);
+
+        when(refundTaskRepository.lockRefundTask("100001")).thenReturn(1);
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                .userId("xiaofuge")
+                .orderId("100001")
+                .orderStatusVO(OrderStatusVO.PAY_WAIT)
+                .payAmount(BigDecimal.TEN)
+                .build());
+        when(repository.changeOrderRefunding("xiaofuge", "100001")).thenReturn(0);
+
+        boolean success = orderService.processRefundTask("100001");
+
+        assertFalse(success);
+        verify(refundTaskRepository).markRefundTaskRetry("100001", "更新退单中状态失败");
+    }
+
+    @Test
+    public void test_refundOrder_notOwner_fail() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                .userId("other")
+                .orderId("100001")
+                .orderStatusVO(OrderStatusVO.PAY_SUCCESS)
+                .build());
+
+        try {
+            orderService.refundOrder("xiaofuge", "100001");
+            fail("未抛出订单归属异常");
+        } catch (AppException e) {
+            assertEquals("订单不属于当前用户", e.getInfo());
+        }
+    }
+
+    @Test
+    public void test_refundOrder_closeStatus_fail() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                .userId("xiaofuge")
+                .orderId("100001")
+                .orderStatusVO(OrderStatusVO.CLOSE)
+                .build());
+
+        try {
+            orderService.refundOrder("xiaofuge", "100001");
+            fail("未抛出状态不允许异常");
+        } catch (AppException e) {
+            assertEquals("当前订单状态不允许退单", e.getInfo());
+        }
+    }
+
+    @Test
+    public void test_queryUserOrderList_limitPageSize() {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+
+        when(repository.queryUserOrderList("xiaofuge", null, 51)).thenReturn(Collections.emptyList());
+
+        orderService.queryUserOrderList("xiaofuge", null, 100);
+
+        verify(repository).queryUserOrderList("xiaofuge", null, 51);
+    }
+
+    private void assertPaidRefundTypeCallPayRefund(RefundTypeVO refundType) {
+        IOrderRepository repository = mock(IOrderRepository.class);
+        IProductPort productPort = mock(IProductPort.class);
+        IRefundPort refundPort = mock(IRefundPort.class);
+        OrderService orderService = new OrderService(repository, productPort);
+        ReflectionTestUtils.setField(orderService, "refundPort", refundPort);
+
+        when(repository.queryOrderByOrderId("100001")).thenReturn(OrderEntity.builder()
+                .userId("xiaofuge")
+                .orderId("100001")
+                .orderStatusVO(OrderStatusVO.REFUNDING)
+                .payAmount(BigDecimal.TEN)
+                .build());
+        when(refundPort.refund("100001", BigDecimal.TEN)).thenReturn(true);
+        when(repository.changeOrderRefunded("100001")).thenReturn(1);
+
+        OrderEntity orderEntity = orderService.changeOrderRefundSuccess("100001", refundType);
+
+        assertEquals(OrderStatusVO.REFUNDED, orderEntity.getOrderStatusVO());
+        verify(refundPort).refund("100001", BigDecimal.TEN);
+        verify(repository).changeOrderRefunded("100001");
+    }
+
+}

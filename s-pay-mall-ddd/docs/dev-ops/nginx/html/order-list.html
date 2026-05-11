@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S Pay Mall 订单列表</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background: #f5f7fb;
+            color: #1f2937;
+            font-family: "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .page {
+            width: min(960px, 100%);
+            margin: 0 auto;
+            padding: 18px 14px 40px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 10px 0 18px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .home-link {
+            color: #2563eb;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .order-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .order-item {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .order-main {
+            min-width: 0;
+        }
+
+        .product-name {
+            overflow: hidden;
+            color: #111827;
+            font-size: 16px;
+            font-weight: 600;
+            line-height: 1.4;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .meta {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px 18px;
+            margin-top: 10px;
+            color: #4b5563;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .meta span {
+            overflow-wrap: anywhere;
+        }
+
+        .amount {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .status {
+            display: inline-flex;
+            align-items: center;
+            height: 24px;
+            padding: 0 8px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #3730a3;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .status.refunded {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .status.closed {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            padding-top: 4px;
+        }
+
+        .refund-btn,
+        .load-more {
+            height: 34px;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .refund-btn {
+            padding: 0 20px;
+            background: #ef4444;
+        }
+
+        .refund-btn:disabled,
+        .load-more:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: center;
+            padding-top: 18px;
+        }
+
+        .load-more {
+            width: min(280px, 100%);
+            background: #2563eb;
+        }
+
+        .empty,
+        .message {
+            padding: 26px 14px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        @media (max-width: 640px) {
+            .meta {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="page">
+    <header class="header">
+        <h1 class="title">我的订单</h1>
+        <a class="home-link" href="index.html">返回商城</a>
+    </header>
+
+    <section id="orderList" class="order-list"></section>
+    <div id="message" class="message">加载中...</div>
+    <div class="footer">
+        <button id="loadMore" class="load-more" type="button" hidden>加载更多</button>
+    </div>
+</main>
+
+<script>
+    const sPayMallUrl = "http://127.0.0.1:8080";
+    const pageSize = 10;
+    let lastId = null;
+    let hasMore = false;
+    let loading = false;
+
+    const orderListEl = document.getElementById("orderList");
+    const messageEl = document.getElementById("message");
+    const loadMoreBtn = document.getElementById("loadMore");
+
+    function getCookie(name) {
+        const cookieArr = document.cookie.split(";");
+        for (let i = 0; i < cookieArr.length; i++) {
+            const cookiePair = cookieArr[i].split("=");
+            if (name === cookiePair[0].trim()) {
+                return decodeURIComponent(cookiePair[1]);
+            }
+        }
+        return null;
+    }
+
+    function formatAmount(value) {
+        if (value === null || value === undefined || value === "") {
+            return "0.00";
+        }
+        return Number(value).toFixed(2);
+    }
+
+    function escapeHtml(value) {
+        if (value === null || value === undefined) {
+            return "-";
+        }
+        return String(value)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    function statusClass(status) {
+        if (status === "REFUNDED") return "refunded";
+        if (status === "CLOSE") return "closed";
+        return "";
+    }
+
+    function renderOrder(order) {
+        const item = document.createElement("article");
+        item.className = "order-item";
+        item.dataset.orderId = order.orderId;
+
+        const amount = order.payAmount || order.totalAmount;
+        item.innerHTML = `
+            <div class="order-main">
+                <div class="product-name">${escapeHtml(order.productName)}</div>
+                <div class="meta">
+                    <span>订单号：${escapeHtml(order.orderId)}</span>
+                    <span>金额：<strong class="amount">¥${formatAmount(amount)}</strong></span>
+                    <span>状态：<span class="status ${statusClass(order.status)}">${escapeHtml(order.statusDesc || order.status)}</span></span>
+                    <span>创建时间：${escapeHtml(order.createTime)}</span>
+                </div>
+                <div class="actions"></div>
+            </div>
+        `;
+
+        const actions = item.querySelector(".actions");
+        if (order.canRefund) {
+            const refundBtn = document.createElement("button");
+            refundBtn.className = "refund-btn";
+            refundBtn.type = "button";
+            refundBtn.textContent = "退单";
+            refundBtn.addEventListener("click", () => refundOrder(order.orderId, item));
+            actions.appendChild(refundBtn);
+        }
+
+        orderListEl.appendChild(item);
+    }
+
+    function updateMessage(text, visible) {
+        messageEl.textContent = text;
+        messageEl.hidden = !visible;
+    }
+
+    function updateLoadMore() {
+        loadMoreBtn.hidden = !hasMore;
+        loadMoreBtn.disabled = loading;
+    }
+
+    function loadOrders() {
+        if (loading) return;
+        loading = true;
+        updateLoadMore();
+        updateMessage(orderListEl.children.length === 0 ? "加载中..." : "", orderListEl.children.length === 0);
+
+        fetch(sPayMallUrl + "/api/v1/alipay/query_user_order_list", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                userId: userId,
+                lastId: lastId,
+                pageSize: pageSize
+            })
+        })
+        .then(response => response.json())
+        .then(json => {
+            if (json.code !== "0000") {
+                updateMessage(json.info || "订单加载失败", true);
+                return;
+            }
+
+            const data = json.data || {};
+            const orders = data.orderList || [];
+            orders.forEach(renderOrder);
+            lastId = data.lastId || null;
+            hasMore = data.hasMore === true;
+
+            if (orderListEl.children.length === 0) {
+                updateMessage("暂无订单", true);
+            } else {
+                updateMessage("", false);
+            }
+        })
+        .catch(error => {
+            console.error("订单加载失败:", error);
+            updateMessage("订单加载失败", true);
+        })
+        .finally(() => {
+            loading = false;
+            updateLoadMore();
+        });
+    }
+
+    function refundOrder(orderId, item) {
+        if (!confirm("确认退单？")) {
+            return;
+        }
+
+        const button = item.querySelector(".refund-btn");
+        if (button) {
+            button.disabled = true;
+        }
+
+        fetch(sPayMallUrl + "/api/v1/alipay/refund_order", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                userId: userId,
+                orderId: orderId
+            })
+        })
+        .then(response => response.json())
+        .then(json => {
+            if (json.code !== "0000") {
+                alert(json.info || "退单失败，请稍后重试");
+                if (button) button.disabled = false;
+                return;
+            }
+
+            const data = json.data || {};
+            const statusEl = item.querySelector(".status");
+            statusEl.textContent = data.statusDesc || data.status || "已退单";
+            statusEl.className = "status refunded";
+            const actions = item.querySelector(".actions");
+            actions.innerHTML = "";
+        })
+        .catch(error => {
+            console.error("退单失败:", error);
+            alert("退单失败，请稍后重试");
+            if (button) button.disabled = false;
+        });
+    }
+
+    const userId = getCookie("loginToken");
+    if (!userId) {
+        window.location.href = "login.html";
+    } else {
+        loadMoreBtn.addEventListener("click", loadOrders);
+        document.addEventListener("DOMContentLoaded", loadOrders);
+    }
+</script>
+</body>
+</html>

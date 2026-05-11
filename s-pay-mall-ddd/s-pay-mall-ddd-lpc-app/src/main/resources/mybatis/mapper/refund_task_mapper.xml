@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.licodetech.mall.infrastructure.dao.IRefundTaskDao">
+
+    <insert id="insertIgnore" parameterType="top.licodetech.mall.infrastructure.dao.po.RefundTask">
+        insert ignore into pay_refund_task(order_id, refund_type, message, status, retry_count, next_retry_time)
+        values (#{orderId}, #{refundType}, #{message}, #{status}, #{retryCount}, now())
+    </insert>
+
+    <update id="lockRefundTask">
+        update pay_refund_task
+        set status = 'PROCESSING', update_time = now()
+        where order_id = #{orderId}
+          and (
+              status in ('PENDING', 'RETRY')
+              and (next_retry_time is null or next_retry_time &lt;= now())
+              or (status = 'PROCESSING' and update_time &lt; date_sub(now(), interval 5 minute))
+          )
+    </update>
+
+    <update id="markRefundTaskSuccess">
+        update pay_refund_task
+        set status = 'SUCCESS',
+            error_info = null,
+            update_time = now()
+        where order_id = #{orderId}
+    </update>
+
+    <update id="markRefundTaskRetry">
+        update pay_refund_task
+        set status = 'RETRY',
+            retry_count = retry_count + 1,
+            error_info = #{errorInfo},
+            next_retry_time = date_add(now(), interval least(retry_count + 1, 10) minute),
+            update_time = now()
+        where order_id = #{orderId}
+    </update>
+
+    <update id="markRefundTaskFailed">
+        update pay_refund_task
+        set status = 'FAILED',
+            error_info = #{errorInfo},
+            update_time = now()
+        where order_id = #{orderId}
+    </update>
+
+    <resultMap id="refundTaskMap" type="top.licodetech.mall.infrastructure.dao.po.RefundTask">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="refund_type" property="refundType"/>
+        <result column="message" property="message"/>
+        <result column="status" property="status"/>
+        <result column="retry_count" property="retryCount"/>
+        <result column="error_info" property="errorInfo"/>
+        <result column="next_retry_time" property="nextRetryTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="queryPendingRefundTaskList" resultMap="refundTaskMap">
+        select id, order_id, refund_type, message, status, retry_count, error_info, next_retry_time, create_time, update_time
+        from pay_refund_task
+        where (
+              status in ('PENDING', 'RETRY')
+              and (next_retry_time is null or next_retry_time &lt;= now())
+              or (status = 'PROCESSING' and update_time &lt; date_sub(now(), interval 5 minute))
+          )
+        order by id asc
+        limit #{pageSize}
+    </select>
+
+</mapper>
