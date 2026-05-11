@@ -1,10 +1,11 @@
-# 命令执行 docker-compose -f docker-compose-environment-aliyun.yml up -d
+name: ai-service-commerce-platform
+
+# 命令执行 docker compose -f docker-compose-environment.yml up -d
 # docker 代理和使用文档；https://bugstack.cn/md/road-map/docker.html
-version: '3.9'
 services:
   mysql:
     image: mysql:8.0.32
-    container_name: mysql
+    container_name: ai-service-commerce-platform-mysql
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     environment:
@@ -21,12 +22,12 @@ services:
       retries: 10
       start_period: 15s
     networks:
-      - my-network
+      - commerce-network
 
   # phpmyadmin https://hub.docker.com/_/phpmyadmin
   phpmyadmin:
     image: phpmyadmin:5.2.1
-    container_name: phpmyadmin
+    container_name: ai-service-commerce-platform-phpmyadmin
     hostname: phpmyadmin
     ports:
       - 8899:80
@@ -38,12 +39,12 @@ services:
       mysql:
         condition: service_healthy
     networks:
-      - my-network
+      - commerce-network
 
   # Redis
   redis:
     image: redis:6.2
-    container_name: redis
+    container_name: ai-service-commerce-platform-redis
     restart: always
     hostname: redis
     privileged: true
@@ -53,7 +54,7 @@ services:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
     command: redis-server /usr/local/etc/redis/redis.conf
     networks:
-      - my-network
+      - commerce-network
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
       interval: 10s
@@ -63,7 +64,7 @@ services:
   # RedisAdmin https://github.com/joeferner/redis-commander
   redis-admin:
     image: spryker/redis-commander:0.8.0
-    container_name: redis-admin
+    container_name: ai-service-commerce-platform-redis-admin
     hostname: redis-commander
     restart: always
     ports:
@@ -76,11 +77,31 @@ services:
       - LANGUAGE=C.UTF-8
       - LC_ALL=C.UTF-8
     networks:
-      - my-network
+      - commerce-network
     depends_on:
       redis:
         condition: service_healthy
 
+  # rabbitmq
+  # 账密 admin/admin
+  # rabbitmq-plugins enable rabbitmq_management
+  rabbitmq:
+    image: registry.cn-hangzhou.aliyuncs.com/xfg-studio/rabbitmq:3.12.9
+    container_name: ai-service-commerce-platform-rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    command: rabbitmq-server
+    volumes:
+      - ./rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
+    networks:
+      - commerce-network
+
 networks:
-  my-network:
+  commerce-network:
+    name: ai-service-commerce-platform-network
     driver: bridge

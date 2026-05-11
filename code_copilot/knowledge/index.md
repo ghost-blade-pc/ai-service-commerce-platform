@@ -2,11 +2,36 @@
 
 本目录沉淀跨 change 可复用的项目知识。只有经过验证、可复用、不会误导后续开发的内容才应写入。
 
+## 读取策略
+
+- 本文件是知识路由表，应优先读取。
+- 不默认全文展开大型知识文件；先根据任务关键词定位主题，再读取相关章节或片段。
+- 读取大型知识文件前，先用 `rg` 搜索关键词、类名、表名、topic、change id 或业务术语。
+- 只打开命中的小范围片段；如果证据不足，再扩大到相邻章节。
+- 需要写入 `spec.md` 的结论必须能回溯到真实源码、配置、SQL、Mapper、Listener、Job 或已验证知识。
+
 ## 已确认知识
 
 ### 全局知识地图
 
-- [platform-knowledge.md](platform-knowledge.md)：覆盖根工作区、`group-buy-market/`、`s-pay-mall-ddd/` 的项目结构、DDD 分层、跨项目调用、MQ 链路、补偿任务、配置、风险点和 Research 入口。
+- [platform-knowledge.md](platform-knowledge.md)：大型综合知识图谱，覆盖根工作区、`group-buy-market/`、`s-pay-mall-ddd/` 的项目结构、DDD 分层、跨项目调用、MQ 链路、补偿任务、配置、风险点和 Research 入口。
+
+使用方式：
+
+- 不作为每次 workflow 的默认全文读取对象。
+- 当任务涉及跨项目联动、MQ、退款、订单状态、Mapper/SQL 或本地环境时，先按下面的主题关键词检索，再读取命中片段。
+
+### 主题路由
+
+| 任务关键词 | 优先检索关键词 | 推荐读取范围 |
+| --- | --- | --- |
+| 工作区结构、技术栈、模块边界 | `工作区定位`、`服务职责`、`DDD 分层约定`、`规则优先级` | `platform-knowledge.md` 的工作区与分层相关章节 |
+| 商城下单、支付宝、订单状态 | `创建支付单`、`支付宝支付回调`、`OrderService`、`pay_order`、`OrderStatusVO` | 商城订单、支付、状态、Mapper 相关章节和源码 |
+| 拼团锁单、结算、成团 | `lock_market_pay_order`、`settlement_market_pay_order`、`topic.team_success`、`group_buy_order` | 跨项目同步调用、拼团消息、营销表结构相关章节和源码 |
+| 退单退款、退款补偿 | `refund_market_pay_order`、`topic.team_refund`、`pay_refund_task`、`RefundTaskJob`、`RefundTypeVO` | 退款链路、补偿任务、退款类型相关章节和源码 |
+| MQ 契约、消息幂等 | `topic.order_pay_success`、`topic.team_success`、`topic.team_refund`、`notify_task`、`EventPublisher` | 异步消息链路、消息体、幂等键相关章节和 listener/publisher 源码 |
+| Mapper、表结构、索引 | `pay_order`、`group_buy_order_list`、`notify_task`、`uq_`、`idx_` | 数据与持久化、核心表、SQL 和 Mapper 片段 |
+| Docker、配置、本地环境 | `application-dev.yml`、`docker-compose`、`RabbitMQ`、`Redis`、`MySQL` | 配置与本地环境章节及目标配置文件 |
 
 ### 工作区结构
 
@@ -27,5 +52,6 @@ cd s-pay-mall-ddd && mvn -pl s-pay-mall-ddd-lpc-app -DskipTests=false test
 
 ## 待沉淀
 
+- TODO: 后续将 [platform-knowledge.md](platform-knowledge.md) 拆分为主题文件，例如 `workspace-map.md`、`order-payment-flow.md`、`group-buy-flow.md`、`refund-flow.md`、`mq-contracts.md`、`schema-map.md`、`dev-ops-map.md`。
 - TODO: 涉及具体 Mapper 或 Repository 改动时，按目标表重新校验字段映射。
 - TODO: 涉及 MQ 可靠投递改造时，补充确认模式、重试、死信和消费幂等设计。

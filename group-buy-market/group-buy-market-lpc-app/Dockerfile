@@ -1,5 +1,5 @@
 # 1. 基础镜像：替换为 Java 17 的精简版镜像
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre-jammy
 
 # 2. 作者：可以改成你自己的名字（看你 jar 包名带了 lpc，我就先写 lpc 啦）
 # 注意：MAINTAINER 属于旧语法，虽然还能用，但 Docker 官方现在更推荐使用 LABEL

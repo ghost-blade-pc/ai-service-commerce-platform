@@ -104,7 +104,8 @@
 </div>
 
 <script>
-    var sPayMallUrl = "http://licodetech.top";
+    // 使用当前 Nginx 同源入口，避免本地测试时绕到远程部署环境
+    var sPayMallUrl = "";
 
     document.addEventListener("DOMContentLoaded", function() {
         const fpPromise = import('./js/v4.js')

@@ -2,4 +2,4 @@ spring:
   config:
     name: s-pay-mall-ddd-lpc-app
   profiles:
-    active: prod
+    active: dev

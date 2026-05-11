@@ -187,7 +187,8 @@
 </main>
 
 <script>
-    const sPayMallUrl = "http://licodetech.top";
+    // 使用当前 Nginx 同源入口，避免本地测试时绕到远程部署环境
+    const sPayMallUrl = "";
     const pageSize = 10;
     let lastId = null;
     let hasMore = false;
