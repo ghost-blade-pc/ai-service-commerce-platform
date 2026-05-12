@@ -147,7 +147,7 @@ LOCK TABLES `group_buy_activity` WRITE;
 
 INSERT INTO `group_buy_activity` (`id`, `activity_id`, `activity_name`, `discount_id`, `group_type`, `take_limit_count`, `target`, `valid_time`, `status`, `start_time`, `end_time`, `tag_id`, `tag_scope`, `create_time`, `update_time`)
 VALUES
-	(1,100123,'测试活动','25120207',0,1,3,15,1,'2024-12-07 10:19:40','2029-12-07 10:19:40','1','1','2024-12-07 10:19:40','2025-04-05 11:21:03');
+	(1,100123,'AI 大模型调用额度拼团','25120207',0,1,3,15,1,'2024-12-07 10:19:40','2029-12-07 10:19:40','1','1','2024-12-07 10:19:40','2025-04-05 11:21:03');
 
 /*!40000 ALTER TABLE `group_buy_activity` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -178,7 +178,7 @@ LOCK TABLES `group_buy_discount` WRITE;
 
 INSERT INTO `group_buy_discount` (`id`, `discount_id`, `discount_name`, `discount_desc`, `discount_type`, `market_plan`, `market_expr`, `tag_id`, `create_time`, `update_time`)
 VALUES
-	(1,'25120207','测试优惠','测试优惠',0,'ZJ','20',NULL,'2024-12-07 10:20:15','2024-12-21 11:13:32');
+	(1,'25120207','AI 套餐拼团立减','大模型调用额度套餐拼团立减 20 元',0,'ZJ','20',NULL,'2024-12-07 10:20:15','2024-12-21 11:13:32');
 
 /*!40000 ALTER TABLE `group_buy_discount` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -354,20 +354,21 @@ CREATE TABLE `sku` (
   `source` varchar(8) NOT NULL COMMENT '渠道',
   `channel` varchar(8) NOT NULL COMMENT '来源',
   `goods_id` varchar(16) NOT NULL COMMENT '商品ID',
-  `goods_name` varchar(128) NOT NULL COMMENT '商品名称',
-  `original_price` decimal(10,2) NOT NULL COMMENT '商品价格',
+  `goods_name` varchar(128) NOT NULL COMMENT '服务套餐名称',
+  `total_quota` int NOT NULL COMMENT '大模型调用总额度',
+  `original_price` decimal(10,2) NOT NULL COMMENT '套餐价格',
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_goods_id` (`goods_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='商品信息';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci COMMENT='服务套餐信息';
 
 LOCK TABLES `sku` WRITE;
 /*!40000 ALTER TABLE `sku` DISABLE KEYS */;
 
-INSERT INTO `sku` (`id`, `source`, `channel`, `goods_id`, `goods_name`, `original_price`, `create_time`, `update_time`)
+INSERT INTO `sku` (`id`, `source`, `channel`, `goods_id`, `goods_name`, `total_quota`, `original_price`, `create_time`, `update_time`)
 VALUES
-	(1,'s01','c01','9890001','《手写MyBatis：渐进式源码实践》',100.00,'2024-12-21 11:10:06','2024-12-21 11:10:06');
+	(1,'s01','c01','9890001','AI 大模型调用额度包 100 万 tokens',1000000,100.00,'2024-12-21 11:10:06','2024-12-21 11:10:06');
 
 /*!40000 ALTER TABLE `sku` ENABLE KEYS */;
 UNLOCK TABLES;

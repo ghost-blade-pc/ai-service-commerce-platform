@@ -20,7 +20,9 @@ public class OrderEntity {
     // 用户ID
     private String userId;
     private String productId;
+    private String servicePackageId;
     private String productName;
+    private Integer totalQuota;
     private String orderId;
     private Date orderTime;
     private BigDecimal totalAmount;

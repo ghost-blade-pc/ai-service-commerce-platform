@@ -5,6 +5,8 @@ import retrofit2.http.Body;
 import retrofit2.http.POST;
 import top.licodetech.mall.infrastructure.gateway.dto.LockMarketPayOrderRequestDTO;
 import top.licodetech.mall.infrastructure.gateway.dto.LockMarketPayOrderResponseDTO;
+import top.licodetech.mall.infrastructure.gateway.dto.GoodsMarketRequestDTO;
+import top.licodetech.mall.infrastructure.gateway.dto.GoodsMarketResponseDTO;
 import top.licodetech.mall.infrastructure.gateway.dto.RefundMarketPayOrderRequestDTO;
 import top.licodetech.mall.infrastructure.gateway.dto.RefundMarketPayOrderResponseDTO;
 import top.licodetech.mall.infrastructure.gateway.dto.SettlementMarketPayOrderRequestDTO;
@@ -18,6 +20,14 @@ import top.licodetech.mall.infrastructure.gateway.response.Response;
  */
 public interface IGroupBuyMarketService {
 
+    /**
+     * 查询营销侧服务套餐和拼团配置
+     *
+     * @param requestDTO 服务套餐查询信息
+     * @return 套餐和营销配置
+     */
+    @POST("api/v1/gbm/index/query_group_buy_market_config")
+    Call<Response<GoodsMarketResponseDTO>> queryGroupBuyMarketConfig(@Body GoodsMarketRequestDTO requestDTO);
 
     /**
      * 营销锁单

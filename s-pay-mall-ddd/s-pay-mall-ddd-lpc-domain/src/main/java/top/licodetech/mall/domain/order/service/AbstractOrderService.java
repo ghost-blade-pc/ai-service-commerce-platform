@@ -2,6 +2,7 @@ package top.licodetech.mall.domain.order.service;
 
 import com.alipay.api.AlipayApiException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import top.licodetech.mall.domain.order.adapter.port.IProductPort;
 import top.licodetech.mall.domain.order.adapter.repository.IOrderRepository;
 import top.licodetech.mall.domain.order.model.aggregate.CreateOrderAggregate;
@@ -24,6 +25,14 @@ public abstract class AbstractOrderService implements IOrderService {
 
     @Override
     public PayOrderEntity createOrder(ShopCartEntity shopCartEntity) throws Exception {
+        String servicePackageId = StringUtils.defaultIfBlank(shopCartEntity.getServicePackageId(), shopCartEntity.getProductId());
+        shopCartEntity.setServicePackageId(servicePackageId);
+        shopCartEntity.setProductId(servicePackageId);
+        MarketTypeVO marketTypeVO = shopCartEntity.getMarketTypeVO();
+        if (null == marketTypeVO) {
+            marketTypeVO = MarketTypeVO.NO_MARKET;
+            shopCartEntity.setMarketTypeVO(marketTypeVO);
+        }
 
         // 1.查询当前用户是否存在未支付订单或掉单订单
         OrderEntity unpaidOrderEntity = repository.queryUnPayOrder(shopCartEntity);
@@ -64,9 +73,9 @@ public abstract class AbstractOrderService implements IOrderService {
                     .build();
         }
 
-        ProductEntity productEntity = port.queryProductByProductId(shopCartEntity.getProductId());
+        ProductEntity productEntity = port.queryProductByProductId(shopCartEntity.getUserId(), shopCartEntity.getProductId());
 
-        OrderEntity orderEntity = CreateOrderAggregate.buildOrderEntity(productEntity.getProductId(), productEntity.getProductName(), shopCartEntity.getMarketTypeVO().getCode());
+        OrderEntity orderEntity = CreateOrderAggregate.buildOrderEntity(productEntity.getProductId(), productEntity.getServicePackageId(), productEntity.getProductName(), productEntity.getTotalQuota(), marketTypeVO.getCode());
 
         CreateOrderAggregate orderAggregate = CreateOrderAggregate.builder()
                 .userId(shopCartEntity.getUserId())
@@ -78,7 +87,7 @@ public abstract class AbstractOrderService implements IOrderService {
 
         // 发起营销锁单
         MarketPayDiscountEntity marketPayDiscountEntity = null;
-        if (MarketTypeVO.GROUP_BUY_MARKET.equals(shopCartEntity.getMarketTypeVO())) {
+        if (MarketTypeVO.GROUP_BUY_MARKET.equals(marketTypeVO)) {
             marketPayDiscountEntity = this.lockMarketPayOrder(shopCartEntity.getUserId(),
                     shopCartEntity.getTeamId(),
                     shopCartEntity.getActivityId(),

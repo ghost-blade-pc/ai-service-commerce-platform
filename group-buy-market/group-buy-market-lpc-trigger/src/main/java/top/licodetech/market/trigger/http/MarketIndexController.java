@@ -69,6 +69,8 @@ public class MarketIndexController implements IMarketIndexService {
 
             GoodsMarketResponseDTO.Goods goods = GoodsMarketResponseDTO.Goods.builder()
                     .goodsId(trialBalanceEntity.getGoodsId())
+                    .goodsName(trialBalanceEntity.getGoodsName())
+                    .totalQuota(trialBalanceEntity.getTotalQuota())
                     .originalPrice(trialBalanceEntity.getOriginalPrice())
                     .deductionPrice(trialBalanceEntity.getDeductionPrice())
                     .payPrice(trialBalanceEntity.getPayPrice())

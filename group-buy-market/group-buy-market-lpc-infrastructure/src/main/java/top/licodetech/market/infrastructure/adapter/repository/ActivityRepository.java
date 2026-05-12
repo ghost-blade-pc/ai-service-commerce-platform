@@ -46,6 +46,7 @@ public class ActivityRepository extends AbstractRepository implements IActivityR
         return SkuVO.builder()
                 .goodsId(sku.getGoodsId())
                 .goodsName(sku.getGoodsName())
+                .totalQuota(sku.getTotalQuota())
                 .originalPrice(sku.getOriginalPrice())
                 .build();
     }

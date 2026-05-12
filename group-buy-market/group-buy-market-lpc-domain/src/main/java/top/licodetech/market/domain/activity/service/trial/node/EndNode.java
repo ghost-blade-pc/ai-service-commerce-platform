@@ -34,6 +34,7 @@ public class EndNode extends AbstractGroupBuyMarketSupport<MarketProductEntity, 
         return TrialBalanceEntity.builder()
                 .goodsId(skuVO.getGoodsId())
                 .goodsName(skuVO.getGoodsName())
+                .totalQuota(skuVO.getTotalQuota())
                 .originalPrice(skuVO.getOriginalPrice())
                 .deductionPrice(deductionPrice)
                 .payPrice(payPrice)

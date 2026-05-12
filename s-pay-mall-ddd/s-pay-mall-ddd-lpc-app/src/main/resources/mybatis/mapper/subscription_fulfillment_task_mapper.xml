@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.licodetech.mall.infrastructure.dao.ISubscriptionFulfillmentTaskDao">
+
+    <resultMap id="taskMap" type="top.licodetech.mall.infrastructure.dao.po.SubscriptionFulfillmentTask">
+        <id column="id" property="id"/>
+        <result column="order_id" property="orderId"/>
+        <result column="user_id" property="userId"/>
+        <result column="service_package_id" property="servicePackageId"/>
+        <result column="total_quota" property="totalQuota"/>
+        <result column="status" property="status"/>
+        <result column="retry_count" property="retryCount"/>
+        <result column="fail_reason" property="failReason"/>
+        <result column="next_retry_time" property="nextRetryTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insertIgnore" parameterType="top.licodetech.mall.infrastructure.dao.po.SubscriptionFulfillmentTask">
+        insert ignore into subscription_fulfillment_task(
+            order_id, user_id, service_package_id, total_quota, status, retry_count, fail_reason, next_retry_time, create_time, update_time)
+        values(
+            #{orderId}, #{userId}, #{servicePackageId}, #{totalQuota}, #{status}, #{retryCount}, #{failReason}, now(), now(), now())
+    </insert>
+
+    <update id="lockTask">
+        update subscription_fulfillment_task
+        set status = 'PROCESSING', update_time = now()
+        where order_id = #{orderId}
+          and service_package_id = #{servicePackageId}
+          and (
+              status in ('PENDING', 'RETRY')
+              and (next_retry_time is null or next_retry_time &lt;= now())
+              or (status = 'PROCESSING' and update_time &lt; date_sub(now(), interval 5 second))
+          )
+    </update>
+
+    <update id="markSuccess">
+        update subscription_fulfillment_task
+        set status = 'SUCCESS',
+            fail_reason = null,
+            update_time = now()
+        where order_id = #{orderId}
+          and service_package_id = #{servicePackageId}
+    </update>
+
+    <update id="markRetry">
+        update subscription_fulfillment_task
+        set status = 'RETRY',
+            retry_count = retry_count + 1,
+            fail_reason = #{failReason},
+            next_retry_time = date_add(now(), interval 1 second),
+            update_time = now()
+        where order_id = #{orderId}
+          and service_package_id = #{servicePackageId}
+    </update>
+
+    <update id="markFailed">
+        update subscription_fulfillment_task
+        set status = 'FAILED',
+            retry_count = retry_count + 1,
+            fail_reason = #{failReason},
+            update_time = now()
+        where order_id = #{orderId}
+          and service_package_id = #{servicePackageId}
+    </update>
+
+    <select id="queryTask" resultMap="taskMap">
+        select id, order_id, user_id, service_package_id, total_quota, status, retry_count, fail_reason, next_retry_time, create_time, update_time
+        from subscription_fulfillment_task
+        where order_id = #{orderId}
+          and service_package_id = #{servicePackageId}
+        limit 1
+    </select>
+
+    <select id="queryPendingTaskList" resultMap="taskMap">
+        select id, order_id, user_id, service_package_id, total_quota, status, retry_count, fail_reason, next_retry_time, create_time, update_time
+        from subscription_fulfillment_task
+        where (
+              status in ('PENDING', 'RETRY')
+              and (next_retry_time is null or next_retry_time &lt;= now())
+              or (status = 'PROCESSING' and update_time &lt; date_sub(now(), interval 5 second))
+          )
+        order by id asc
+        limit #{pageSize}
+    </select>
+
+</mapper>

@@ -57,8 +57,11 @@ public class OrderRepository implements IOrderRepository {
         // 3. 返回结果
         return OrderEntity.builder()
                 .id(order.getId())
+                .userId(order.getUserId())
                 .productId(order.getProductId())
+                .servicePackageId(order.getServicePackageId())
                 .productName(order.getProductName())
+                .totalQuota(order.getTotalQuota())
                 .orderId(order.getOrderId())
                 .orderStatusVO(OrderStatusVO.valueOf(order.getStatus()))
                 .orderTime(order.getOrderTime())
@@ -96,7 +99,9 @@ public class OrderRepository implements IOrderRepository {
         PayOrder order = new PayOrder();
         order.setUserId(userId);
         order.setProductId(productEntity.getProductId());
+        order.setServicePackageId(productEntity.getServicePackageId());
         order.setProductName(productEntity.getProductName());
+        order.setTotalQuota(productEntity.getTotalQuota());
         order.setOrderId(orderEntity.getOrderId());
         order.setOrderTime(orderEntity.getOrderTime());
         order.setTotalAmount(productEntity.getPrice());
@@ -223,12 +228,19 @@ public class OrderRepository implements IOrderRepository {
         return orderDao.changeOrderRefunded(orderId);
     }
 
+    @Override
+    public void changeOrderDealDone(String orderId) {
+        orderDao.changeOrderDealDone(orderId);
+    }
+
     private OrderEntity buildOrderEntity(PayOrder payOrder) {
         return OrderEntity.builder()
                 .id(payOrder.getId())
                 .userId(payOrder.getUserId())
                 .productId(payOrder.getProductId())
+                .servicePackageId(payOrder.getServicePackageId())
                 .productName(payOrder.getProductName())
+                .totalQuota(payOrder.getTotalQuota())
                 .orderId(payOrder.getOrderId())
                 .orderTime(payOrder.getOrderTime())
                 .totalAmount(payOrder.getTotalAmount())

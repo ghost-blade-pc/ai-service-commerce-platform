@@ -1,7 +1,7 @@
 package top.licodetech.mall.domain.goods.service;
 
 import org.springframework.stereotype.Service;
-import top.licodetech.mall.domain.goods.adapter.repository.IGoodsRepository;
+import top.licodetech.mall.domain.subscription.service.ISubscriptionService;
 
 import javax.annotation.Resource;
 
@@ -14,10 +14,10 @@ import javax.annotation.Resource;
 public class GoodsService implements IGoodsService {
 
     @Resource
-    private IGoodsRepository repository;
+    private ISubscriptionService subscriptionService;
 
     @Override
     public void changeOrderDealDone(String orderId) {
-        repository.changeOrderDealDone(orderId);
+        subscriptionService.fulfillOrder(orderId);
     }
 }

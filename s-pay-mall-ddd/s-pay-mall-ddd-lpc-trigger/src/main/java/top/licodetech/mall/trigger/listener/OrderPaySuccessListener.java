@@ -34,9 +34,9 @@ public class OrderPaySuccessListener {
 
             PaySuccessMessageEvent.PaySuccessMessage paySuccessMessage = JSON.parseObject(paySuccessMessageJson, PaySuccessMessageEvent.PaySuccessMessage.class);
 
-            log.info("模拟发货（如；发货、充值、开户员、返利），单号:{}", paySuccessMessage.getTradeNo());
+            log.info("AI服务套餐额度履约，单号:{}", paySuccessMessage.getTradeNo());
 
-            // 变更订单状态 - 发货完成&结算
+            // 变更订单状态 - 额度权益开通完成
             goodsService.changeOrderDealDone(paySuccessMessage.getTradeNo());
 
             // 可以打开测试，MQ 消费失败，会抛异常，之后重试消费。这个也是最终执行的重要手段。

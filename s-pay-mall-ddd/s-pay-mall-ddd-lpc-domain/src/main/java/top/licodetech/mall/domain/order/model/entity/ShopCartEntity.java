@@ -18,6 +18,9 @@ public class ShopCartEntity {
     // 商品ID
     private String productId;
 
+    // AI 服务套餐ID，首期对内兼容 productId/goodsId
+    private String servicePackageId;
+
     // 拼团组队ID，可为空，为空的时，则为用户首次创建拼团
     private String teamId;
 

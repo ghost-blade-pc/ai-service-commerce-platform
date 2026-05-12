@@ -20,8 +20,12 @@ public class PayOrder {
     private String userId;
     // 商品ID
     private String productId;
+    // AI 服务套餐ID
+    private String servicePackageId;
     // 商品名称
     private String productName;
+    // 大模型调用总额度
+    private Integer totalQuota;
     // 订单ID
     private String orderId;
     // 下单时间

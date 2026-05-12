@@ -37,4 +37,6 @@ public interface IOrderRepository {
 
     int changeOrderRefunded(String orderId);
 
+    void changeOrderDealDone(String orderId);
+
 }

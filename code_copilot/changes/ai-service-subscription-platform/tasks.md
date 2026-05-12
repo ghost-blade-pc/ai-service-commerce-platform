@@ -1,7 +1,7 @@
 # 任务拆分 — AI 服务订阅与营销平台适配
 
 > 推荐顺序：契约/API → 领域模型与端口 → 基础设施适配 → 领域服务编排 → 触发入口 → 配置与验证  
-> 当前阶段为 `/propose`，所有实现任务均为 pending，待用户确认后才能进入 `/apply`。
+> 当前阶段为 `/apply`，已进入实现；按任务逐步推进并同步记录验证结果。
 
 ## 前置条件
 
@@ -11,56 +11,61 @@
 - [x] 已确认影响项目和 DDD 层级
 - [x] 已确认是否涉及资金、订单状态、退款、拼团、MQ、外部接口、数据库
 - [x] 已检查 Git 分支和未提交变更
-- [ ] 已确认首期实现边界：仅语义适配，还是新增权益履约模型
-- [ ] 已确认权益目录来源、权益类型和退订退款规则
+- [x] 已确认首期实现边界：新增额度权益表、履约任务表和领域端口
+- [x] 已确认套餐目录来源：营销侧数据库表及现有营销查询/锁单链路，商城侧不新增第二套套餐目录主数据
+- [x] 已确认权益类型：首期仅售卖大模型调用额度
+- [x] 已确认退订退款规则：撤销未使用权益，已消耗额度按比例退款
+- [x] 已确认履约失败重试策略：重试 3 次、间隔 1 秒、从首次失败起总计 5 秒后自动退款
+- [x] 已确认按比例退款规则：保留 2 位小数、四舍五入、最低退款金额 0.01 元、已消耗额度从商城侧额度权益表读取
 
 ## Task 1: 服务套餐目录与公开契约兼容适配
 
-- **目标**：把商城侧订购对象从传统商品语义适配为 AI 服务套餐，同时保持现有 `productId` API 字段兼容。
+- **目标**：把商城侧订购对象从传统商品语义适配为 AI 大模型调用额度套餐，公开 API 新增 `servicePackageId`，对内兼容既有 `productId/goodsId` 映射。
 - **影响项目**：s-pay-mall-ddd
 - **DDD 层级**：api / domain / infrastructure / trigger
 - **涉及文件**：
-  - `s-pay-mall-ddd-lpc-api/src/main/java/top/licodetech/mall/api/dto/CreatePayRequestDTO.java`：补充订阅服务套餐语义注释或兼容字段。
-  - `s-pay-mall-ddd-lpc-domain/src/main/java/top/licodetech/mall/domain/order/model/entity/ProductEntity.java`：确认是否保留 Product 命名或新增订阅服务包模型。
-  - `s-pay-mall-ddd-lpc-infrastructure/src/main/java/top/licodetech/mall/infrastructure/gateway/ProductRPC.java`：移除硬编码图书示例，改为 AI 服务套餐数据源。
+  - `s-pay-mall-ddd-lpc-api/src/main/java/top/licodetech/mall/api/dto/CreatePayRequestDTO.java`：新增 `servicePackageId`，过渡期兼容 `productId`。
+  - `s-pay-mall-ddd-lpc-domain/src/main/java/top/licodetech/mall/domain/order/model/entity/ProductEntity.java`：确认保留现有模型还是增加服务套餐语义字段。
+  - `s-pay-mall-ddd-lpc-infrastructure/src/main/java/top/licodetech/mall/infrastructure/gateway/ProductRPC.java`：移除或旁路硬编码图书示例，不再作为套餐目录来源。
+  - `s-pay-mall-ddd-lpc-infrastructure/src/main/java/top/licodetech/mall/infrastructure/adapter/port/ProductPort.java`：通过营销侧目录/活动查询链路获取套餐名称、价格、额度和优惠。
   - `s-pay-mall-ddd-lpc-trigger/src/main/java/top/licodetech/mall/trigger/http/AliPayController.java`：日志和接口说明调整为订阅下单语义。
 - **关键签名**：
   ```java
   ProductEntity queryProductByProductId(String productId);
   PayOrderEntity createOrder(ShopCartEntity shopCartEntity) throws Exception;
   ```
-- **依赖**：用户确认服务套餐目录来源
+- **依赖**：营销侧套餐目录字段与额度字段确认
 - **风险标记**：外部接口 / 数据库 / 安全
 - **验收标准**：
-  - 普通订阅下单仍兼容当前请求结构。
+  - 普通订阅下单支持 `servicePackageId`，过渡期可兼容当前请求结构。
   - 支付宝 `subject` 使用服务套餐名称。
   - 不再出现 `MyBatisBook` 这类传统商品硬编码。
 - **验证命令**：
   - `cd s-pay-mall-ddd && mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests=false -DfailIfNoTests=false test`
-- **状态**：pending
+- **状态**：done
 
 ## Task 2: 营销侧服务包拼团活动数据适配
 
-- **目标**：把营销侧 `goods_id/sku/sc_sku_activity` 的业务语义适配为 AI 服务包参与拼团活动。
+- **目标**：把营销侧 `goods_id/sku/sc_sku_activity` 的业务语义适配为大模型调用额度套餐参与拼团活动。
 - **影响项目**：group-buy-market
 - **DDD 层级**：api / domain / infrastructure / app
 - **涉及文件**：
   - `group-buy-market-lpc-api/src/main/java/top/licodetech/market/api/dto/GoodsMarketRequestDTO.java`：确认是否保持 `goodsId` 兼容。
-  - `group-buy-market-lpc-api/src/main/java/top/licodetech/market/api/dto/GoodsMarketResponseDTO.java`：确认展示字段是否需要服务包名称、权益摘要。
+  - `group-buy-market-lpc-api/src/main/java/top/licodetech/market/api/dto/GoodsMarketResponseDTO.java`：确认展示字段是否需要套餐名称、调用额度摘要。
   - `group-buy-market-lpc-app/src/main/resources/mybatis/mapper/sku_mapper.xml`：保持查询逻辑，数据语义改为服务包。
   - `group-buy-market/docs/dev-ops/mysql/sql/2-28-group_buy_market.sql`：初始化数据改为 AI 服务包与活动。
 - **关键签名**：
   ```java
   Response<GoodsMarketResponseDTO> queryGroupBuyMarketConfig(GoodsMarketRequestDTO requestDTO);
   ```
-- **依赖**：Task 1 的服务套餐标识与价格策略
+- **依赖**：Task 1 的 `servicePackageId` 与营销侧 `goodsId/sku` 映射策略
 - **风险标记**：数据库 / 外部接口
 - **验收标准**：
-  - 拼团配置查询能返回 AI 服务包的价格、优惠和可参团队伍。
+  - 拼团配置查询能返回 AI 额度套餐的价格、优惠、额度和可参团队伍。
   - `goodsId` 与商城侧服务套餐标识保持一致。
 - **验证命令**：
   - `cd group-buy-market && mvn -pl group-buy-market-lpc-app -am -DskipTests=false -DfailIfNoTests=false test`
-- **状态**：pending
+- **状态**：done
 
 ## Task 3: 订阅订单支付与拼团结算语义适配
 
@@ -85,35 +90,35 @@
   - 现有支付宝回调与 `NoPayNotifyOrderJob` 兜底语义不被破坏。
 - **验证命令**：
   - 两个子项目 app 模块测试命令均需执行。
-- **状态**：pending
+- **状态**：done
 
 ## Task 4: 权益履约模型与幂等补偿
 
-- **目标**：把当前模拟发货改为 AI 服务权益开通，并提供幂等和失败补偿能力。
+- **目标**：把当前模拟发货改为大模型调用额度开通，并提供幂等、履约失败重试和自动退款补偿能力。
 - **影响项目**：s-pay-mall-ddd
 - **DDD 层级**：api / domain / infrastructure / trigger / app / types
 - **涉及文件**：
-  - `s-pay-mall-ddd-lpc-domain/src/main/java/top/licodetech/mall/domain/goods/service/GoodsService.java`：从模拟发货转为权益履约编排，或新增独立 `subscription/entitlement` 领域服务。
+  - `s-pay-mall-ddd-lpc-domain/src/main/java/top/licodetech/mall/domain/goods/service/GoodsService.java`：从模拟发货转为额度履约编排，或新增独立 `subscription/entitlement` 领域服务。
   - `s-pay-mall-ddd-lpc-trigger/src/main/java/top/licodetech/mall/trigger/listener/OrderPaySuccessListener.java`：消费支付成功消息后触发权益开通。
-  - `s-pay-mall-ddd-lpc-infrastructure/src/main/java/top/licodetech/mall/infrastructure/adapter/repository/GoodsRepository.java`：现有只改订单 `DEAL_DONE`，需要扩展或替换为权益记录。
-  - `s-pay-mall-ddd-lpc-app/src/main/resources/mybatis/mapper/*`：若新增权益表/任务表，需要新增 mapper。
+  - `s-pay-mall-ddd-lpc-infrastructure/src/main/java/top/licodetech/mall/infrastructure/adapter/repository/GoodsRepository.java`：现有只改订单 `DEAL_DONE`，需要扩展或替换为额度权益记录。
+  - `s-pay-mall-ddd-lpc-app/src/main/resources/mybatis/mapper/*`：新增额度权益表和履约任务表 mapper。
 - **关键签名**：
   ```java
   void changeOrderDealDone(String orderId);
   ```
-- **依赖**：用户确认权益类型和是否新增本地权益表/任务表
+- **依赖**：已确认履约失败重试 3 次、间隔 1 秒、从首次失败起总计 5 秒后自动退款
 - **风险标记**：状态 / MQ / 外部接口 / 数据库 / 安全
 - **验收标准**：
-  - 重复支付成功消息不会重复开通权益。
-  - 权益开通失败可以重试或进入可观测的补偿状态。
+  - 重复支付成功消息不会重复增加调用额度。
+  - 额度开通失败可以重试，超过阈值后自动发起退款。
   - 日志不输出 API Key、token 或敏感权限凭证。
 - **验证命令**：
   - `cd s-pay-mall-ddd && mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests=false -DfailIfNoTests=false -Dtest=*ListenerTest,*ServiceTest test`
-- **状态**：pending
+- **状态**：done
 
 ## Task 5: 退订退款与权益撤销策略
 
-- **目标**：在当前退款链路上补充 AI 服务订阅退订语义，包括未开通、已开通、已消耗额度等场景。
+- **目标**：在当前退款链路上补充 AI 服务订阅退订语义，包括未开通、已开通、已消耗额度按比例退款等场景。
 - **影响项目**：cross-project
 - **DDD 层级**：domain / infrastructure / trigger
 - **涉及文件**：
@@ -125,15 +130,15 @@
   OrderEntity refundOrder(String userId, String orderId);
   boolean receiveRefundSuccessMessage(String orderId, RefundTypeVO refundType, String message);
   ```
-- **依赖**：Task 4 的权益状态模型；用户确认退款规则
+- **依赖**：Task 4 的权益状态模型；已确认按比例退款保留 2 位小数、四舍五入、最低退款金额 0.01 元
 - **风险标记**：资金 / 状态 / MQ / 外部接口
 - **验收标准**：
   - 未支付订阅退订不触发真实资金退款。
-  - 已支付订阅退款金额和权益撤销规则明确。
+  - 已支付订阅退款金额和权益撤销规则明确，已消耗额度按比例退款。
   - 拼团退单消息重复消费不重复退款、不重复撤销。
 - **验证命令**：
   - `cd s-pay-mall-ddd && mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests=false -DfailIfNoTests=false -Dtest=*Refund*Test test`
-- **状态**：pending
+- **状态**：done
 
 ## Task 6: 测试计划与跨项目验证
 
@@ -155,11 +160,11 @@
 - **验证命令**：
   - `cd s-pay-mall-ddd && mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests=false -DfailIfNoTests=false test`
   - `cd group-buy-market && mvn -pl group-buy-market-lpc-app -am -DskipTests=false -DfailIfNoTests=false test`
-- **状态**：pending
+- **状态**：done
 
 ## 变更摘要
 
-- **总文件数**：proposal 阶段新增 3 个文档文件；实现阶段待确认。
-- **Spec-Plan 偏差记录**：暂无。
-- **验证结果**：proposal 阶段仅完成只读 Research，未运行 Maven 测试。
-- **遗留问题**：首期范围、权益模型、套餐目录来源、退款规则、API 字段兼容策略待用户确认。
+- **总文件数**：实现阶段新增/修改商城、营销和 change 文档文件，详见 `log.md`。
+- **Spec-Plan 偏差记录**：首期不新增独立权益 MQ topic，继续复用支付成功/成团消息触发本地额度履约；履约失败自动退款由本地任务 Job 调用既有退单退款入口。
+- **验证结果**：两个子项目 app 模块依赖编译通过；Docker MySQL/RabbitMQ 启动后，商城侧 SpringBoot 测试报告显示关键测试均通过，详见 `test-spec.md`。
+- **遗留问题**：未完成真实支付回调后的端到端履约闭环；支付宝沙箱查询会因测试订单未真实支付返回 `ACQ.TRADE_NOT_EXIST`，属于当前测试数据限制。

@@ -23,9 +23,10 @@ public class OrderServiceTest {
 
     @Test
     public void test_createOrder() throws Exception {
+        waitRateLimiterWindow();
         ShopCartEntity shopCartEntity = new ShopCartEntity();
         shopCartEntity.setUserId("xiaofuge");
-        shopCartEntity.setProductId("10001");
+        shopCartEntity.setProductId("9890001");
         PayOrderEntity payOrderEntity = orderService.createOrder(shopCartEntity);
         log.info("请求参数:{}", JSON.toJSONString(shopCartEntity));
         log.info("测试结果:{}", JSON.toJSONString(payOrderEntity));
@@ -33,6 +34,7 @@ public class OrderServiceTest {
 
     @Test
     public void testCreateOrder() throws Exception {
+        waitRateLimiterWindow();
         ShopCartEntity shopCartEntity = new ShopCartEntity();
         shopCartEntity.setUserId("xiaoming02"); // 每次测试用个新的id就可以，不限制人群的情况下，可以随意编写。
         shopCartEntity.setProductId("9890001");
@@ -44,6 +46,10 @@ public class OrderServiceTest {
 
         log.info("请求参数:{}", JSON.toJSONString(shopCartEntity));
         log.info("测试结果:{}", JSON.toJSONString(payOrderEntity));
+    }
+
+    private void waitRateLimiterWindow() throws InterruptedException {
+        Thread.sleep(1200L);
     }
 
 }

@@ -14,6 +14,8 @@ public class SkuVO {
     private String goodsId;
     /** 商品名称 */
     private String goodsName;
+    /** 大模型调用总额度 */
+    private Integer totalQuota;
     /** 原始价格 */
     private BigDecimal originalPrice;
 

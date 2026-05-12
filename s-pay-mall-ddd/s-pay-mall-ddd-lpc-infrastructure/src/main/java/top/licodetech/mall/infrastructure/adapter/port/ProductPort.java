@@ -9,7 +9,6 @@ import top.licodetech.mall.domain.order.adapter.port.IProductPort;
 import top.licodetech.mall.domain.order.model.entity.MarketPayDiscountEntity;
 import top.licodetech.mall.domain.order.model.entity.ProductEntity;
 import top.licodetech.mall.infrastructure.gateway.IGroupBuyMarketService;
-import top.licodetech.mall.infrastructure.gateway.ProductRPC;
 import top.licodetech.mall.infrastructure.gateway.dto.*;
 import top.licodetech.mall.infrastructure.gateway.response.Response;
 import top.licodetech.mall.types.exception.AppException;
@@ -27,26 +26,54 @@ public class ProductPort implements IProductPort {
     @Value("${app.config.group-buy-market.notify-url}")
     private String notifyUrl;
 
-    private final ProductRPC productRPC;
-
     private final IGroupBuyMarketService groupBuyMarketService;
 
-    public ProductPort(ProductRPC productRPC, IGroupBuyMarketService groupBuyMarketService) {
-        this.productRPC = productRPC;
+    public ProductPort(IGroupBuyMarketService groupBuyMarketService) {
         this.groupBuyMarketService = groupBuyMarketService;
     }
 
     @Override
     public ProductEntity queryProductByProductId(String productId) {
-        ProductDTO productDTO = productRPC.queryProductByProductId(productId);
+        return queryProductByProductId(null, productId);
+    }
 
-        return ProductEntity.builder()
-                .productId(productDTO.getProductId())
-                .productName(productDTO.getProductName())
-                .productDesc(productDTO.getProductDesc())
-                .price(productDTO.getPrice())
-                .build();
+    @Override
+    public ProductEntity queryProductByProductId(String userId, String productId) {
+        GoodsMarketRequestDTO requestDTO = new GoodsMarketRequestDTO();
+        requestDTO.setUserId(userId);
+        requestDTO.setSource(source);
+        requestDTO.setChannel(chanel);
+        requestDTO.setGoodsId(productId);
 
+        try {
+            Call<Response<GoodsMarketResponseDTO>> call = groupBuyMarketService.queryGroupBuyMarketConfig(requestDTO);
+            Response<GoodsMarketResponseDTO> response = call.execute().body();
+            log.info("查询营销服务套餐 requestDTO:{} responseDTO:{}", JSON.toJSONString(requestDTO), JSON.toJSONString(response));
+            if (null == response) {
+                throw new AppException("SERVICE_PACKAGE_QUERY_ERROR", "服务套餐查询响应为空");
+            }
+            if (!"0000".equals(response.getCode())) {
+                throw new AppException(response.getCode(), response.getInfo());
+            }
+            GoodsMarketResponseDTO responseDTO = response.getData();
+            if (null == responseDTO || null == responseDTO.getGoods()) {
+                throw new AppException("SERVICE_PACKAGE_QUERY_ERROR", "服务套餐查询数据为空");
+            }
+            GoodsMarketResponseDTO.Goods goods = responseDTO.getGoods();
+            return ProductEntity.builder()
+                    .productId(goods.getGoodsId())
+                    .servicePackageId(goods.getGoodsId())
+                    .productName(goods.getGoodsName())
+                    .productDesc(goods.getGoodsName())
+                    .totalQuota(goods.getTotalQuota())
+                    .price(goods.getOriginalPrice())
+                    .build();
+        } catch (AppException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("查询营销服务套餐失败 requestDTO:{}", JSON.toJSONString(requestDTO), e);
+            throw new AppException("SERVICE_PACKAGE_QUERY_ERROR", "服务套餐查询失败");
+        }
     }
 
     @Override

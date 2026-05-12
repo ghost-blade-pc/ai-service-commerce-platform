@@ -4,6 +4,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.internal.util.AlipaySignature;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import top.licodetech.mall.api.IPayService;
@@ -53,35 +54,37 @@ public class AliPayController implements IPayService {
      * http://localhost:8080/api/v1/alipay/create_pay_order
      * {
      *     "userId": "10001",
-     *     "productId": "100001"
+     *     "servicePackageId": "9890001"
      * }
      */
     @RequestMapping(value = "create_pay_order", method = RequestMethod.POST)
     @Override
     public Response<String> createPayOrder(@RequestBody CreatePayRequestDTO createPayRequestDTO) {
         try {
-            log.info("商品下单，根据商品ID创建支付单开始 userId:{} productId:{}", createPayRequestDTO.getUserId(), createPayRequestDTO.getProductId());
+            String servicePackageId = StringUtils.defaultIfBlank(createPayRequestDTO.getServicePackageId(), createPayRequestDTO.getProductId());
+            log.info("AI服务套餐下单，创建支付单开始 userId:{} servicePackageId:{}", createPayRequestDTO.getUserId(), servicePackageId);
             String userId = createPayRequestDTO.getUserId();
-            String productId = createPayRequestDTO.getProductId();
+            String productId = servicePackageId;
             String teamId = createPayRequestDTO.getTeamId();
             Integer marketType = createPayRequestDTO.getMarketType();
             // 下单
             PayOrderEntity payOrderEntity = orderService.createOrder(ShopCartEntity.builder()
                     .userId(userId)
                     .productId(productId)
+                    .servicePackageId(servicePackageId)
                     .teamId(teamId)
                     .marketTypeVO(MarketTypeVO.valueOf(marketType))
                     .activityId(createPayRequestDTO.getActivityId())
                     .build());
 
-            log.info("商品下单，根据商品ID创建支付单完成 userId:{} productId:{} orderId:{}", userId, productId, payOrderEntity.getOrderId());
+            log.info("AI服务套餐下单，创建支付单完成 userId:{} servicePackageId:{} orderId:{}", userId, servicePackageId, payOrderEntity.getOrderId());
             return Response.<String>builder()
                     .code(Constants.ResponseCode.SUCCESS.getCode())
                     .info(Constants.ResponseCode.SUCCESS.getInfo())
                     .data(payOrderEntity.getPayUrl())
                     .build();
         } catch (Exception e) {
-            log.error("商品下单，根据商品ID创建支付单失败 userId:{} productId:{}", createPayRequestDTO.getUserId(), createPayRequestDTO.getUserId(), e);
+            log.error("AI服务套餐下单，创建支付单失败 userId:{} servicePackageId:{}", createPayRequestDTO.getUserId(), createPayRequestDTO.getServicePackageId(), e);
             return Response.<String>builder()
                     .code(Constants.ResponseCode.UN_ERROR.getCode())
                     .info(Constants.ResponseCode.UN_ERROR.getInfo())

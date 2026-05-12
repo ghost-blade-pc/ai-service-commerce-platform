@@ -22,6 +22,7 @@ import top.licodetech.mall.domain.order.model.entity.RefundTaskEntity;
 import top.licodetech.mall.domain.order.model.valobj.MarketTypeVO;
 import top.licodetech.mall.domain.order.model.valobj.OrderStatusVO;
 import top.licodetech.mall.domain.order.model.valobj.RefundTypeVO;
+import top.licodetech.mall.domain.subscription.service.ISubscriptionService;
 import top.licodetech.mall.types.common.Constants;
 import top.licodetech.mall.types.exception.AppException;
 
@@ -54,6 +55,9 @@ public class OrderService extends AbstractOrderService{
 
     @Resource
     private IRefundTaskRepository refundTaskRepository;
+
+    @Resource
+    private ISubscriptionService subscriptionService;
 
     public OrderService(IOrderRepository repository, IProductPort port) {
         super(repository, port);
@@ -257,12 +261,16 @@ public class OrderService extends AbstractOrderService{
         }
 
         if (needPayRefund) {
-            BigDecimal refundAmount = null != orderEntity.getPayAmount() ? orderEntity.getPayAmount() : orderEntity.getTotalAmount();
+            BigDecimal refundAmount = null == subscriptionService
+                    ? (null != orderEntity.getPayAmount() ? orderEntity.getPayAmount() : orderEntity.getTotalAmount())
+                    : subscriptionService.calculateRefundAmount(orderEntity);
             if (null == refundAmount) {
                 throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "退款金额不能为空");
             }
 
-            if (null != refundPort && !refundPort.refund(orderId, refundAmount)) {
+            if (BigDecimal.ZERO.compareTo(refundAmount) == 0) {
+                log.info("服务套餐额度已全部消耗，退款金额为0，跳过外部退款 orderId:{}", orderId);
+            } else if (null != refundPort && !refundPort.refund(orderId, refundAmount)) {
                 throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "模拟退款失败");
             } else if (null == refundPort) {
                 log.info("模拟退款端口未注入，按测试场景跳过外部退款 orderId:{} refundAmount:{}", orderId, refundAmount);
@@ -280,6 +288,9 @@ public class OrderService extends AbstractOrderService{
             throw new AppException(Constants.ResponseCode.UN_ERROR.getCode(), "更新退款完成状态失败");
         }
 
+        if (null != subscriptionService) {
+            subscriptionService.revokeEntitlement(orderId);
+        }
         orderEntity.setOrderStatusVO(OrderStatusVO.REFUNDED);
         return orderEntity;
     }

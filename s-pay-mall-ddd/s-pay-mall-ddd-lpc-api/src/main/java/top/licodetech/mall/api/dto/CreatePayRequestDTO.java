@@ -9,6 +9,8 @@ public class CreatePayRequestDTO {
     private String userId;
     // 产品编号
     private String productId;
+    // AI 服务套餐编号，首期等价映射营销侧 goodsId/sku
+    private String servicePackageId;
     // 拼团队伍 - 队伍ID
     private String teamId;
     // 活动ID，来自于页面调用拼团试算后，获得的活动ID信息

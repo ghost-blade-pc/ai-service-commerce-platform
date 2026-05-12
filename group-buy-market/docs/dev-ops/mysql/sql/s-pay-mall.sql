@@ -30,8 +30,10 @@ DROP TABLE IF EXISTS `pay_order`;
 CREATE TABLE `pay_order` (
      `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
      `user_id` varchar(32) NOT NULL COMMENT '用户ID',
-     `product_id` varchar(16) NOT NULL COMMENT '商品ID',
-     `product_name` varchar(64) NOT NULL COMMENT '商品名称',
+     `product_id` varchar(16) NOT NULL COMMENT '兼容字段：服务套餐ID',
+     `service_package_id` varchar(16) NOT NULL COMMENT 'AI服务套餐ID',
+     `product_name` varchar(64) NOT NULL COMMENT '服务套餐名称',
+     `total_quota` int DEFAULT NULL COMMENT '大模型调用总额度',
      `order_id` varchar(16) NOT NULL COMMENT '订单ID',
      `order_time` datetime NOT NULL COMMENT '下单时间',
      `total_amount` decimal(8,2) unsigned DEFAULT NULL COMMENT '订单金额',
@@ -67,6 +69,49 @@ CREATE TABLE `pay_refund_task` (
      `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
      PRIMARY KEY (`id`),
      UNIQUE KEY `uq_order_id` (`order_id`),
+     KEY `idx_status_next_retry_time` (`status`, `next_retry_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+# 转储表 subscription_entitlement
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `subscription_entitlement`;
+
+CREATE TABLE `subscription_entitlement` (
+     `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+     `order_id` varchar(16) NOT NULL COMMENT '支付商城订单ID',
+     `user_id` varchar(32) NOT NULL COMMENT '用户ID',
+     `service_package_id` varchar(16) NOT NULL COMMENT 'AI服务套餐ID',
+     `total_quota` int NOT NULL COMMENT '大模型调用总额度',
+     `used_quota` int NOT NULL DEFAULT '0' COMMENT '已消耗额度',
+     `remaining_quota` int NOT NULL COMMENT '剩余额度',
+     `status` varchar(16) NOT NULL COMMENT '权益状态；ACTIVE-已开通、REVOKED-已撤销',
+     `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+     `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+     PRIMARY KEY (`id`),
+     UNIQUE KEY `uq_order_package` (`order_id`, `service_package_id`),
+     KEY `idx_user_package` (`user_id`, `service_package_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+# 转储表 subscription_fulfillment_task
+# ------------------------------------------------------------
+
+DROP TABLE IF EXISTS `subscription_fulfillment_task`;
+
+CREATE TABLE `subscription_fulfillment_task` (
+     `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增ID',
+     `order_id` varchar(16) NOT NULL COMMENT '支付商城订单ID',
+     `user_id` varchar(32) NOT NULL COMMENT '用户ID',
+     `service_package_id` varchar(16) NOT NULL COMMENT 'AI服务套餐ID',
+     `total_quota` int DEFAULT NULL COMMENT '大模型调用总额度',
+     `status` varchar(16) NOT NULL COMMENT '任务状态；PENDING-待处理、PROCESSING-处理中、RETRY-待重试、SUCCESS-成功、FAILED-失败',
+     `retry_count` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '重试次数',
+     `fail_reason` varchar(512) DEFAULT NULL COMMENT '失败原因',
+     `next_retry_time` datetime DEFAULT NULL COMMENT '下次重试时间',
+     `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+     `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+     PRIMARY KEY (`id`),
+     UNIQUE KEY `uq_order_package` (`order_id`, `service_package_id`),
      KEY `idx_status_next_retry_time` (`status`, `next_retry_time`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
