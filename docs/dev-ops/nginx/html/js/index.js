@@ -1,12 +1,12 @@
 function getCookie(name) {
-  let cookieArr = document.cookie.split(";");
-  for(let i = 0; i < cookieArr.length; i++) {
-      let cookiePair = cookieArr[i].split("=");
-      if(name == cookiePair[0].trim()) {
-          return decodeURIComponent(cookiePair[1]);
-      }
-  }
-  return null;
+    let cookieArr = document.cookie.split(";");
+    for (let i = 0; i < cookieArr.length; i++) {
+        let cookiePair = cookieArr[i].split("=");
+        if (name === cookiePair[0].trim()) {
+            return decodeURIComponent(cookiePair[1]);
+        }
+    }
+    return null;
 }
 
 function generateRandomNumber(length) {
@@ -20,23 +20,24 @@ function generateRandomNumber(length) {
 // 轮播图逻辑
 const swiperWrapper = document.querySelector('.swiper-wrapper');
 const pagination = document.querySelector('.swiper-pagination');
+const swiperSlides = document.querySelectorAll('.swiper-slide');
 let currentIndex = 0;
 
-// 创建分页点
-for(let i=0; i<3; i++) {
-    const dot = document.createElement('div');
-    dot.className = `swiper-dot${i===0 ? ' active' : ''}`;
-    pagination.appendChild(dot);
-}
+if (swiperWrapper && pagination && swiperSlides.length > 0) {
+    for (let i = 0; i < swiperSlides.length; i++) {
+        const dot = document.createElement('div');
+        dot.className = `swiper-dot${i === 0 ? ' active' : ''}`;
+        pagination.appendChild(dot);
+    }
 
-// 自动轮播
-setInterval(() => {
-    currentIndex = (currentIndex + 1) % 3;
-    swiperWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
-    document.querySelectorAll('.swiper-dot').forEach((dot, index) => {
-        dot.className = `swiper-dot${index === currentIndex ? ' active' : ''}`;
-    });
-}, 3000);
+    setInterval(() => {
+        currentIndex = (currentIndex + 1) % swiperSlides.length;
+        swiperWrapper.style.transform = `translateX(-${currentIndex * 100}%)`;
+        document.querySelectorAll('.swiper-dot').forEach((dot, index) => {
+            dot.className = `swiper-dot${index === currentIndex ? ' active' : ''}`;
+        });
+    }, 3000);
+}
 
 // 倒计时逻辑（完整实现）
 class Countdown {
@@ -48,6 +49,9 @@ class Countdown {
     }
 
     parseTime(timeString) {
+        if (!/^\d{1,2}:\d{1,2}:\d{1,2}$/.test(timeString || '')) {
+            return 0;
+        }
         const [hours, minutes, seconds] = timeString.split(':').map(Number);
         return hours * 3600 + minutes * 60 + seconds;
     }
@@ -70,6 +74,10 @@ class Countdown {
     }
 
     start() {
+        if (this.remaining <= 0) {
+            this.element.textContent = '00:00:00';
+            return;
+        }
         this.timer = setInterval(() => this.update(), 1000);
     }
 

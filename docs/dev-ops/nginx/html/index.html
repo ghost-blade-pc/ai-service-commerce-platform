@@ -3,89 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 服务订阅 — 大模型调用额度套餐</title>
+    <title>智链云汇 — AI 服务订阅与拼团采购</title>
     <link rel="stylesheet" href="css/index.css">
-
 </head>
 <body>
-<!-- 订单列表入口 -->
-<a class="order-list-entry" href="order-list.html">我的订阅</a>
+<div class="page-shell">
+    <header class="site-header">
+        <a class="brand" href="index.html" aria-label="智链云汇首页">
+            <img src="./images/logo.png" alt="" class="brand-logo">
+            <span>
+                <strong>智链云汇</strong>
+                <small>AI 服务订阅 & 拼团采购平台</small>
+            </span>
+        </a>
+        <nav class="site-nav" aria-label="主导航">
+            <a href="#home">首页</a>
+            <a href="#plans">AI API 套餐</a>
+            <a href="#group-buy">拼团专区</a>
+            <a href="order-list.html">我的订阅</a>
+        </nav>
+        <a class="login-link" href="login.html">登录</a>
+    </header>
 
-<!-- 轮播图 -->
-<div class="swiper-container">
-    <div class="swiper-wrapper">
-        <div class="swiper-slide"><img src="./images/sku-13811216-01.png"></div>
-        <div class="swiper-slide"><img src="./images/sku-13811216-02.png"></div>
-        <div class="swiper-slide"><img src="./images/sku-13811216-03.png"></div>
-    </div>
-    <div class="swiper-pagination"></div>
-</div>
+    <main id="home">
+        <section class="hero-grid">
+            <div class="hero-copy">
+                <div class="eyebrow">AI 服务订阅 · 多人拼团优惠</div>
+                <h1>更智能的选择<br>更实惠的 AI 服务</h1>
+                <p>按需订阅大模型调用额度，支持单独购买与拼团采购，支付后自动开通额度权益。</p>
 
-<!-- 商品信息 -->
-<div class="product-info">
-    <h1 class="product-title">AI 大模型调用额度套餐</h1>
-    <span class="promotion-tag">限时优惠</span>
-    <span class="promotion-text"></span> <!-- 动态填充促销文本 -->
-</div>
+                <div class="capability-row" aria-label="服务能力">
+                    <div class="capability-item">
+                        <span>API</span>
+                        <strong>额度订阅</strong>
+                        <small>大模型调用额度</small>
+                    </div>
+                    <div class="capability-item">
+                        <span>团</span>
+                        <strong>拼团优惠</strong>
+                        <small>多人参与更划算</small>
+                    </div>
+                    <div class="capability-item">
+                        <span>盾</span>
+                        <strong>权益保障</strong>
+                        <small>支付后自动履约</small>
+                    </div>
+                </div>
 
-<!-- 拼单列表容器 -->
-<div class="group-list">
-    <!-- 动态生成拼团列表 -->
-</div>
+                <div class="hero-deal">
+                    <span>拼团优惠</span>
+                    <strong id="savingText">最高可省 --</strong>
+                    <small id="savingSubText">正在读取套餐优惠...</small>
+                </div>
+            </div>
 
-<!-- 空白区域 -->
-<div class="area"></div>
+            <div class="product-stage" id="plans">
+                <div class="stage-tabs">
+                    <span class="active">订阅购买</span>
+                    <span>按需选择</span>
+                    <span>即时生效</span>
+                </div>
 
-<!-- 底部操作栏 -->
-<div class="action-bar">
-    <button class="action-btn buy-alone"></button>
-    <button class="action-btn group-buy"></button>
+                <div class="product-layout">
+                    <section class="plan-card featured-plan" aria-labelledby="planTitle">
+                        <div class="plan-art">
+                            <div class="swiper-container" aria-label="商品图片">
+                                <div class="swiper-wrapper">
+                                    <div class="swiper-slide"><img src="./images/sku-13811216-01.png" alt="AI 服务套餐图片 1"></div>
+                                    <div class="swiper-slide"><img src="./images/sku-13811216-02.png" alt="AI 服务套餐图片 2"></div>
+                                    <div class="swiper-slide"><img src="./images/sku-13811216-03.png" alt="AI 服务套餐图片 3"></div>
+                                </div>
+                                <div class="swiper-pagination"></div>
+                            </div>
+                        </div>
+                        <div class="plan-body">
+                            <div class="section-heading compact">
+                                <span>API</span>
+                                <h2 id="planTitle">AI API 套餐</h2>
+                            </div>
+                            <p class="plan-desc">适合个人开发、课程学习和轻量业务验证的额度订阅。</p>
+                            <div class="price-line">
+                                <span class="currency">￥</span>
+                                <strong id="groupPrice">--</strong>
+                                <small>/月起</small>
+                            </div>
+                            <div class="original-line">原价 <span id="originalPrice">--</span></div>
+                            <ul class="plan-features">
+                                <li><span>✓</span><em id="quotaText">-- Tokens / 月</em></li>
+                                <li><span>✓</span><em>支付后自动开通额度权益</em></li>
+                                <li><span>✓</span><em>支持单独订阅与拼团订阅</em></li>
+                                <li><span>✓</span><em>订单页可查询与退订</em></li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <aside class="checkout-panel" aria-labelledby="checkoutTitle">
+                        <div class="checkout-title">
+                            <h2 id="checkoutTitle">订阅结算</h2>
+                            <span>当前套餐</span>
+                        </div>
+                        <div class="checkout-item">
+                            <span class="checkout-icon">API</span>
+                            <div>
+                                <strong id="checkoutName">AI API 套餐</strong>
+                                <small id="checkoutQuota">-- Tokens / 月</small>
+                            </div>
+                        </div>
+                        <dl class="checkout-price">
+                            <div>
+                                <dt>单独订阅</dt>
+                                <dd id="aloneSummary">--</dd>
+                            </div>
+                            <div>
+                                <dt>拼团优惠</dt>
+                                <dd class="discount" id="discountSummary">--</dd>
+                            </div>
+                            <div class="total">
+                                <dt>拼团价</dt>
+                                <dd id="groupSummary">--</dd>
+                            </div>
+                        </dl>
+                        <button class="primary-action group-buy" type="button">拼团订阅</button>
+                        <button class="secondary-action buy-alone" type="button">单独订阅</button>
+                        <a class="order-shortcut" href="order-list.html">查看我的订阅订单</a>
+                        <p class="secure-note">安全支付 · 自动履约 · 支持退订</p>
+                    </aside>
+                </div>
+            </div>
+        </section>
+
+        <section class="group-section" id="group-buy">
+            <div class="section-heading">
+                <span>拼团专区</span>
+                <h2>一起拼团更优惠</h2>
+                <p class="promotion-text">正在读取拼团优惠...</p>
+            </div>
+            <div class="group-summary">
+                <div>
+                    <strong id="teamProgress">--/-- 人</strong>
+                    <small>当前可参团队伍</small>
+                </div>
+                <div>
+                    <strong id="teamCount">--</strong>
+                    <small>累计开团</small>
+                </div>
+                <div>
+                    <strong id="completeCount">--</strong>
+                    <small>已成团</small>
+                </div>
+            </div>
+            <div class="group-list" aria-live="polite">
+                <div class="group-item empty-tips">
+                    <div class="tips-content">正在加载拼团队伍...</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="trust-band" aria-label="服务保障">
+            <div><span>✓</span>官方服务保障</div>
+            <div><span>✓</span>支付后自动开通</div>
+            <div><span>✓</span>订单状态可追踪</div>
+            <div><span>✓</span>支持退订退款</div>
+        </section>
+    </main>
 </div>
 
 <script src="js/index.js"></script>
 <script>
-// 新增支付确认函数
-function showPaymentConfirm(price) {
-    // 创建遮罩层
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type || ''}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2600);
+}
+
+function showPaymentConfirm(price, mode) {
     const overlay = document.createElement('div');
     overlay.className = 'payment-overlay';
 
-    // 创建弹窗内容
     const modal = document.createElement('div');
     modal.className = 'payment-modal';
     modal.innerHTML = `
         <h3>订阅确认</h3>
-        <p>套餐金额：￥${price}</p>
-        <p>买家账号：<span class="copyable" data-copy="hovdlm0879@sandbox.com">hovdlm0879@sandbox.com</span></p>
-        <p>登录密码：111111</p>
-        <p>支付密码：111111</p>
+        <p>订阅方式：${mode || 'AI 服务订阅'}</p>
+        <p>套餐金额：<strong>￥${formatMoney(price)}</strong></p>
+        <p class="modal-tip">确认后将跳转至支付页面完成订阅。</p>
         <div class="modal-buttons">
-            <button class="confirm-btn">确认订阅</button>
-            <button class="cancel-btn">取消订阅</button>
+            <button class="confirm-btn" type="button">确认订阅</button>
+            <button class="cancel-btn" type="button">取消</button>
         </div>
     `;
 
-    // 确认支付处理
     modal.querySelector('.confirm-btn').addEventListener('click', function() {
         const form = document.querySelector('form');
-        if (form) form.submit();
+        if (form) {
+            form.submit();
+        } else {
+            showToast('支付表单未生成，请稍后重试', 'error');
+        }
         overlay.remove();
     });
 
-    // 取消支付处理
     modal.querySelector('.cancel-btn').addEventListener('click', function() {
         document.querySelectorAll('form').forEach(form => form.remove());
         overlay.remove();
-    });
-
-    // 添加复制功能
-    modal.querySelector('.copyable').addEventListener('click', function() {
-        const textToCopy = this.getAttribute('data-copy');
-        navigator.clipboard.writeText(textToCopy).then(() => {
-            alert('买家账号已复制到剪贴板');
-        }).catch(err => {
-            console.error('无法复制文本: ', err);
-        });
     });
 
     overlay.appendChild(modal);
@@ -93,187 +215,207 @@ function showPaymentConfirm(price) {
 }
 
 function obfuscateUserId(userId) {
-    if (userId.length <= 4) {
-      // 如果 userId 的长度小于或等于 4，则无需替换任何字符
-      return userId;
-    } else {
-      // 获取前两位和后两位
-      const start = userId.slice(0, 2);
-      const end = userId.slice(-2);
-      // 计算中间部分应该被替换成多少个 *
-      const middle = '*'.repeat(userId.length - 4);
-      // 返回成功替换后的字符串
-      return `${start}${middle}${end}`;
+    if (!userId) return '匿名用户';
+    if (userId.length <= 4) return userId;
+    return `${userId.slice(0, 2)}${'*'.repeat(userId.length - 4)}${userId.slice(-2)}`;
+}
+
+function formatMoney(value) {
+    const amount = Number(value || 0);
+    return Number.isInteger(amount) ? amount.toFixed(0) : amount.toFixed(2);
+}
+
+function formatQuota(value) {
+    const quota = Number(value || 0);
+    if (quota >= 10000) {
+        return `${Math.round(quota / 10000)}万 Tokens / 月`;
     }
-  }
+    return `${quota} Tokens / 月`;
+}
 
-document.addEventListener('DOMContentLoaded', function() {
-    // 使用当前 Nginx 同源入口，避免本地测试时绕到远程部署环境
-    var sPayMallUrl = "";
-    var groupBuyMarketUrl = "";
-    var goodsId = "9890001";
+function setButtonLoading(button, loading) {
+    if (!button) return;
+    button.disabled = loading;
+    button.classList.toggle('is-loading', loading);
+}
 
-    // 获取信息
-    var userId = getCookie("loginToken");
-    if (!userId) {
-        window.location.href = "login.html"; // 跳转到登录页
+function updatePlan(goods, teamStatistic) {
+    const originalPrice = Number(goods.originalPrice || 0);
+    const payPrice = Number(goods.payPrice || 0);
+    const deductionPrice = Number(goods.deductionPrice || Math.max(originalPrice - payPrice, 0));
+    const quota = formatQuota(goods.totalQuota);
+    const teamUsers = teamStatistic && teamStatistic.allTeamUserCount ? teamStatistic.allTeamUserCount : 0;
+
+    document.getElementById('planTitle').textContent = goods.goodsName || 'AI API 套餐';
+    document.getElementById('checkoutName').textContent = goods.goodsName || 'AI API 套餐';
+    document.getElementById('quotaText').textContent = quota;
+    document.getElementById('checkoutQuota').textContent = quota;
+    document.getElementById('groupPrice').textContent = formatMoney(payPrice);
+    document.getElementById('originalPrice').textContent = `￥${formatMoney(originalPrice)}`;
+    document.getElementById('aloneSummary').textContent = `￥${formatMoney(originalPrice)}`;
+    document.getElementById('discountSummary').textContent = `-￥${formatMoney(deductionPrice)}`;
+    document.getElementById('groupSummary').textContent = `￥${formatMoney(payPrice)} / 月`;
+    document.getElementById('savingText').textContent = `最高可省 ￥${formatMoney(deductionPrice)}`;
+    document.getElementById('savingSubText').textContent = `${teamUsers} 人正在拼团，参与即可享优惠价`;
+    document.querySelector('.promotion-text').textContent = `拼团立减 ￥${formatMoney(deductionPrice)}，${teamUsers} 人正在参与`;
+
+    document.querySelectorAll('.buy-alone').forEach(button => {
+        button.textContent = `单独订阅 ￥${formatMoney(originalPrice)}`;
+        button.dataset.price = originalPrice;
+    });
+    document.querySelectorAll('.group-buy').forEach(button => {
+        button.textContent = `拼团订阅 ￥${formatMoney(payPrice)}`;
+        button.dataset.price = payPrice;
+    });
+}
+
+function renderTeams(teamList, goods) {
+    const groupList = document.querySelector('.group-list');
+    groupList.innerHTML = '';
+
+    if (!teamList || teamList.length === 0) {
+        groupList.innerHTML = `
+            <div class="group-item empty-tips">
+                <div class="tips-content">
+                    <strong>暂时没有可参团队伍</strong>
+                    <span>可以直接发起拼团，邀请伙伴一起订阅。</span>
+                </div>
+            </div>
+        `;
         return;
     }
 
-    // 请求接口数据
-    fetch(groupBuyMarketUrl + '/api/v1/gbm/index/query_group_buy_market_config', {
+    teamList.forEach(team => {
+        const remaining = Math.max((team.targetCount || 0) - (team.lockCount || 0), 0);
+        const progress = team.targetCount ? Math.min((team.lockCount / team.targetCount) * 100, 100) : 0;
+
+        const item = document.createElement('article');
+        item.className = 'group-item';
+        item.innerHTML = `
+            <div class="team-card-main">
+                <div class="avatar">${obfuscateUserId(team.userId).slice(0, 1)}</div>
+                <div class="team-info">
+                    <div class="user-info" data-team-id="${team.teamId}" data-activity-id="${team.activityId}">${obfuscateUserId(team.userId)} 的拼团</div>
+                    <div class="group-status">
+                        <span>还差 ${remaining} 人成团</span>
+                        <span class="countdown">${team.validTimeCountdown || '00:00:00'}</span>
+                    </div>
+                    <div class="progress-track"><i style="width:${progress}%"></i></div>
+                </div>
+            </div>
+            <button class="group-btn" type="button" data-price="${goods.payPrice || 0}">参与拼团</button>
+        `;
+        groupList.appendChild(item);
+    });
+}
+
+function updateTeamSummary(teamList, teamStatistic) {
+    const firstTeam = teamList && teamList.length > 0 ? teamList[0] : null;
+    document.getElementById('teamProgress').textContent = firstTeam ? `${firstTeam.lockCount}/${firstTeam.targetCount} 人` : '--/-- 人';
+    document.getElementById('teamCount').textContent = teamStatistic && teamStatistic.allTeamCount !== undefined ? teamStatistic.allTeamCount : '--';
+    document.getElementById('completeCount').textContent = teamStatistic && teamStatistic.allTeamCompleteCount !== undefined ? teamStatistic.allTeamCompleteCount : '--';
+}
+
+function createPayOrder(button, requestBody, price, mode) {
+    setButtonLoading(button, true);
+    fetch('/api/v1/alipay/create_pay_order', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestBody)
+    })
+    .then(response => response.json())
+    .then(json => {
+        if (json.code === '0000') {
+            document.querySelectorAll('form').forEach(form => form.remove());
+            document.body.insertAdjacentHTML('beforeend', json.data);
+            showPaymentConfirm(price, mode);
+            return;
+        }
+        showToast(json.info || '创建支付单失败，请稍后重试', 'error');
+    })
+    .catch(error => {
+        console.error('创建支付单失败:', error);
+        showToast('创建支付单失败，请稍后重试', 'error');
+    })
+    .finally(() => {
+        setButtonLoading(button, false);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const goodsId = '9890001';
+    const userId = getCookie('loginToken');
+    if (!userId) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    fetch('/api/v1/gbm/index/query_group_buy_market_config', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
         },
         body: JSON.stringify({
             userId: userId,
-            source: "s01",
-            channel: "c01",
+            source: 's01',
+            channel: 'c01',
             goodsId: goodsId
         })
     })
     .then(response => response.json())
     .then(res => {
-        if(res.code !== '0000') return;
-
-        const { activityId, goods, teamList, teamStatistic } = res.data;
-        const groupList = document.querySelector('.group-list');
-        const promotionText = document.querySelector('.promotion-text');
-
-        // 更新促销信息
-        promotionText.textContent = `直降 ¥${goods.deductionPrice.toFixed(0)}，${teamStatistic.allTeamUserCount}人正在拼团，立即参与享受更多额度`;
-
-        // 清空并生成拼团列表
-        groupList.innerHTML = '';
-
-        if (teamList.length === 0) {
-            groupList.innerHTML = `
-                <div class="group-item empty-tips">
-                    <div class="tips-content">
-                        立即开团，与伙伴一起享受更多额度！
-                    </div>
-                </div>
-            `;
-        } else {
-            teamList.forEach(team => {
-                const remaining = team.targetCount - team.lockCount;
-
-                groupList.innerHTML += `
-                    <div class="group-item">
-                        <div>
-                            <div class="user-info" data-teamId="${team.teamId}" data-activityId="${team.activityId}">${obfuscateUserId(team.userId)}</div>
-                            <div class="group-status">
-                                <span>组队仅剩${remaining}人，拼团即将结束</span>
-                                <span class="countdown">${team.validTimeCountdown}</span>
-                            </div>
-                        </div>
-                        <div class="right">
-                            <button class="group-btn" data-price="${goods.payPrice.toFixed(0)}">参与拼团订阅</button>
-                        </div>
-                    </div>
-                `;
-            });
+        if (res.code !== '0000' || !res.data) {
+            showToast(res.info || '套餐信息加载失败', 'error');
+            return;
         }
 
-        // 更新底部按钮
-        const buyAloneBtn = document.querySelector('.buy-alone');
-        const groupBuyBtn = document.querySelector('.group-buy');
-        buyAloneBtn.textContent = `单独订阅(￥${goods.originalPrice.toFixed(0)})`;
-        buyAloneBtn.dataset.price = goods.originalPrice;
-        groupBuyBtn.textContent = `拼团订阅(￥${goods.payPrice.toFixed(0)})`;
-        groupBuyBtn.dataset.price = goods.payPrice;
+        const { activityId, goods, teamList = [], teamStatistic = {} } = res.data;
+        updatePlan(goods, teamStatistic);
+        renderTeams(teamList, goods);
+        updateTeamSummary(teamList, teamStatistic);
 
-        // 绑定支付事件[拼团购买]
-        document.querySelectorAll('.group-btn, .group-buy').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const button = this;
-                const price = button.dataset.price;
-
-                // 获取拼团ID
+        document.querySelectorAll('.group-btn, .group-buy').forEach(button => {
+            button.addEventListener('click', function() {
                 let teamId = null;
                 if (this.classList.contains('group-btn')) {
                     const groupItem = this.closest('.group-item');
-                    const userInfo = groupItem.querySelector('.user-info');
-                    teamId = userInfo.dataset.teamid;
+                    const userInfo = groupItem ? groupItem.querySelector('.user-info') : null;
+                    teamId = userInfo ? userInfo.dataset.teamId : null;
                 }
 
-                var url = sPayMallUrl + '/api/v1/alipay/create_pay_order';
-
-                var requestBody = {
-                     userId: userId,
-                     productId: goods.goodsId,
-                     servicePackageId: goods.goodsId,
-                     teamId: teamId,
-                     activityId: activityId,
-                     marketType: 1
-                };
-
-                fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestBody) // 将请求体转换为JSON字符串
-                })
-                .then(response => response.json()) // 解析JSON格式的响应
-                .then(json => {
-                    if (json.code === "0000") { // 假设成功的code是"0000"
-                        document.querySelectorAll('form').forEach(form => form.remove());
-                        document.body.insertAdjacentHTML('beforeend', json.data);
-                        showPaymentConfirm(goods.payPrice);
-                    } else {
-                        console.error('Error:', json.info); // 输出错误信息
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-
+                createPayOrder(this, {
+                    userId: userId,
+                    productId: goods.goodsId,
+                    servicePackageId: goods.goodsId,
+                    teamId: teamId,
+                    activityId: activityId,
+                    marketType: 1
+                }, this.dataset.price || goods.payPrice, '拼团订阅');
             });
         });
 
-        // 绑定支付事件[单独购买]
-        document.querySelectorAll('.buy-alone').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const button = this;
-                const price = button.dataset.price;
-
-                var requestBody = {
-                     userId: userId,
-                     productId: goods.goodsId,
-                     servicePackageId: goods.goodsId,
-                     marketType: 0
-                };
-
-                fetch(sPayMallUrl + '/api/v1/alipay/create_pay_order', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(requestBody) // 将请求体转换为JSON字符串
-                })
-                .then(response => response.json()) // 解析JSON格式的响应
-                .then(json => {
-                    if (json.code === "0000") { // 假设成功的code是"0000"
-                        document.querySelectorAll('form').forEach(form => form.remove());
-                        document.body.insertAdjacentHTML('beforeend', json.data);
-                        showPaymentConfirm(price);
-                    } else {
-                        console.error('Error:', json.info); // 输出错误信息
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+        document.querySelectorAll('.buy-alone').forEach(button => {
+            button.addEventListener('click', function() {
+                createPayOrder(this, {
+                    userId: userId,
+                    productId: goods.goodsId,
+                    servicePackageId: goods.goodsId,
+                    marketType: 0
+                }, this.dataset.price || goods.originalPrice, '单独订阅');
             });
         });
 
-        // 启动倒计时
         document.querySelectorAll('.countdown').forEach(el => {
             new Countdown(el, el.textContent);
         });
-
+    })
+    .catch(error => {
+        console.error('套餐信息加载失败:', error);
+        showToast('套餐信息加载失败，请稍后刷新', 'error');
     });
-
 });
 </script>
-
 </body>
 </html>

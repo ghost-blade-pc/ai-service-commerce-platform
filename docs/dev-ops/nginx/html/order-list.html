@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI 服务订阅 — 我的订单</title>
+    <title>智链云汇 — 我的订阅</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,62 +13,170 @@
 
         body {
             min-height: 100vh;
-            background: #f5f7fb;
-            color: #1f2937;
-            font-family: "Helvetica Neue", Arial, sans-serif;
+            background:
+                linear-gradient(135deg, rgba(239, 246, 255, 0.96), rgba(245, 243, 255, 0.92) 44%, rgba(236, 254, 255, 0.86)),
+                #f6f8ff;
+            color: #07133d;
+            font-family: Arial, "Helvetica Neue", sans-serif;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
         }
 
         .page {
-            width: min(960px, 100%);
+            width: min(1180px, 100%);
             margin: 0 auto;
-            padding: 18px 14px 40px;
+            padding: 24px 20px 46px;
         }
 
-        .header {
+        .topbar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 12px;
-            padding: 10px 0 18px;
+            gap: 18px;
+            margin-bottom: 28px;
         }
 
-        .title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #111827;
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand img {
+            width: 42px;
+            height: 42px;
+        }
+
+        .brand strong,
+        .brand small {
+            display: block;
+        }
+
+        .brand strong {
+            font-size: 22px;
+            line-height: 1.1;
+        }
+
+        .brand small {
+            margin-top: 4px;
+            color: #61708f;
+            font-size: 12px;
         }
 
         .home-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            padding: 0 16px;
+            border: 1px solid rgba(37, 99, 235, 0.24);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.72);
             color: #2563eb;
             font-size: 14px;
-            text-decoration: none;
+            font-weight: 800;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 280px;
+            gap: 18px;
+            align-items: stretch;
+            margin-bottom: 18px;
+        }
+
+        .hero-main,
+        .summary-card,
+        .order-item,
+        .message {
+            border: 1px solid rgba(86, 111, 185, 0.18);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: 0 12px 32px rgba(43, 73, 148, 0.09);
+        }
+
+        .hero-main {
+            padding: 28px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            min-height: 28px;
+            padding: 0 10px;
+            border-radius: 8px;
+            background: rgba(37, 99, 235, 0.1);
+            color: #2563eb;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .title {
+            margin-top: 14px;
+            color: #07133d;
+            font-size: clamp(30px, 4vw, 46px);
+            line-height: 1.16;
+        }
+
+        .subtitle {
+            margin-top: 12px;
+            color: #61708f;
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .summary-card {
+            display: grid;
+            align-content: center;
+            gap: 14px;
+            padding: 24px;
+        }
+
+        .summary-card span {
+            color: #61708f;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .summary-card strong {
+            color: #2563eb;
+            font-size: 34px;
+            line-height: 1;
         }
 
         .order-list {
             display: grid;
-            gap: 10px;
+            gap: 12px;
         }
 
         .order-item {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding: 14px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            background: #fff;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 16px;
+            align-items: center;
+            padding: 18px;
         }
 
         .order-main {
             min-width: 0;
         }
 
+        .order-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            min-width: 0;
+        }
+
         .product-name {
             overflow: hidden;
-            color: #111827;
-            font-size: 16px;
-            font-weight: 600;
+            color: #07133d;
+            font-size: 17px;
+            font-weight: 800;
             line-height: 1.4;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -77,9 +185,9 @@
         .meta {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px 18px;
-            margin-top: 10px;
-            color: #4b5563;
+            gap: 10px 18px;
+            margin-top: 14px;
+            color: #4b5b7d;
             font-size: 13px;
             line-height: 1.5;
         }
@@ -89,20 +197,21 @@
         }
 
         .amount {
-            color: #dc2626;
-            font-weight: 700;
+            color: #2563eb;
+            font-size: 17px;
+            font-weight: 900;
         }
 
         .status {
             display: inline-flex;
             align-items: center;
-            height: 24px;
-            padding: 0 8px;
+            min-height: 26px;
+            padding: 0 10px;
             border-radius: 999px;
             background: #eef2ff;
             color: #3730a3;
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 800;
             white-space: nowrap;
         }
 
@@ -119,23 +228,24 @@
         .actions {
             display: flex;
             align-items: center;
-            padding-top: 4px;
+            justify-content: flex-end;
         }
 
         .refund-btn,
         .load-more {
-            height: 34px;
+            min-height: 38px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             color: #fff;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 600;
+            font-weight: 800;
         }
 
         .refund-btn {
-            padding: 0 20px;
-            background: #ef4444;
+            min-width: 86px;
+            padding: 0 18px;
+            background: linear-gradient(135deg, #f97316, #ef4444);
         }
 
         .refund-btn:disabled,
@@ -152,32 +262,78 @@
 
         .load-more {
             width: min(280px, 100%);
-            background: #2563eb;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
         }
 
-        .empty,
         .message {
-            padding: 26px 14px;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            background: #fff;
-            color: #6b7280;
+            padding: 28px 14px;
+            color: #61708f;
             text-align: center;
         }
 
-        @media (max-width: 640px) {
+        @media (max-width: 780px) {
+            .page {
+                padding: 18px 12px 34px;
+            }
+
+            .topbar,
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .order-item {
+                grid-template-columns: 1fr;
+            }
+
+            .order-head {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
             .meta {
                 grid-template-columns: 1fr;
+            }
+
+            .actions {
+                justify-content: flex-start;
+            }
+
+            .refund-btn {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
 <main class="page">
-    <header class="header">
-        <h1 class="title">我的订阅订单</h1>
+    <header class="topbar">
+        <a class="brand" href="index.html">
+            <img src="./images/logo.png" alt="">
+            <span>
+                <strong>智链云汇</strong>
+                <small>AI 服务订阅 & 拼团采购平台</small>
+            </span>
+        </a>
         <a class="home-link" href="index.html">返回服务商城</a>
     </header>
+
+    <section class="hero">
+        <div class="hero-main">
+            <span class="eyebrow">我的订阅</span>
+            <h1 class="title">订阅订单与退订管理</h1>
+            <p class="subtitle">查看 AI 服务订阅订单、支付状态和退订入口。退订会沿用后端当前退款与权益撤销规则。</p>
+        </div>
+        <div class="summary-card">
+            <span>订单列表</span>
+            <strong id="orderCount">0</strong>
+            <span>已加载订单</span>
+        </div>
+    </section>
 
     <section id="orderList" class="order-list"></section>
     <div id="message" class="message">加载中...</div>
@@ -187,7 +343,6 @@
 </main>
 
 <script>
-    // 使用当前 Nginx 同源入口，避免本地测试时绕到远程部署环境
     const sPayMallUrl = "";
     const pageSize = 10;
     let lastId = null;
@@ -197,6 +352,7 @@
     const orderListEl = document.getElementById("orderList");
     const messageEl = document.getElementById("message");
     const loadMoreBtn = document.getElementById("loadMore");
+    const orderCountEl = document.getElementById("orderCount");
 
     function getCookie(name) {
         const cookieArr = document.cookie.split(";");
@@ -234,6 +390,10 @@
         return "";
     }
 
+    function refreshOrderCount() {
+        orderCountEl.textContent = orderListEl.children.length;
+    }
+
     function renderOrder(order) {
         const item = document.createElement("article");
         item.className = "order-item";
@@ -242,15 +402,18 @@
         const amount = order.payAmount || order.totalAmount;
         item.innerHTML = `
             <div class="order-main">
-                <div class="product-name">${escapeHtml(order.productName)}</div>
+                <div class="order-head">
+                    <div class="product-name">${escapeHtml(order.productName)}</div>
+                    <span class="status ${statusClass(order.status)}">${escapeHtml(order.statusDesc || order.status)}</span>
+                </div>
                 <div class="meta">
                     <span>订单号：${escapeHtml(order.orderId)}</span>
                     <span>金额：<strong class="amount">¥${formatAmount(amount)}</strong></span>
-                    <span>状态：<span class="status ${statusClass(order.status)}">${escapeHtml(order.statusDesc || order.status)}</span></span>
                     <span>创建时间：${escapeHtml(order.createTime)}</span>
+                    <span>订单状态：${escapeHtml(order.status || "-")}</span>
                 </div>
-                <div class="actions"></div>
             </div>
+            <div class="actions"></div>
         `;
 
         const actions = item.querySelector(".actions");
@@ -264,6 +427,7 @@
         }
 
         orderListEl.appendChild(item);
+        refreshOrderCount();
     }
 
     function updateMessage(text, visible) {
@@ -319,6 +483,7 @@
         .finally(() => {
             loading = false;
             updateLoadMore();
+            refreshOrderCount();
         });
     }
 
