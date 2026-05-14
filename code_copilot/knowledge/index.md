@@ -15,6 +15,7 @@
 ### 全局知识地图
 
 - [platform-knowledge.md](platform-knowledge.md)：大型综合知识图谱，覆盖根工作区、`group-buy-market/`、`s-pay-mall-ddd/` 的项目结构、DDD 分层、跨项目调用、MQ 链路、补偿任务、配置、风险点和 Research 入口。
+- [subscription-entitlement-flow.md](subscription-entitlement-flow.md)：订阅权益履约幂等模式、履约任务重试补偿与自动退款、按比例退款计算，覆盖 `subscription_entitlement` / `subscription_fulfillment_task` 表结构与关键 SQL。
 
 使用方式：
 

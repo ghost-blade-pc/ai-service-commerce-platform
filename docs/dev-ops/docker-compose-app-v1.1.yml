@@ -1,7 +1,7 @@
 name: ai-service-commerce-platform
 
 # 先启动基础设施：docker compose -f docker-compose-environment.yml up -d
-# 再启动应用：docker compose -f docker-compose-app-v1.0.yml up -d
+# 再启动应用：docker compose -f docker-compose-app-v1.1.yml up -d
 services:
   # 部署前端项目
   group-buy-market-front:
@@ -20,7 +20,7 @@ services:
 
   # 部署后端项目 - 小型支付商城
   s-pay-mall-app:
-    image: lipeicheng/s-pay-mall-ddd-lpc-app:1.0
+    image: lipeicheng/s-pay-mall-ddd-lpc-app:1.1
     container_name: ai-service-commerce-platform-s-pay-mall-app
     restart: on-failure
     ports:
@@ -59,7 +59,7 @@ services:
 
   # 拼团，负载01
   group-buy-market-01:
-    image: lipeicheng/group-buy-market-lpc-app:1.0
+    image: lipeicheng/group-buy-market-lpc-app:1.1
     container_name: ai-service-commerce-platform-group-buy-market-01
     restart: on-failure
     ports:
@@ -95,7 +95,7 @@ services:
 
   # 拼团，负载02
   group-buy-market-02:
-    image: lipeicheng/group-buy-market-lpc-app:1.0
+    image: lipeicheng/group-buy-market-lpc-app:1.1
     container_name: ai-service-commerce-platform-group-buy-market-02
     restart: on-failure
     ports:

@@ -27,7 +27,7 @@
 - **验证命令**：
   ```bash
   docker compose -f docs/dev-ops/docker-compose-environment.yml config
-  docker compose -f docs/dev-ops/docker-compose-app-v1.0.yml config
+  docker compose -f docs/dev-ops/docker-compose-app-v1.1.yml config
   ```
 - **状态**：completed
 
@@ -45,7 +45,7 @@
 - **验收标准**：FRP 所需入口可访问，后端调试端口可直接从宿主机访问，容器间仍使用服务名通信。
 - **验证命令**：
   ```bash
-  docker compose -f docs/dev-ops/docker-compose-app-v1.0.yml config
+  docker compose -f docs/dev-ops/docker-compose-app-v1.1.yml config
   ```
 - **状态**：completed
 
@@ -84,7 +84,7 @@
 - **验收标准**：compose config 校验通过，Nginx 配置校验通过，change log 有真实命令和结果。
 - **验证命令**：
   ```bash
-  git diff -- docs/dev-ops/docker-compose-app-v1.0.yml docs/dev-ops/docker-compose-environment.yml docs/dev-ops/nginx/conf/conf.d/localhost.conf
+  git diff -- docs/dev-ops/docker-compose-app-v1.1.yml docs/dev-ops/docker-compose-environment.yml docs/dev-ops/nginx/conf/conf.d/localhost.conf
   ```
 - **状态**：completed
 
@@ -140,8 +140,8 @@
 - **验收标准**：新创建的支付宝支付表单中 `notify_url` 仍为 `http://licodetech.top:8080/api/v1/alipay/alipay_notify_url`，`return_url` 为 `http://localhost:9001/`。
 - **验证命令**：
   ```bash
-  docker compose -f docs/dev-ops/docker-compose-app-v1.0.yml config --quiet
-  docker compose -f docs/dev-ops/docker-compose-app-v1.0.yml up -d s-pay-mall-app
+  docker compose -f docs/dev-ops/docker-compose-app-v1.1.yml config --quiet
+  docker compose -f docs/dev-ops/docker-compose-app-v1.1.yml up -d s-pay-mall-app
   docker exec ai-service-commerce-platform-s-pay-mall-app printenv ALIPAY_NOTIFY_URL ALIPAY_RETURN_URL
   curl --noproxy '*' -i -X POST http://127.0.0.1:8080/api/v1/alipay/create_pay_order -H 'Content-Type: application/json' -d '{"userId":"return-url-test","productId":"9890001","marketType":0}'
   ```

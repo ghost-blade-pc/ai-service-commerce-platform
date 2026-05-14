@@ -1,5 +1,5 @@
 version: '3.17'
-# docker-compose -f docker-compose-app-v1.0.yml up -d
+# docker-compose -f docker-compose-app-v1.1.yml up -d
 services:
   # 部署前端项目
   group-buy-market-front:

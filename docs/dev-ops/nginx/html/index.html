@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小傅哥 - 拼团项目 - 商品详情页</title>
+    <title>AI 服务订阅 — 大模型调用额度套餐</title>
     <link rel="stylesheet" href="css/index.css">
 
 </head>
 <body>
 <!-- 订单列表入口 -->
-<a class="order-list-entry" href="order-list.html">我的订单</a>
+<a class="order-list-entry" href="order-list.html">我的订阅</a>
 
 <!-- 轮播图 -->
 <div class="swiper-container">
@@ -23,8 +23,8 @@
 
 <!-- 商品信息 -->
 <div class="product-info">
-    <h1 class="product-title">手写MyBatis：渐进式源码实践（全彩）</h1>
-    <span class="promotion-tag">大促优惠</span>
+    <h1 class="product-title">AI 大模型调用额度套餐</h1>
+    <span class="promotion-tag">限时优惠</span>
     <span class="promotion-text"></span> <!-- 动态填充促销文本 -->
 </div>
 
@@ -54,14 +54,14 @@ function showPaymentConfirm(price) {
     const modal = document.createElement('div');
     modal.className = 'payment-modal';
     modal.innerHTML = `
-        <h3>支付确认</h3>
-        <p>商品金额：￥${price}</p>
+        <h3>订阅确认</h3>
+        <p>套餐金额：￥${price}</p>
         <p>买家账号：<span class="copyable" data-copy="hovdlm0879@sandbox.com">hovdlm0879@sandbox.com</span></p>
         <p>登录密码：111111</p>
         <p>支付密码：111111</p>
         <div class="modal-buttons">
-            <button class="confirm-btn">确认支付</button>
-            <button class="cancel-btn">取消支付</button>
+            <button class="confirm-btn">确认订阅</button>
+            <button class="cancel-btn">取消订阅</button>
         </div>
     `;
 
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const promotionText = document.querySelector('.promotion-text');
 
         // 更新促销信息
-        promotionText.textContent = `直降 ¥${goods.deductionPrice.toFixed(0)}，${teamStatistic.allTeamUserCount}人再抢，参与马上抢到`;
+        promotionText.textContent = `直降 ¥${goods.deductionPrice.toFixed(0)}，${teamStatistic.allTeamUserCount}人正在拼团，立即参与享受更多额度`;
 
         // 清空并生成拼团列表
         groupList.innerHTML = '';
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
             groupList.innerHTML = `
                 <div class="group-item empty-tips">
                     <div class="tips-content">
-                        小伙伴，赶紧去开团吧，做村里最靓的仔！🎉
+                        立即开团，与伙伴一起享受更多额度！
                     </div>
                 </div>
             `;
@@ -164,12 +164,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div>
                             <div class="user-info" data-teamId="${team.teamId}" data-activityId="${team.activityId}">${obfuscateUserId(team.userId)}</div>
                             <div class="group-status">
-                                <span>组队仅剩${remaining}人，拼单即将结束</span>
+                                <span>组队仅剩${remaining}人，拼团即将结束</span>
                                 <span class="countdown">${team.validTimeCountdown}</span>
                             </div>
                         </div>
                         <div class="right">
-                            <button class="group-btn" data-price="${goods.payPrice.toFixed(0)}">参与拼团</button>
+                            <button class="group-btn" data-price="${goods.payPrice.toFixed(0)}">参与拼团订阅</button>
                         </div>
                     </div>
                 `;
@@ -179,9 +179,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // 更新底部按钮
         const buyAloneBtn = document.querySelector('.buy-alone');
         const groupBuyBtn = document.querySelector('.group-buy');
-        buyAloneBtn.textContent = `单独购买(￥${goods.originalPrice.toFixed(0)})`;
+        buyAloneBtn.textContent = `单独订阅(￥${goods.originalPrice.toFixed(0)})`;
         buyAloneBtn.dataset.price = goods.originalPrice;
-        groupBuyBtn.textContent = `开团购买(￥${goods.payPrice.toFixed(0)})`;
+        groupBuyBtn.textContent = `拼团订阅(￥${goods.payPrice.toFixed(0)})`;
         groupBuyBtn.dataset.price = goods.payPrice;
 
         // 绑定支付事件[拼团购买]
@@ -203,6 +203,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var requestBody = {
                      userId: userId,
                      productId: goods.goodsId,
+                     servicePackageId: goods.goodsId,
                      teamId: teamId,
                      activityId: activityId,
                      marketType: 1
@@ -239,6 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var requestBody = {
                      userId: userId,
                      productId: goods.goodsId,
+                     servicePackageId: goods.goodsId,
                      marketType: 0
                 };
 

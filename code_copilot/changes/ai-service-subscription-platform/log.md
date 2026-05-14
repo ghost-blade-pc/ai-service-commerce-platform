@@ -20,6 +20,11 @@
 | 2026-05-12 15:14:00 +0800 | verify | 应用本地增量 SQL 并验证 Docker 依赖 | 新增非破坏性增量 SQL；Docker MySQL 已存在 `pay_order.service_package_id`、`pay_order.total_quota`、`subscription_entitlement`、`subscription_fulfillment_task`、`sku.total_quota`。 |
 | 2026-05-12 15:30:00 +0800 | fix | 修正联调暴露的问题 | 营销应用启动需先安装 reactor 依赖；商城营销 DTO 增加忽略未知字段；订单创建未传营销类型时默认 `NO_MARKET`；测试商品统一为 `9890001` 并避开营销侧限流窗口。 |
 | 2026-05-12 15:51:00 +0800 | verify | 商城侧 SpringBoot 测试报告通过 | `OrderServiceTest` 2 个、`OrderServiceRefundTest` 20 个、`RefundSuccessTopicListenerTest` 3 个均 0 failure / 0 error；Maven 进程因现有调度线程未退出，已手动停止。 |
+| 2026-05-12 | review | Spec Compliance Review 通过 | 7 个功能点均已实现，DDD 边界正确，风险项有明确保护机制。 |
+| 2026-05-12 | commit | 提交首期实现（57 文件，+1937/-158） | `1309233 feat: AI服务订阅与营销平台适配，新增订阅域与额度履约补偿` |
+| 2026-05-12 | propose | 新增前端静态页适配功能（功能 8 / Task 7） | 调研 `docs/dev-ops/nginx/html/` 中 index.html、order-list.html、login.html、css、js 文件；`spec.md` 新增功能 8，`tasks.md` 新增 Task 7。 |
+| 2026-05-12 | apply | 执行 Task 7 前端静态页适配 | 修改 index.html（标题/商品名/促销/支付弹窗/空状态/按钮/请求体加 servicePackageId）、order-list.html（标题/导航/退订按钮/确认文案）、login.html（标题/欢迎语/说明）、css/index.css（电商橙→AI 科技蓝紫 #4f46e5/#6366f1/#8b5cf6）。 |
+| 2026-05-12 | archive | 归档 change，沉淀知识 | `spec.md`/`test-spec.md` 状态改为 `done`；新增 `knowledge/subscription-entitlement-flow.md`；补充 `knowledge/platform-knowledge.md` 跨项目服务套餐目录策略；更新 `knowledge/index.md` 索引。 |
 
 ## 技术决策
 

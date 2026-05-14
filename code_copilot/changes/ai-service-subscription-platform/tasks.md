@@ -162,7 +162,27 @@
   - `cd group-buy-market && mvn -pl group-buy-market-lpc-app -am -DskipTests=false -DfailIfNoTests=false test`
 - **状态**：done
 
-## 变更摘要
+## Task 7: 前端静态页适配 AI 服务订阅场景
+
+- **目标**：把 `docs/dev-ops/nginx/html/` 中商品拼团商城的页面文案与视觉调整为 AI 大模型调用额度套餐订阅平台。
+- **影响项目**：前端（nginx 静态资源），不涉及 Java 后端
+- **DDD 层级**：不适用（纯前端静态资源）
+- **涉及文件**：
+  - `docs/dev-ops/nginx/html/index.html`：页面标题、商品名称占位、促销文案、支付弹窗、空状态提示、下单请求体增加 `servicePackageId`。
+  - `docs/dev-ops/nginx/html/order-list.html`：页面标题、导航链接、"退单"按钮改为"退订"。
+  - `docs/dev-ops/nginx/html/login.html`：页面标题、欢迎文案。
+  - `docs/dev-ops/nginx/html/css/index.css`：按需调整色调。
+  - `docs/dev-ops/nginx/html/js/index.js`：无需逻辑变更，确保兼容。
+- **关键签名**：不适用（仅 HTML/CSS/JS 文案调整）
+- **依赖**：Task 1-6 已完成后端适配
+- **风险标记**：无（不涉及资金、状态、MQ、数据库、外部接口）
+- **验收标准**：
+  - 页面标题、产品名、按钮、弹窗文案均使用 AI 服务订阅语义。
+  - 下单请求体包含 `servicePackageId` 字段。
+  - 页面在浏览器中正常渲染，轮播图、拼团队伍列表、倒计时功能不变。
+- **验证命令**：
+  - 浏览器打开 `index.html`、`order-list.html`、`login.html` 确认文案和布局。
+- **状态**：done
 
 - **总文件数**：实现阶段新增/修改商城、营销和 change 文档文件，详见 `log.md`。
 - **Spec-Plan 偏差记录**：首期不新增独立权益 MQ topic，继续复用支付成功/成团消息触发本地额度履约；履约失败自动退款由本地任务 Job 调用既有退单退款入口。

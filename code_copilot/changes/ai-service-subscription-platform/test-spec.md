@@ -1,7 +1,7 @@
 # 测试计划 — AI 服务订阅与营销平台适配
 
 > created: 2026-05-12
-> status: applying
+> status: done
 
 ## 1. 验证范围
 

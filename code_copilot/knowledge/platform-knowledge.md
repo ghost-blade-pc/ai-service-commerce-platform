@@ -81,6 +81,15 @@
 - `settlement_market_pay_order`：支付后营销结算，可能触发组队完成通知。
 - `refund_market_pay_order`：拼团营销退单，返回退单行为结果。
 
+### 跨项目服务套餐目录策略
+
+> 来源：`ai-service-subscription-platform` change，2026-05-12
+
+- **营销侧数据库表是服务套餐目录的唯一数据源**（`sku`、`sc_sku_activity`、`group_buy_activity`、`group_buy_discount`），负责维护可售卖套餐、价格、额度、优惠和拼团活动配置。
+- **商城侧不新增第二套套餐目录主数据**，通过 Retrofit 调用营销侧 `query_group_buy_market_config`（`IGroupBuyMarketService`）获取套餐快照，落订单时保存 `servicePackageId`、`productName`、`totalQuota`、`price` 等履约所需字段。
+- 跨项目关联键：商城侧 `pay_order.product_id` / `pay_order.service_package_id` = 营销侧 `sku.goods_id`。
+- `ProductRPC` 早期硬编码示例（`MyBatisBook`、`100.00`）已被废弃并替换为 `UnsupportedOperationException`，不再作为套餐目录来源。
+
 ## 5. 异步消息链路
 
 ### 商城支付成功消息

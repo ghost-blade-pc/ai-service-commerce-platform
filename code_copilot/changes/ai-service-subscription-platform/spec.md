@@ -1,5 +1,5 @@
 # AI 服务订阅与营销平台适配
-> status: applying
+> status: done
 > created: 2026-05-11
 > scope: cross-project
 > complexity: 复杂
@@ -98,6 +98,7 @@
 | group-buy-market | infrastructure | 是 | `TradeRepository`、SKU/活动 mapper、通知任务 | 服务包活动关联、通知任务幂等和消息体可能调整。 |
 | group-buy-market | app | 是 | SQL、配置、测试 | 初始化数据从图书商品改为 AI 服务套餐；MQ 配置原则上复用。 |
 | group-buy-market | types | 可能 | 枚举/常量 | 若新增营销品类或退单行为类型，需要补充。 |
+| 前端（nginx） | — | 是 | `index.html`、`order-list.html`、`login.html`、`css/index.css`、`js/index.js` | 页面标题、商品名、按钮文案、支付弹窗、空状态提示改为 AI 服务订阅语义；下单请求增加 `servicePackageId`。 |
 
 ## 5. 功能点
 
@@ -107,7 +108,8 @@
 - [x] 功能 4：成团后额度权益开通。把 `OrderPaySuccessListener` 当前模拟发货替换为额度履约入口；普通订阅支付成功后开通额度，拼团订阅成团结算后开通额度。
 - [x] 功能 5：额度履约幂等与补偿。新增本地权益记录和履约任务，记录总额度、已用额度、剩余额度、履约状态和重试状态；MQ 重复消费不能重复增加额度。
 - [x] 功能 6：退订退款。保留当前退款与拼团退单机制，退订时撤销未使用额度；已消耗额度按比例退款；履约失败重试一段时间后自动退款，让用户侧尽量无感。
-- [x] 功能 7：展示和文档语义同步。本次覆盖日志、SQL 示例数据、测试语义和 change 文档；前端静态页/README 不影响核心链路契约，后续如需要展示改版再单独建 change。
+- [x] 功能 7：展示和文档语义同步。本次覆盖日志、SQL 示例数据、测试语义和 change 文档。
+- [x] 功能 8：前端静态页适配 AI 服务订阅场景。把 `docs/dev-ops/nginx/html/` 中商品拼团商城的页面（index.html、order-list.html、login.html、css/index.css、js/index.js）调整为 AI 大模型调用额度套餐订阅平台的视觉和文案。
 
 ## 6. 业务规则
 

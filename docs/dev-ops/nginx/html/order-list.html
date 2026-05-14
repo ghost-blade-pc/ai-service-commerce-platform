@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S Pay Mall 订单列表</title>
+    <title>AI 服务订阅 — 我的订单</title>
     <style>
         * {
             box-sizing: border-box;
@@ -175,8 +175,8 @@
 <body>
 <main class="page">
     <header class="header">
-        <h1 class="title">我的订单</h1>
-        <a class="home-link" href="index.html">返回商城</a>
+        <h1 class="title">我的订阅订单</h1>
+        <a class="home-link" href="index.html">返回服务商城</a>
     </header>
 
     <section id="orderList" class="order-list"></section>
@@ -258,7 +258,7 @@
             const refundBtn = document.createElement("button");
             refundBtn.className = "refund-btn";
             refundBtn.type = "button";
-            refundBtn.textContent = "退单";
+            refundBtn.textContent = "退订";
             refundBtn.addEventListener("click", () => refundOrder(order.orderId, item));
             actions.appendChild(refundBtn);
         }
@@ -323,7 +323,7 @@
     }
 
     function refundOrder(orderId, item) {
-        if (!confirm("确认退单？")) {
+        if (!confirm("确认退订？已消耗额度将按比例退款。")) {
             return;
         }
 
@@ -345,7 +345,7 @@
         .then(response => response.json())
         .then(json => {
             if (json.code !== "0000") {
-                alert(json.info || "退单失败，请稍后重试");
+                alert(json.info || "退订失败，请稍后重试");
                 if (button) button.disabled = false;
                 return;
             }
@@ -359,7 +359,7 @@
         })
         .catch(error => {
             console.error("退单失败:", error);
-            alert("退单失败，请稍后重试");
+            alert("退订失败，请稍后重试");
             if (button) button.disabled = false;
         });
     }
