@@ -26,110 +26,144 @@
     </header>
 
     <main id="home">
-        <section class="hero-grid">
-            <div class="hero-copy">
+        <section class="purchase-workbench" id="plans" aria-label="AI 服务购买工作台">
+            <aside class="value-rail" aria-label="服务价值">
                 <div class="eyebrow">AI 服务订阅 · 多人拼团优惠</div>
-                <h1>更智能的选择<br>更实惠的 AI 服务</h1>
-                <p>按需订阅大模型调用额度，支持单独购买与拼团采购，支付后自动开通额度权益。</p>
+                <h1>智链云汇<br>AI 服务购买工作台</h1>
+                <p>订阅大模型调用额度，单独购买即时开通，拼团购买自动结算优惠。</p>
 
-                <div class="capability-row" aria-label="服务能力">
-                    <div class="capability-item">
+                <div class="value-stack" aria-label="核心能力">
+                    <div class="value-item">
                         <span>API</span>
                         <strong>额度订阅</strong>
-                        <small>大模型调用额度</small>
+                        <small id="railQuota">读取套餐额度中...</small>
                     </div>
-                    <div class="capability-item">
+                    <div class="value-item">
                         <span>团</span>
                         <strong>拼团优惠</strong>
-                        <small>多人参与更划算</small>
+                        <small id="railSaving">正在计算优惠</small>
                     </div>
-                    <div class="capability-item">
+                    <div class="value-item">
                         <span>盾</span>
                         <strong>权益保障</strong>
                         <small>支付后自动履约</small>
                     </div>
                 </div>
 
-                <div class="hero-deal">
-                    <span>拼团优惠</span>
-                    <strong id="savingText">最高可省 --</strong>
-                    <small id="savingSubText">正在读取套餐优惠...</small>
+                <div class="deal-banner">
+                    <span>本单预计节省</span>
+                    <strong id="savingText">--</strong>
+                    <small id="savingSubText">正在读取拼团数据...</small>
                 </div>
-            </div>
+            </aside>
 
-            <div class="product-stage" id="plans">
-                <div class="stage-tabs">
-                    <span class="active">订阅购买</span>
-                    <span>按需选择</span>
-                    <span>即时生效</span>
+            <section class="config-panel" aria-labelledby="planTitle">
+                <div class="panel-heading">
+                    <div>
+                        <span class="panel-tag">当前套餐</span>
+                        <h2 id="planTitle">AI API 套餐</h2>
+                    </div>
+                    <a class="order-shortcut desktop-only" href="order-list.html">我的订阅</a>
                 </div>
 
-                <div class="product-layout">
-                    <section class="plan-card featured-plan" aria-labelledby="planTitle">
-                        <div class="plan-art">
-                            <div class="swiper-container" aria-label="商品图片">
-                                <div class="swiper-wrapper">
-                                    <div class="swiper-slide"><img src="./images/sku-13811216-01.png" alt="AI 服务套餐图片 1"></div>
-                                    <div class="swiper-slide"><img src="./images/sku-13811216-02.png" alt="AI 服务套餐图片 2"></div>
-                                    <div class="swiper-slide"><img src="./images/sku-13811216-03.png" alt="AI 服务套餐图片 3"></div>
-                                </div>
-                                <div class="swiper-pagination"></div>
-                            </div>
-                        </div>
-                        <div class="plan-body">
-                            <div class="section-heading compact">
-                                <span>API</span>
-                                <h2 id="planTitle">AI API 套餐</h2>
-                            </div>
-                            <p class="plan-desc">适合个人开发、课程学习和轻量业务验证的额度订阅。</p>
-                            <div class="price-line">
-                                <span class="currency">￥</span>
-                                <strong id="groupPrice">--</strong>
-                                <small>/月起</small>
-                            </div>
-                            <div class="original-line">原价 <span id="originalPrice">--</span></div>
-                            <ul class="plan-features">
-                                <li><span>✓</span><em id="quotaText">-- Tokens / 月</em></li>
-                                <li><span>✓</span><em>支付后自动开通额度权益</em></li>
-                                <li><span>✓</span><em>支持单独订阅与拼团订阅</em></li>
-                                <li><span>✓</span><em>订单页可查询与退订</em></li>
-                            </ul>
-                        </div>
-                    </section>
-
-                    <aside class="checkout-panel" aria-labelledby="checkoutTitle">
-                        <div class="checkout-title">
-                            <h2 id="checkoutTitle">订阅结算</h2>
-                            <span>当前套餐</span>
-                        </div>
-                        <div class="checkout-item">
-                            <span class="checkout-icon">API</span>
-                            <div>
-                                <strong id="checkoutName">AI API 套餐</strong>
-                                <small id="checkoutQuota">-- Tokens / 月</small>
-                            </div>
-                        </div>
-                        <dl class="checkout-price">
-                            <div>
-                                <dt>单独订阅</dt>
-                                <dd id="aloneSummary">--</dd>
-                            </div>
-                            <div>
-                                <dt>拼团优惠</dt>
-                                <dd class="discount" id="discountSummary">--</dd>
-                            </div>
-                            <div class="total">
-                                <dt>拼团价</dt>
-                                <dd id="groupSummary">--</dd>
-                            </div>
-                        </dl>
-                        <button class="primary-action group-buy" type="button">拼团订阅</button>
-                        <button class="secondary-action buy-alone" type="button">单独订阅</button>
-                        <a class="order-shortcut" href="order-list.html">查看我的订阅订单</a>
-                        <p class="secure-note">安全支付 · 自动履约 · 支持退订</p>
-                    </aside>
+                <div class="package-asset">
+                    <div class="asset-copy">
+                        <span>AI API Service Pack</span>
+                        <strong id="assetQuota">-- Tokens / 月</strong>
+                        <small>适合开发验证、课程学习和轻量业务调用。</small>
+                    </div>
+                    <div class="asset-image">
+                        <img src="./images/sku-13811216-01.png" alt="AI API 服务套餐封面">
+                    </div>
                 </div>
-            </div>
+
+                <div class="mode-switch" role="group" aria-label="购买方式">
+                    <button class="mode-option active" type="button" data-mode="group">
+                        <span>拼团购买</span>
+                        <strong id="modeGroupPrice">--</strong>
+                    </button>
+                    <button class="mode-option" type="button" data-mode="alone">
+                        <span>单独订阅</span>
+                        <strong id="modeAlonePrice">--</strong>
+                    </button>
+                </div>
+
+                <div class="config-grid">
+                    <div>
+                        <span>Token 额度</span>
+                        <strong id="quotaText">-- Tokens / 月</strong>
+                    </div>
+                    <div>
+                        <span>订阅周期</span>
+                        <strong>按月订阅</strong>
+                    </div>
+                    <div>
+                        <span>原价</span>
+                        <strong id="originalPrice">--</strong>
+                    </div>
+                    <div>
+                        <span>拼团优惠</span>
+                        <strong id="discountSummary">--</strong>
+                    </div>
+                </div>
+
+                <ul class="plan-features">
+                    <li><span>✓</span><em>支付成功后自动开通额度权益</em></li>
+                    <li><span>✓</span><em>支持单独订阅与多人拼团采购</em></li>
+                    <li><span>✓</span><em>订单页可查询订阅状态与退订</em></li>
+                    <li><span>✓</span><em>当前页面不新增无后端支撑的功能入口</em></li>
+                </ul>
+
+                <div class="recommend-team" aria-live="polite">
+                    <div>
+                        <span>推荐拼团</span>
+                        <strong id="recommendTeamTitle">正在匹配可参团队伍</strong>
+                    </div>
+                    <small id="recommendTeamMeta">读取队伍进度中...</small>
+                </div>
+            </section>
+
+            <aside class="settlement-panel" aria-labelledby="checkoutTitle">
+                <div class="settlement-sticky">
+                    <div class="checkout-title">
+                        <div>
+                            <span id="checkoutMode">拼团购买</span>
+                            <h2 id="checkoutTitle">订单结算</h2>
+                        </div>
+                        <span class="checkout-icon">API</span>
+                    </div>
+
+                    <div class="checkout-item">
+                        <strong id="checkoutName">AI API 套餐</strong>
+                        <small id="checkoutQuota">-- Tokens / 月</small>
+                    </div>
+
+                    <dl class="checkout-price">
+                        <div>
+                            <dt>单独订阅</dt>
+                            <dd id="aloneSummary">--</dd>
+                        </div>
+                        <div>
+                            <dt>拼团优惠</dt>
+                            <dd class="discount" id="checkoutDiscount">--</dd>
+                        </div>
+                        <div class="total">
+                            <dt id="checkoutTotalLabel">拼团应付</dt>
+                            <dd id="checkoutTotal">--</dd>
+                        </div>
+                    </dl>
+
+                    <div class="checkout-team" id="checkoutTeamStatus">
+                        <strong>正在读取拼团进度</strong>
+                        <small>匹配可参团队伍中...</small>
+                    </div>
+
+                    <button class="primary-action" id="checkoutAction" type="button">立即订阅</button>
+                    <button class="secondary-action buy-alone" type="button">单独订阅</button>
+                    <a class="order-shortcut" href="order-list.html">查看我的订阅订单</a>
+                    <p class="secure-note">安全支付 · 自动履约 · 支持退订</p>
+                </div>
+            </aside>
         </section>
 
         <section class="group-section" id="group-buy">
@@ -141,7 +175,7 @@
             <div class="group-summary">
                 <div>
                     <strong id="teamProgress">--/-- 人</strong>
-                    <small>当前可参团队伍</small>
+                    <small>推荐队伍进度</small>
                 </div>
                 <div>
                     <strong id="teamCount">--</strong>
@@ -168,8 +202,25 @@
     </main>
 </div>
 
+<div class="mobile-settlement" aria-label="移动端订单结算">
+    <div>
+        <span id="mobileMode">拼团购买</span>
+        <strong id="mobileTotal">--</strong>
+    </div>
+    <button class="primary-action" id="mobileCheckoutAction" type="button">立即订阅</button>
+</div>
+
 <script src="js/index.js"></script>
 <script>
+const purchaseState = {
+    mode: 'group',
+    goods: null,
+    activityId: null,
+    teamList: [],
+    teamStatistic: {},
+    selectedTeamId: null
+};
+
 function showToast(message, type) {
     const toast = document.createElement('div');
     toast.className = `toast ${type || ''}`;
@@ -239,34 +290,108 @@ function setButtonLoading(button, loading) {
     button.classList.toggle('is-loading', loading);
 }
 
+function setText(selector, text) {
+    const el = document.querySelector(selector);
+    if (el) el.textContent = text;
+}
+
+function getPriceInfo(goods) {
+    const originalPrice = Number(goods && goods.originalPrice || 0);
+    const payPrice = Number(goods && goods.payPrice || 0);
+    const deductionPrice = Number(goods && goods.deductionPrice || Math.max(originalPrice - payPrice, 0));
+    return { originalPrice, payPrice, deductionPrice };
+}
+
+function getRecommendedTeam() {
+    if (!purchaseState.teamList || purchaseState.teamList.length === 0) return null;
+    const selected = purchaseState.teamList.find(team => String(team.teamId) === String(purchaseState.selectedTeamId));
+    return selected || purchaseState.teamList[0];
+}
+
+function setMode(mode) {
+    purchaseState.mode = mode === 'alone' ? 'alone' : 'group';
+    document.querySelectorAll('.mode-option').forEach(button => {
+        button.classList.toggle('active', button.dataset.mode === purchaseState.mode);
+    });
+    updateCheckout();
+}
+
 function updatePlan(goods, teamStatistic) {
-    const originalPrice = Number(goods.originalPrice || 0);
-    const payPrice = Number(goods.payPrice || 0);
-    const deductionPrice = Number(goods.deductionPrice || Math.max(originalPrice - payPrice, 0));
+    const { originalPrice, payPrice, deductionPrice } = getPriceInfo(goods);
     const quota = formatQuota(goods.totalQuota);
     const teamUsers = teamStatistic && teamStatistic.allTeamUserCount ? teamStatistic.allTeamUserCount : 0;
 
-    document.getElementById('planTitle').textContent = goods.goodsName || 'AI API 套餐';
-    document.getElementById('checkoutName').textContent = goods.goodsName || 'AI API 套餐';
-    document.getElementById('quotaText').textContent = quota;
-    document.getElementById('checkoutQuota').textContent = quota;
-    document.getElementById('groupPrice').textContent = formatMoney(payPrice);
-    document.getElementById('originalPrice').textContent = `￥${formatMoney(originalPrice)}`;
-    document.getElementById('aloneSummary').textContent = `￥${formatMoney(originalPrice)}`;
-    document.getElementById('discountSummary').textContent = `-￥${formatMoney(deductionPrice)}`;
-    document.getElementById('groupSummary').textContent = `￥${formatMoney(payPrice)} / 月`;
-    document.getElementById('savingText').textContent = `最高可省 ￥${formatMoney(deductionPrice)}`;
-    document.getElementById('savingSubText').textContent = `${teamUsers} 人正在拼团，参与即可享优惠价`;
-    document.querySelector('.promotion-text').textContent = `拼团立减 ￥${formatMoney(deductionPrice)}，${teamUsers} 人正在参与`;
+    setText('#planTitle', goods.goodsName || 'AI API 套餐');
+    setText('#checkoutName', goods.goodsName || 'AI API 套餐');
+    setText('#quotaText', quota);
+    setText('#assetQuota', quota);
+    setText('#railQuota', quota);
+    setText('#checkoutQuota', quota);
+    setText('#originalPrice', `￥${formatMoney(originalPrice)}`);
+    setText('#aloneSummary', `￥${formatMoney(originalPrice)}`);
+    setText('#discountSummary', `-￥${formatMoney(deductionPrice)}`);
+    setText('#checkoutDiscount', `-￥${formatMoney(deductionPrice)}`);
+    setText('#modeGroupPrice', `￥${formatMoney(payPrice)}`);
+    setText('#modeAlonePrice', `￥${formatMoney(originalPrice)}`);
+    setText('#savingText', `￥${formatMoney(deductionPrice)}`);
+    setText('#railSaving', `可省 ￥${formatMoney(deductionPrice)}`);
+    setText('#savingSubText', `${teamUsers} 人正在参与拼团优惠`);
+    setText('.promotion-text', `拼团立减 ￥${formatMoney(deductionPrice)}，${teamUsers} 人正在参与`);
+    updateCheckout();
+}
+
+function updateCheckout() {
+    if (!purchaseState.goods) return;
+    const { originalPrice, payPrice, deductionPrice } = getPriceInfo(purchaseState.goods);
+    const recommendedTeam = getRecommendedTeam();
+    const isGroup = purchaseState.mode === 'group';
+    const amount = isGroup ? payPrice : originalPrice;
+    const modeText = isGroup ? '拼团购买' : '单独订阅';
+    const totalLabel = isGroup ? '拼团应付' : '单独订阅';
+    let actionText = isGroup ? '立即开团' : '单独订阅';
+    let teamTitle = '暂无可参团队伍';
+    let teamMeta = '可以直接开团，邀请伙伴一起享受优惠价。';
+
+    if (isGroup && recommendedTeam) {
+        const remaining = Math.max((recommendedTeam.targetCount || 0) - (recommendedTeam.lockCount || 0), 0);
+        actionText = `立即参团 ￥${formatMoney(payPrice)}`;
+        teamTitle = `${obfuscateUserId(recommendedTeam.userId)} 的拼团`;
+        teamMeta = `还差 ${remaining} 人成团 · ${recommendedTeam.validTimeCountdown || '00:00:00'}`;
+    } else if (isGroup) {
+        actionText = `立即开团 ￥${formatMoney(payPrice)}`;
+    } else {
+        actionText = `单独订阅 ￥${formatMoney(originalPrice)}`;
+        teamTitle = '单独订阅即时开通';
+        teamMeta = '不等待成团，支付成功后进入权益履约。';
+    }
+
+    setText('#checkoutMode', modeText);
+    setText('#checkoutTotalLabel', totalLabel);
+    setText('#checkoutTotal', `￥${formatMoney(amount)}`);
+    setText('#mobileMode', modeText);
+    setText('#mobileTotal', `￥${formatMoney(amount)}`);
+    setText('#checkoutAction', actionText);
+    setText('#mobileCheckoutAction', actionText);
+    setText('#recommendTeamTitle', teamTitle);
+    setText('#recommendTeamMeta', teamMeta);
+
+    const checkoutTeamStatus = document.getElementById('checkoutTeamStatus');
+    if (checkoutTeamStatus) {
+        checkoutTeamStatus.innerHTML = `<strong>${teamTitle}</strong><small>${teamMeta}</small>`;
+        checkoutTeamStatus.classList.toggle('is-alone', !isGroup);
+    }
 
     document.querySelectorAll('.buy-alone').forEach(button => {
         button.textContent = `单独订阅 ￥${formatMoney(originalPrice)}`;
         button.dataset.price = originalPrice;
     });
-    document.querySelectorAll('.group-buy').forEach(button => {
-        button.textContent = `拼团订阅 ￥${formatMoney(payPrice)}`;
-        button.dataset.price = payPrice;
+
+    document.querySelectorAll('#checkoutAction, #mobileCheckoutAction').forEach(button => {
+        button.dataset.price = amount;
+        button.dataset.mode = purchaseState.mode;
     });
+
+    setText('#checkoutDiscount', isGroup ? `-￥${formatMoney(deductionPrice)}` : '不使用');
 }
 
 function renderTeams(teamList, goods) {
@@ -285,17 +410,20 @@ function renderTeams(teamList, goods) {
         return;
     }
 
+    purchaseState.selectedTeamId = teamList[0].teamId || null;
     teamList.forEach(team => {
         const remaining = Math.max((team.targetCount || 0) - (team.lockCount || 0), 0);
         const progress = team.targetCount ? Math.min((team.lockCount / team.targetCount) * 100, 100) : 0;
 
         const item = document.createElement('article');
         item.className = 'group-item';
+        item.dataset.teamId = team.teamId || '';
+        item.dataset.activityId = team.activityId || '';
         item.innerHTML = `
             <div class="team-card-main">
                 <div class="avatar">${obfuscateUserId(team.userId).slice(0, 1)}</div>
                 <div class="team-info">
-                    <div class="user-info" data-team-id="${team.teamId}" data-activity-id="${team.activityId}">${obfuscateUserId(team.userId)} 的拼团</div>
+                    <div class="user-info">${obfuscateUserId(team.userId)} 的拼团</div>
                     <div class="group-status">
                         <span>还差 ${remaining} 人成团</span>
                         <span class="countdown">${team.validTimeCountdown || '00:00:00'}</span>
@@ -303,7 +431,7 @@ function renderTeams(teamList, goods) {
                     <div class="progress-track"><i style="width:${progress}%"></i></div>
                 </div>
             </div>
-            <button class="group-btn" type="button" data-price="${goods.payPrice || 0}">参与拼团</button>
+            <button class="group-btn" type="button" data-team-id="${team.teamId || ''}" data-price="${goods.payPrice || 0}">参与拼团</button>
         `;
         groupList.appendChild(item);
     });
@@ -311,9 +439,9 @@ function renderTeams(teamList, goods) {
 
 function updateTeamSummary(teamList, teamStatistic) {
     const firstTeam = teamList && teamList.length > 0 ? teamList[0] : null;
-    document.getElementById('teamProgress').textContent = firstTeam ? `${firstTeam.lockCount}/${firstTeam.targetCount} 人` : '--/-- 人';
-    document.getElementById('teamCount').textContent = teamStatistic && teamStatistic.allTeamCount !== undefined ? teamStatistic.allTeamCount : '--';
-    document.getElementById('completeCount').textContent = teamStatistic && teamStatistic.allTeamCompleteCount !== undefined ? teamStatistic.allTeamCompleteCount : '--';
+    setText('#teamProgress', firstTeam ? `${firstTeam.lockCount}/${firstTeam.targetCount} 人` : '--/-- 人');
+    setText('#teamCount', teamStatistic && teamStatistic.allTeamCount !== undefined ? teamStatistic.allTeamCount : '--');
+    setText('#completeCount', teamStatistic && teamStatistic.allTeamCompleteCount !== undefined ? teamStatistic.allTeamCompleteCount : '--');
 }
 
 function createPayOrder(button, requestBody, price, mode) {
@@ -344,6 +472,35 @@ function createPayOrder(button, requestBody, price, mode) {
     });
 }
 
+function submitCurrentOrder(button, userId) {
+    if (!purchaseState.goods) {
+        showToast('套餐信息尚未加载完成', 'error');
+        return;
+    }
+
+    const { originalPrice, payPrice } = getPriceInfo(purchaseState.goods);
+    const recommendedTeam = getRecommendedTeam();
+
+    if (purchaseState.mode === 'alone') {
+        createPayOrder(button, {
+            userId: userId,
+            productId: purchaseState.goods.goodsId,
+            servicePackageId: purchaseState.goods.goodsId,
+            marketType: 0
+        }, originalPrice, '单独订阅');
+        return;
+    }
+
+    createPayOrder(button, {
+        userId: userId,
+        productId: purchaseState.goods.goodsId,
+        servicePackageId: purchaseState.goods.goodsId,
+        teamId: recommendedTeam ? recommendedTeam.teamId : null,
+        activityId: purchaseState.activityId,
+        marketType: 1
+    }, payPrice, recommendedTeam ? '拼团参团' : '拼团开团');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const goodsId = '9890001';
     const userId = getCookie('loginToken');
@@ -351,6 +508,12 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = 'login.html';
         return;
     }
+
+    document.querySelectorAll('.mode-option').forEach(button => {
+        button.addEventListener('click', function() {
+            setMode(this.dataset.mode);
+        });
+    });
 
     fetch('/api/v1/gbm/index/query_group_buy_market_config', {
         method: 'POST',
@@ -372,38 +535,34 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const { activityId, goods, teamList = [], teamStatistic = {} } = res.data;
+        purchaseState.goods = goods;
+        purchaseState.activityId = activityId;
+        purchaseState.teamList = teamList;
+        purchaseState.teamStatistic = teamStatistic;
+
         updatePlan(goods, teamStatistic);
         renderTeams(teamList, goods);
         updateTeamSummary(teamList, teamStatistic);
+        updateCheckout();
 
-        document.querySelectorAll('.group-btn, .group-buy').forEach(button => {
+        document.querySelector('.group-list').addEventListener('click', function(event) {
+            const button = event.target.closest('.group-btn');
+            if (!button) return;
+            purchaseState.selectedTeamId = button.dataset.teamId || null;
+            setMode('group');
+            submitCurrentOrder(button, userId);
+        });
+
+        document.querySelectorAll('#checkoutAction, #mobileCheckoutAction').forEach(button => {
             button.addEventListener('click', function() {
-                let teamId = null;
-                if (this.classList.contains('group-btn')) {
-                    const groupItem = this.closest('.group-item');
-                    const userInfo = groupItem ? groupItem.querySelector('.user-info') : null;
-                    teamId = userInfo ? userInfo.dataset.teamId : null;
-                }
-
-                createPayOrder(this, {
-                    userId: userId,
-                    productId: goods.goodsId,
-                    servicePackageId: goods.goodsId,
-                    teamId: teamId,
-                    activityId: activityId,
-                    marketType: 1
-                }, this.dataset.price || goods.payPrice, '拼团订阅');
+                submitCurrentOrder(this, userId);
             });
         });
 
         document.querySelectorAll('.buy-alone').forEach(button => {
             button.addEventListener('click', function() {
-                createPayOrder(this, {
-                    userId: userId,
-                    productId: goods.goodsId,
-                    servicePackageId: goods.goodsId,
-                    marketType: 0
-                }, this.dataset.price || goods.originalPrice, '单独订阅');
+                setMode('alone');
+                submitCurrentOrder(this, userId);
             });
         });
 
