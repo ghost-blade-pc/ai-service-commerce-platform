@@ -1,8 +1,17 @@
 # 任务拆分 — Nginx 静态前端响应式改版方案
 
-> 推荐顺序：页面结构 → CSS 响应式系统 → JS 渲染适配 → 登录/订单页统一 → 本地验证  
+> 推荐顺序：页面结构 → CSS 响应式系统 → JS 渲染适配 → 登录/订单页统一 → 本地验证
 > 第一轮已按任务执行静态前端改版；完整浏览器联调受当时本机 Docker/Nginx 环境限制。
 > 2026-05-14 已执行二次设计迭代：桌面端升级为“购买工作台”，移动端新增底部结算条。
+
+## 归档状态
+
+- **状态**：done
+- **完成时间**：2026-05-14
+- **任务范围**：Task 1-10 全部完成。
+- **最终代码范围**：`docs/dev-ops/nginx/html/index.html`、`login.html`、`order-list.html`、`css/index.css`、`js/index.js`。
+- **最终文档范围**：`spec.md`、`tasks.md`、`log.md`。
+- **未完成项**：未做自动截图验证；原因是本地 Node 环境未安装 Playwright 包。Nginx/API 冒烟和静态语法检查已完成。
 
 ## 前置条件
 
@@ -248,3 +257,9 @@
 - **接口契约**：`query_group_buy_market_config` 和 `create_pay_order` 路径保留；下单请求仍保留 `userId`、`productId`、`servicePackageId`、`teamId`、`activityId`、`marketType`。
 - **验证结果**：JS 语法检查、首页内联脚本解析、接口字段 grep、无支撑入口/旧敏感文案 grep、Nginx 9001 访问、Docker compose 状态、营销配置接口冒烟均已完成。
 - **遗留问题**：本地 Node 环境未安装 Playwright，未做自动桌面/移动端截图验证；可通过浏览器访问 `http://127.0.0.1:9001/` 手动检查。
+
+## 归档结论
+
+- Task 1-6 完成第一轮响应式改版：首页、登录页、订单页统一品牌与基础响应式体验。
+- Task 7-10 完成二次设计：首页桌面端购买工作台、购买模式联动、移动端底部结算条和验证文档同步。
+- 本 change 已具备归档条件；后续若继续优化视觉细节、补 Playwright 截图或新增后端支撑能力，应新建独立 change。

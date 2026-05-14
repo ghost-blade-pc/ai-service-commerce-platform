@@ -16,6 +16,17 @@
 | 2026-05-14 | Apply | 完成首页、登录页、订单页响应式改版 | 未修改后端接口、数据库、MQ、订单状态或退款规则。 |
 | 2026-05-14 | Propose Update | 用户反馈桌面端产品购买页设计仍不够好，要求按新的设计思路补充 proposal | 本轮只更新 `code_copilot/changes/frontend-responsive-ai-service-pages` 文档，不修改前端源码。 |
 | 2026-05-14 | Apply Update | 用户确认执行 Task 7-10 | 将 `index.html` 升级为桌面端购买工作台 + 移动端底部结算条。 |
+| 2026-05-14 | Archive | 归纳整理 `frontend-responsive-ai-service-pages` 文档 | 标记 change 为 done，补充归档摘要、完成范围、验证边界和后续拆分建议。 |
+| 2026-05-14 | Archive Knowledge | 用户要求沉淀全局知识 | 新增 `code_copilot/knowledge/static-frontend-ai-service-pages.md`，并接入 `knowledge/index.md`。 |
+
+## 归档摘要
+
+- **最终状态**：done。
+- **最终实现**：`index.html` 采用桌面端购买工作台和移动端底部结算条；`login.html` 与 `order-list.html` 保持第一轮响应式品牌统一成果。
+- **最终代码范围**：`docs/dev-ops/nginx/html/index.html`、`login.html`、`order-list.html`、`css/index.css`、`js/index.js`。
+- **最终接口范围**：只消费现有 `/api/v1/gbm/index/query_group_buy_market_config`、`/api/v1/alipay/create_pay_order`、订单查询/退单、登录接口；未新增或修改后端契约。
+- **风险处理**：金额、拼团、订单、退款相关规则不在前端重新定义；前端只展示后端返回字段并保持请求参数不变。
+- **验证边界**：静态语法、接口字段、无支撑入口/敏感文案、Nginx 入口、Docker compose 状态、营销配置接口均已验证；自动截图未执行，原因是本地 Node 环境缺少 Playwright。
 
 ## 技术决策
 
@@ -101,3 +112,15 @@
 - [x] 该改版保持所有后端接口不变，只调整静态页面结构、样式、交互状态与兼容性。
 - [x] 二次设计迭代应把桌面端视为购买工作台，而不是传统电商详情页；移动端则继续保持卡片式购买路径。
 - [x] Nginx 9001 当前可访问，营销配置接口经代理可返回真实套餐数据；自动截图验证仍受本地 Playwright 包缺失限制。
+
+## 后续建议
+
+- 若要补自动截图验证，建议新建 `frontend-responsive-screenshot-verification` change，并先确认是否允许安装或引入 Playwright。
+- 若要新增多套餐、智能体服务包、企业控制台、用量统计、发票或消息中心，必须先确认后端目录/订单/权益/统计接口，不应继续塞入本已完成 change。
+- 若后续替换商品图片，只替换 `docs/dev-ops/nginx/html/images/sku-13811216-*.png` 同类静态资源即可，不需要改变本次接口契约。
+
+## 全局知识沉淀
+
+- 已新增：`code_copilot/knowledge/static-frontend-ai-service-pages.md`。
+- 已更新：`code_copilot/knowledge/index.md` 的全局知识地图和主题路由。
+- 适用后续任务：Nginx 静态前端、首页购买工作台、扫码登录、订单页、拼团购买、支付下单字段核对、静态页面验证。
