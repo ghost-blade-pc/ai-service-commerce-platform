@@ -25,9 +25,9 @@ thread:
 # 数据库配置；启动时配置数据库资源信息
 spring:
   datasource:
-    username: root
-    password: 123456
-    url: jdbc:mysql://127.0.0.1:3306/group_buy_market?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&useSSL=true
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:123456}
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://mysql:3306/group_buy_market?useUnicode=true&characterEncoding=utf8&autoReconnect=true&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai&useSSL=false}
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
@@ -42,10 +42,10 @@ spring:
 
 
   rabbitmq:
-    addresses: rabbitmq
-    port: 5672
-    username: admin
-    password: admin
+    addresses: ${SPRING_RABBITMQ_ADDRESSES:rabbitmq}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+    username: ${SPRING_RABBITMQ_USERNAME:admin}
+    password: ${SPRING_RABBITMQ_PASSWORD:admin}
     listener:
       simple:
         prefetch: 1 # 每次投递n个消息，消费完在投递n个
@@ -78,8 +78,8 @@ mybatis:
 redis:
   sdk:
     config:
-      host: 127.0.0.1
-      port: 16379
+      host: ${REDIS_SDK_CONFIG_HOST:redis}
+      port: ${REDIS_SDK_CONFIG_PORT:6379}
       pool-size: 10
       min-idle-size: 5
       idle-timeout: 30000
@@ -95,12 +95,12 @@ xfg:
     config:
       system: group-buy-market-lpc
       register:
-        host: 127.0.0.1
-        port: 16379
+        host: ${XFG_WRENCH_CONFIG_REGISTER_HOST:redis}
+        port: ${XFG_WRENCH_CONFIG_REGISTER_PORT:6379}
 
 # 日志；logstash部署的服务器IP
 logstash:
-  host: 127.0.0.1
+  host: ${LOGSTASH_HOST:127.0.0.1}
 
 # 监控配置 Prometheus + Grafana
 management:

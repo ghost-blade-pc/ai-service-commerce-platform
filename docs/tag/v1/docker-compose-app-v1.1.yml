@@ -9,7 +9,7 @@ services:
     container_name: ai-service-commerce-platform-nginx
     restart: always
     ports:
-      - '9001:80'
+      - "80:80"
     volumes:
       - ./nginx/html:/usr/share/nginx/html
       - ./nginx/conf/nginx.conf:/etc/nginx/nginx.conf
@@ -20,33 +20,36 @@ services:
 
   # 部署后端项目 - 小型支付商城
   s-pay-mall-app:
-    image: lipeicheng/s-pay-mall-ddd-lpc-app:1.1
+    image: lipeicheng/s-pay-mall-ddd-lpc-app:1.2
     container_name: ai-service-commerce-platform-s-pay-mall-app
     restart: on-failure
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     environment:
       - TZ=PRC
-      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_PROFILES_ACTIVE=prod
       - SERVER_PORT=8080
       - APP_CONFIG_GROUP_BUY_MARKET_API_URL=http://group-buy-market-front
       - APP_CONFIG_GROUP_BUY_MARKET_NOTIFY_URL=http://s-pay-mall-app:8080/api/v1/alipay/group_buy_notify
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=123456
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/s-pay-mall?serverTimezone=UTC&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USERNAME:-root}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/s-pay-mall?characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       - SPRING_HIKARI_POOL_NAME=Retail_HikariCP
       - SPRING_RABBITMQ_ADDRESSES=rabbitmq
       - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=admin
-      - SPRING_RABBITMQ_PASSWORD=admin
-      - WEIXIN_CONFIG_ORIGINALID=gh_aec3b0f21ae2
-      - WEIXIN_CONFIG_TOKEN=180818ly
-      - WEIXIN_CONFIG_APP_ID=wx39335001840306f6
-      - WEIXIN_CONFIG_APP_SECRET=d588ef20942027994721fba5aff6ed25
-      - WEIXIN_CONFIG_TEMPLATE_ID=Ky9LEqquuj73KUuj8UAlKWBzR_IjujNt-t7_23SWE-E
-      - ALIPAY_NOTIFY_URL=http://licodetech.top:8080/api/v1/alipay/alipay_notify_url
-      - ALIPAY_RETURN_URL=http://localhost:9001/
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_DEFAULT_USER:-admin}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS:-admin}
+      - WEIXIN_CONFIG_ORIGINALID=${WEIXIN_CONFIG_ORIGINALID:?set WEIXIN_CONFIG_ORIGINALID in docs/tag/v1/.env}
+      - WEIXIN_CONFIG_TOKEN=${WEIXIN_CONFIG_TOKEN:?set WEIXIN_CONFIG_TOKEN in docs/tag/v1/.env}
+      - WEIXIN_CONFIG_APP_ID=${WEIXIN_CONFIG_APP_ID:?set WEIXIN_CONFIG_APP_ID in docs/tag/v1/.env}
+      - WEIXIN_CONFIG_APP_SECRET=${WEIXIN_CONFIG_APP_SECRET:?set WEIXIN_CONFIG_APP_SECRET in docs/tag/v1/.env}
+      - WEIXIN_CONFIG_TEMPLATE_ID=${WEIXIN_CONFIG_TEMPLATE_ID:?set WEIXIN_CONFIG_TEMPLATE_ID in docs/tag/v1/.env}
+      - ALIPAY_APP_ID=${ALIPAY_APP_ID:?set ALIPAY_APP_ID in docs/tag/v1/.env}
+      - ALIPAY_MERCHANT_PRIVATE_KEY=${ALIPAY_MERCHANT_PRIVATE_KEY:?set ALIPAY_MERCHANT_PRIVATE_KEY in docs/tag/v1/.env}
+      - ALIPAY_ALIPAY_PUBLIC_KEY=${ALIPAY_ALIPAY_PUBLIC_KEY:?set ALIPAY_ALIPAY_PUBLIC_KEY in docs/tag/v1/.env}
+      - ALIPAY_NOTIFY_URL=http://licodetech.top/api/v1/alipay/alipay_notify_url
+      - ALIPAY_RETURN_URL=http://licodetech.top
     volumes:
       - ./log:/data/log
     logging:
@@ -59,30 +62,30 @@ services:
 
   # 拼团，负载01
   group-buy-market-01:
-    image: lipeicheng/group-buy-market-lpc-app:1.1
+    image: lipeicheng/group-buy-market-lpc-app:1.2
     container_name: ai-service-commerce-platform-group-buy-market-01
     restart: on-failure
     ports:
       - "8091:8091"
     environment:
       - TZ=PRC
-      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_PROFILES_ACTIVE=prod
       - SERVER_PORT=8091
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=123456
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/group_buy_market?serverTimezone=UTC&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USERNAME:-root}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/group_buy_market?characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       - SPRING_HIKARI_POOL_NAME=Retail_HikariCP
       - SPRING_RABBITMQ_ADDRESSES=rabbitmq
       - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=admin
-      - SPRING_RABBITMQ_PASSWORD=admin
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_DEFAULT_USER:-admin}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS:-admin}
       - REDIS_SDK_CONFIG_HOST=redis
       - REDIS_SDK_CONFIG_PORT=6379
       - XFG_WRENCH_CONFIG_SYSTEM=group-buy-market
       - XFG_WRENCH_CONFIG_REGISTER_HOST=redis
       - XFG_WRENCH_CONFIG_REGISTER_PORT=6379
-      - LOGSTASH_HOST=logstash
+      - LOGSTASH_HOST=${LOGSTASH_HOST:-127.0.0.1}
     volumes:
       - ./log:/data/log
     logging:
@@ -95,29 +98,30 @@ services:
 
   # 拼团，负载02
   group-buy-market-02:
-    image: lipeicheng/group-buy-market-lpc-app:1.1
+    image: lipeicheng/group-buy-market-lpc-app:1.2
     container_name: ai-service-commerce-platform-group-buy-market-02
     restart: on-failure
     ports:
       - "8092:8091"
     environment:
       - TZ=PRC
-      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_PROFILES_ACTIVE=prod
       - SERVER_PORT=8091
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=123456
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/group_buy_market?serverTimezone=UTC&characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USERNAME:-root}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_ROOT_PASSWORD:-123456}
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/group_buy_market?characterEncoding=utf8&autoReconnect=true&serverTimezone=Asia/Shanghai
       - SPRING_DATASOURCE_DRIVER_CLASS_NAME=com.mysql.cj.jdbc.Driver
       - SPRING_HIKARI_POOL_NAME=Retail_HikariCP
       - SPRING_RABBITMQ_ADDRESSES=rabbitmq
       - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=admin
-      - SPRING_RABBITMQ_PASSWORD=admin
+      - SPRING_RABBITMQ_USERNAME=${RABBITMQ_DEFAULT_USER:-admin}
+      - SPRING_RABBITMQ_PASSWORD=${RABBITMQ_DEFAULT_PASS:-admin}
       - REDIS_SDK_CONFIG_HOST=redis
       - REDIS_SDK_CONFIG_PORT=6379
       - XFG_WRENCH_CONFIG_SYSTEM=group-buy-market
       - XFG_WRENCH_CONFIG_REGISTER_HOST=redis
       - XFG_WRENCH_CONFIG_REGISTER_PORT=6379
+      - LOGSTASH_HOST=${LOGSTASH_HOST:-127.0.0.1}
     volumes:
       - ./log:/data/log
     logging:
