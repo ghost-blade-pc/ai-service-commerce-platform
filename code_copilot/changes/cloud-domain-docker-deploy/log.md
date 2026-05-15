@@ -14,6 +14,7 @@
 | 2026-05-15 | fix | 修正微信/支付宝敏感配置默认值 | 去掉 `please-change` 假占位，改为运行时必填环境变量，并新增不含真实值的 `.env.example` |
 | 2026-05-15 | fix | 同步 Docker 镜像版本 | `build.sh` 已构建 `1.2` 镜像，compose 应用镜像同步为 `1.2`，避免云服务器启动旧镜像 |
 | 2026-05-16 | fix | 调整管理端口公网暴露策略 | MySQL/Redis 本体保持本机绑定；phpMyAdmin `8899`、Redis Admin `8081`、RabbitMQ `5672/15672` 按用户确认对外暴露 |
+| 2026-05-16 | archive | 沉淀云服务器部署知识 | 新增 `cloud-domain-docker-deployment.md`，更新知识索引，标记 change 为 done |
 
 ## 技术决策
 
@@ -67,6 +68,7 @@
 | `mvn -pl s-pay-mall-ddd-lpc-app -am -DskipTests package` | 通过 | 测试按命令跳过；构建成功 |
 | `git diff --check -- ...` | 通过 | 仅有 Git 行尾 CRLF 提示，无 whitespace error |
 | `rg -n "please-change|..." ...` | 通过 | 已清理 `please-change` 假默认值 |
+| `rg -n "127.0.0.1:13306|127.0.0.1:16379|8899:80|8081:8081|5672:5672|15672:15672" docs/tag/v1/docker-compose-environment.yml` | 通过 | 端口策略与用户确认一致 |
 
 ## 踩坑记录
 
@@ -78,4 +80,4 @@
 
 ## 知识发现
 
-- [ ] TODO: 云服务器部署完成后，可将最终域名入口、profile 策略和端口暴露策略沉淀到 `code_copilot/knowledge/` 的 Docker/配置主题。
+- [x] 已沉淀 `cloud-domain-docker-deployment.md`，覆盖 `licodetech.top`、Nginx `80:80`、Docker `prod` profile、`.env` 敏感配置、管理端口暴露策略、支付/微信回调 URL 和验证命令。

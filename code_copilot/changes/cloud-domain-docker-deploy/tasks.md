@@ -49,7 +49,7 @@
 - **影响项目**：group-buy-market
 - **DDD 层级**：app
 - **涉及文件**：
-  - `group-buy-market/group-buy-market-lpc-app/src/main/resources/application-prod.yml`：调整 MySQL、Redis、xfg-wrench register、Logstash 等配置为环境变量占位或容器服务名默认值
+  - `group-buy-market/group-buy-market-lpc-app/src/main/resources/application-prod.yml`：调整 MySQL、Redis、xfg-wrench register、Logstash 等配置为运行时环境变量或容器服务名默认值
 - **关键签名**：无
 - **依赖**：Task 1
 - **风险标记**：数据库 / MQ / 安全
@@ -66,7 +66,7 @@
 - **影响项目**：s-pay-mall-ddd
 - **DDD 层级**：app
 - **涉及文件**：
-  - `s-pay-mall-ddd/s-pay-mall-ddd-lpc-app/src/main/resources/application-prod.yml`：调整公网 URL、中间件地址、支付宝/微信敏感配置为环境变量占位
+  - `s-pay-mall-ddd/s-pay-mall-ddd-lpc-app/src/main/resources/application-prod.yml`：调整公网 URL、中间件地址、支付宝/微信敏感配置为运行时必填环境变量
 - **关键签名**：无
 - **依赖**：Task 1、Task 2
 - **风险标记**：资金 / 外部接口 / 数据库 / MQ / 安全
@@ -79,7 +79,7 @@
 
 ## Task 5: 收口中间件公网暴露与运维入口
 
-- **目标**：按云服务器安全策略收口 MySQL、Redis、RabbitMQ、管理后台端口暴露，确保仅服务器内网可访问。
+- **目标**：按云服务器安全策略收口 MySQL、Redis、RabbitMQ、管理后台端口暴露；MySQL/Redis 本体仅本机访问，用户确认的管理端口对外开放。
 - **影响项目**：cross-project
 - **DDD 层级**：docs / deployment
 - **涉及文件**：
@@ -87,7 +87,7 @@
 - **关键签名**：无
 - **依赖**：Task 1
 - **风险标记**：数据库 / MQ / 安全
-- **验收标准**：公网只开放必要用户访问入口；MySQL、Redis、RabbitMQ 管理端仅服务器内网访问。
+- **验收标准**：公网开放 Nginx `80`、phpMyAdmin `8899`、Redis Admin `8081`、RabbitMQ `5672/15672`；MySQL `13306`、Redis `16379` 仅绑定 `127.0.0.1`。
 - **验证命令**：
   ```bash
   docker compose -f docs/tag/v1/docker-compose-environment.yml config
@@ -110,11 +110,11 @@
   docker exec ai-service-commerce-platform-nginx nginx -t
   curl --noproxy '*' -I http://<domain>/
   ```
-- **状态**：blocked：当前 WSL 环境缺少 Docker CLI，无法执行 Docker/Nginx 运行态冒烟；Maven 构建已通过。
+- **状态**：deferred：当前 WSL 环境缺少 Docker CLI，无法执行 Docker/Nginx 运行态冒烟；Maven 构建已通过，运行态验证待云服务器补跑。
 
 ## 变更摘要
 
-- **总文件数**：7 个文件，包括 4 个部署/配置文件与 3 个 change 文档
+- **总文件数**：9 个文件，包括 4 个部署/配置文件、3 个 change 文档、1 个 `.env.example` 和 1 个知识文档
 - **Spec-Plan 偏差记录**：Docker Compose / Nginx 运行态验证因当前环境缺少 Docker CLI 被阻塞
 - **验证结果**：两个 Maven app reactor `-DskipTests package` 均通过；`docker compose config` 未执行成功，原因是 `docker` 命令不可用；敏感配置改为运行时必填环境变量并新增 `.env.example`
-- **遗留问题**：上线前需要在 `docs/tag/v1/.env` 填入真实微信/支付宝值，在支付宝/微信平台侧核对公网回调 URL，并在云服务器真实 Docker 环境执行 compose 与 Nginx 验证
+- **遗留问题**：上线前需要在 `docs/tag/v1/.env` 填入真实微信/支付宝值，在支付宝/微信平台侧核对公网回调 URL，在云服务器真实 Docker 环境执行 compose 与 Nginx 验证，并对对外管理端口配置云安全组来源限制

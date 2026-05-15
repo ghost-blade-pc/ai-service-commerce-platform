@@ -17,6 +17,7 @@
 - [platform-knowledge.md](platform-knowledge.md)：大型综合知识图谱，覆盖根工作区、`group-buy-market/`、`s-pay-mall-ddd/` 的项目结构、DDD 分层、跨项目调用、MQ 链路、补偿任务、配置、风险点和 Research 入口。
 - [subscription-entitlement-flow.md](subscription-entitlement-flow.md)：订阅权益履约幂等模式、履约任务重试补偿与自动退款、按比例退款计算，覆盖 `subscription_entitlement` / `subscription_fulfillment_task` 表结构与关键 SQL。
 - [static-frontend-ai-service-pages.md](static-frontend-ai-service-pages.md)：Nginx 静态前端的 AI 服务订阅、拼团购买、扫码登录、订单查询/退单页面知识，覆盖 `docs/dev-ops/nginx/html/` 入口、接口契约、响应式设计边界和验证命令。
+- [cloud-domain-docker-deployment.md](cloud-domain-docker-deployment.md)：`docs/tag/v1` 云服务器域名部署知识，覆盖 `licodetech.top`、Nginx `80:80`、Docker `prod` profile、`.env` 敏感配置、管理端口暴露策略、支付/微信回调 URL 和验证命令。
 
 使用方式：
 
@@ -34,6 +35,7 @@
 | MQ 契约、消息幂等 | `topic.order_pay_success`、`topic.team_success`、`topic.team_refund`、`notify_task`、`EventPublisher` | 异步消息链路、消息体、幂等键相关章节和 listener/publisher 源码 |
 | Mapper、表结构、索引 | `pay_order`、`group_buy_order_list`、`notify_task`、`uq_`、`idx_` | 数据与持久化、核心表、SQL 和 Mapper 片段 |
 | Docker、配置、本地环境 | `application-dev.yml`、`docker-compose`、`RabbitMQ`、`Redis`、`MySQL` | 配置与本地环境章节及目标配置文件 |
+| 云服务器域名部署、tag/v1、端口暴露 | `cloud-domain-docker-deployment`、`licodetech.top`、`80:80`、`.env`、`8899`、`8081`、`15672` | `cloud-domain-docker-deployment.md` 的入口、端口、敏感配置和验证章节 |
 | Nginx 静态前端、首页、登录页、订单页 | `docs/dev-ops/nginx/html`、`index.html`、`login.html`、`order-list.html`、`create_pay_order`、`query_group_buy_market_config`、`frontend-responsive-ai-service-pages` | `static-frontend-ai-service-pages.md` 的入口、接口契约、设计边界和验证方式 |
 
 ### 工作区结构

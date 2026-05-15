@@ -1,5 +1,5 @@
 # 云服务器域名 Docker 部署配置调整
-> status: apply
+> status: done
 > created: 2026-05-15
 > scope: cross-project
 > complexity: 中等
@@ -71,14 +71,14 @@
 - Nginx 已按容器服务名代理后端，适合 Docker bridge 网络。
 - 静态页已基本使用同源相对路径，适合域名部署。
 - `/apply` 前应用容器仍设置 `SPRING_PROFILES_ACTIVE=dev`，因此 Docker 运行时优先使用 `application-dev.yml` 与 compose 环境变量覆盖；本次已切换为 `prod`。
-- `/apply` 前 `application-prod.yml` 里仍存在 `127.0.0.1`、固定账号密码和支付/微信密钥；本次已将中间件地址改为容器服务名默认值，并将支付/微信敏感值改为环境变量占位。
+- `/apply` 前 `application-prod.yml` 里仍存在 `127.0.0.1`、固定账号密码和支付/微信密钥；本次已将中间件地址改为容器服务名默认值，并将支付/微信敏感值改为运行时必填环境变量。
 
 ### 3.3 发现与风险
 
 - `/apply` 前 `ALIPAY_RETURN_URL=http://localhost:9001/` 会把用户浏览器回跳到用户本机；本次已改为 `http://licodetech.top`。
 - `/apply` 前 `ALIPAY_NOTIFY_URL=http://licodetech.top:8080/...` 与 Nginx 对外入口 `9001:80`/`80` 不一致；本次已统一到 `http://licodetech.top/api/v1/alipay/alipay_notify_url`。
 - `/apply` 前 `SPRING_PROFILES_ACTIVE=dev` 与要检查的 `application-prod.yml` 存在策略冲突；本次已按用户确认切换为 `prod + env override`。
-- `/apply` 前 MySQL、Redis、RabbitMQ 管理端口暴露到宿主机所有网卡；本次已绑定 `127.0.0.1`，不对公网开放。
+- `/apply` 前 MySQL、Redis、RabbitMQ 相关端口暴露策略与云服务器目标不一致；本次按用户确认改为 MySQL/Redis 本体仅绑定 `127.0.0.1`，phpMyAdmin、Redis Admin、RabbitMQ AMQP/管理端对外开放。
 - `/apply` 前 `s-pay-mall-ddd/application-prod.yml` 内包含真实或类似真实的支付宝、微信密钥；本次改为运行时必填环境变量，不使用 `please-change` 这类假占位默认值，避免服务假启动后对接失败。
 - 如果改为公网 HTTPS 域名，支付宝、微信、前端、Nginx `server_name`、回调 URL 必须统一 scheme、host、port。
 
@@ -102,12 +102,12 @@
 
 ## 5. 功能点
 
-- [ ] 将 `docs/tag/v1` Docker app compose 从本机访问参数调整为云服务器域名可访问参数。
-- [ ] 统一 Nginx `server_name`、对外端口、支付宝 `notify_url`、`return_url`、微信回调域名。
-- [ ] 明确 Docker 运行 profile：推荐云服务器使用 `prod + env override`，并让 compose 与 `application-prod.yml` 一致。
-- [ ] 将生产敏感配置改为环境变量占位或 compose 外部注入，不新增真实密钥。
-- [ ] 保持容器内服务发现继续走 Docker service name，例如 `mysql`、`redis`、`rabbitmq`、`s-pay-mall-app`、`group-buy-market-front`。
-- [ ] 收敛云服务器公网暴露端口，只暴露用户访问和必要回调入口。
+- [x] 将 `docs/tag/v1` Docker app compose 从本机访问参数调整为云服务器域名可访问参数。
+- [x] 统一 Nginx `server_name`、对外端口、支付宝 `notify_url`、`return_url`、微信回调域名。
+- [x] 明确 Docker 运行 profile：云服务器使用 `prod + env override`，并让 compose 与 `application-prod.yml` 一致。
+- [x] 将生产敏感配置改为运行时必填环境变量，不新增真实密钥。
+- [x] 保持容器内服务发现继续走 Docker service name，例如 `mysql`、`redis`、`rabbitmq`、`s-pay-mall-app`、`group-buy-market-front`。
+- [x] 按用户确认收敛端口策略：Nginx 对外 `80`，MySQL/Redis 本体仅本机，指定管理端口对外暴露。
 
 ## 6. 业务规则
 
@@ -166,7 +166,7 @@
 - [x] Docker 运行态切换为 `SPRING_PROFILES_ACTIVE=prod`，同时继续用 compose 环境变量覆盖敏感值。
 - [x] 云服务器已有 `frps` 监听 `8080` 和 `9001`，应用容器不能继续占用这两个宿主机端口；需要修改 `s-pay-mall-app` 当前 `8080:8080` 暴露策略。其他端口不做业务语义调整。
 - [x] MySQL `13306`、Redis `16379` 仅限服务器本机访问；phpMyAdmin `8899`、Redis Admin `8081`、RabbitMQ `5672/15672` 按用户确认对外暴露，供远程管理访问。
-- [ ] TODO: 支付宝与微信平台侧是否已经配置对应公网回调域名无法从本仓库确认；上线前必须在平台侧核对。建议支付宝异步通知配置为 `http://licodetech.top/api/v1/alipay/alipay_notify_url`，微信服务器地址配置为 `http://licodetech.top/api/v1/weixin/portal/receive`。
+- [x] 支付宝与微信平台侧是否已经配置对应公网回调域名无法从本仓库确认，作为上线前外部人工核对项处理。建议支付宝异步通知配置为 `http://licodetech.top/api/v1/alipay/alipay_notify_url`，微信服务器地址配置为 `http://licodetech.top/api/v1/weixin/portal/receive`。
 
 ## 11. 技术决策
 
@@ -179,7 +179,7 @@
 | 中间件暴露 | MySQL/Redis 本体仅本机，phpMyAdmin/Redis Admin/RabbitMQ 按指定端口对外 | 全部端口仅内网或全部端口公网 | 用户明确要求远程访问 `8899`、`8081`、`5672`、`15672`，但 MySQL/Redis 本体仍不直接公网开放 |
 | 容器内服务互访 | Docker service name | 公网域名绕回 Nginx | 容器内调用 service name 更稳定，减少公网回环依赖 |
 | profile | `prod + env override` | 沿用 `dev + env override` | 用户已确认 Docker 切到 `prod`，云服务器语义也更清晰 |
-| 敏感配置 | 环境变量占位 | 继续硬编码真实值 | 符合安全规则，避免密钥扩散 |
+| 敏感配置 | 通过 `docs/tag/v1/.env` 在运行时提供真实值，仓库只提交 `.env.example` | 继续硬编码真实值 | 符合安全规则，避免密钥扩散，同时部署时仍能使用真实微信/支付宝配置 |
 | 支付回跳 | `http://licodetech.top` | `localhost:9001` | 云服务器用户浏览器不能回跳到用户本机 |
 
 ## 12. 风险与人工确认
@@ -188,10 +188,10 @@
 - 状态流转风险：本 change 不改状态逻辑，但回调入口不可达会影响订单支付成功状态更新。
 - MQ/外部接口风险：RabbitMQ 地址、交换机和队列不变；外部风险集中在支付宝、微信公网回调地址，以及 `8080` / `9001` 被 frps 占用导致的端口冲突。
 - 数据风险：不改表结构；初始化 SQL 中的历史 `127.0.0.1` 示例回调地址不应被当作生产事实。
-- 安全风险：当前配置存在固定数据库密码、RabbitMQ 密码、微信密钥、支付宝密钥；后续 `/apply` 需要改为环境变量或占位值，不能提交新的真实密钥。phpMyAdmin、Redis Admin、RabbitMQ 对外暴露后，应在云安全组中限制可信来源 IP，并及时修改默认密码。
+- 安全风险：仓库不提交 `.env` 和真实微信/支付宝密钥；部署前需要在服务器 `docs/tag/v1/.env` 中填写真实值。phpMyAdmin、Redis Admin、RabbitMQ 对外暴露后，应在云安全组中限制可信来源 IP，并及时修改默认密码。
 
 ## 13. 确认记录
 
-- 确认时间：待用户确认
+- 确认时间：2026-05-16
 - 确认人：用户
-- 确认范围：已确认域名 `licodetech.top`、首期入口 `http://licodetech.top`、Nginx `80:80`、Docker 切换到 `prod`、避开 frps 已占用的 `8080` 和 `9001`；已确认 MySQL/Redis 本体仅本机访问，phpMyAdmin `8899`、Redis Admin `8081`、RabbitMQ `5672/15672` 对外暴露；仍需用户在支付宝/微信平台侧核对公网回调配置和确认敏感配置注入方式
+- 确认范围：已确认域名 `licodetech.top`、首期入口 `http://licodetech.top`、Nginx `80:80`、Docker 切换到 `prod`、避开 frps 已占用的 `8080` 和 `9001`；已确认 MySQL/Redis 本体仅本机访问，phpMyAdmin `8899`、Redis Admin `8081`、RabbitMQ `5672/15672` 对外暴露；仍需用户在支付宝/微信平台侧核对公网回调配置，并在云服务器 `docs/tag/v1/.env` 中填写真实敏感值
