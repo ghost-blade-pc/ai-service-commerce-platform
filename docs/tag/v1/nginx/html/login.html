@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智链云汇 — 登录</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                linear-gradient(135deg, rgba(239, 246, 255, 0.96), rgba(245, 243, 255, 0.92) 44%, rgba(236, 254, 255, 0.86)),
+                #f6f8ff;
+            color: #07133d;
+            font-family: Arial, "Helvetica Neue", sans-serif;
+        }
+
+        .login-page {
+            display: grid;
+            grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 420px);
+            gap: 42px;
+            align-items: center;
+            width: min(1120px, 100%);
+            min-height: 100vh;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .brand img {
+            width: 46px;
+            height: 46px;
+        }
+
+        .brand strong,
+        .brand small {
+            display: block;
+        }
+
+        .brand strong {
+            font-size: 24px;
+            line-height: 1.1;
+        }
+
+        .brand small {
+            margin-top: 4px;
+            color: #61708f;
+            font-size: 13px;
+        }
+
+        .intro h1 {
+            margin-top: 42px;
+            font-size: clamp(42px, 5vw, 68px);
+            line-height: 1.12;
+        }
+
+        .intro p {
+            max-width: 560px;
+            margin-top: 22px;
+            color: #334166;
+            font-size: 18px;
+            line-height: 1.75;
+        }
+
+        .benefits {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 34px;
+        }
+
+        .benefits div {
+            min-width: 0;
+            padding: 15px;
+            border: 1px solid rgba(86, 111, 185, 0.18);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.82);
+            color: #24365d;
+            font-size: 14px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .login-card {
+            padding: 30px;
+            border: 1px solid rgba(86, 111, 185, 0.18);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: 0 20px 54px rgba(37, 99, 235, 0.15);
+            text-align: center;
+        }
+
+        .login-card h2 {
+            font-size: 26px;
+        }
+
+        .login-card p {
+            margin-top: 10px;
+            color: #61708f;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .qr-code {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: min(260px, 100%);
+            aspect-ratio: 1 / 1;
+            margin-top: 28px;
+            padding: 18px;
+            border: 1px solid rgba(37, 99, 235, 0.18);
+            border-radius: 8px;
+            background: #f8fbff;
+        }
+
+        .qr-code img {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .instructions {
+            margin-top: 18px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            margin-top: 22px;
+            padding: 0 16px;
+            border: 1px solid rgba(37, 99, 235, 0.24);
+            border-radius: 8px;
+            color: #2563eb;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.72;
+            }
+            50% {
+                transform: scale(1.04);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 0.72;
+            }
+        }
+
+        .pulse {
+            animation: pulse 1.8s infinite;
+        }
+
+        @media (max-width: 860px) {
+            .login-page {
+                grid-template-columns: 1fr;
+                gap: 26px;
+                padding: 24px 16px;
+            }
+
+            .intro h1 {
+                margin-top: 28px;
+                font-size: 38px;
+            }
+
+            .benefits {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<main class="login-page">
+    <section class="intro">
+        <a class="brand" href="index.html">
+            <img src="./images/logo.png" alt="">
+            <span>
+                <strong>智链云汇</strong>
+                <small>AI 服务订阅 & 拼团采购平台</small>
+            </span>
+        </a>
+        <h1>扫码登录<br>开始订阅 AI 服务</h1>
+        <p>登录后可查看套餐、参与拼团、创建支付订单，并在我的订阅中追踪订单与权益状态。</p>
+        <div class="benefits">
+            <div>微信扫码登录</div>
+            <div>支付后自动开通</div>
+            <div>订单状态可追踪</div>
+        </div>
+    </section>
+
+    <section class="login-card">
+        <h2>微信扫码登录</h2>
+        <p>请使用微信扫描二维码，扫码成功后自动进入智链云汇。</p>
+        <div class="qr-code">
+            <img id="qr-code-img" src="images/placeholder.png" alt="微信二维码" class="pulse">
+        </div>
+        <p class="instructions">二维码加载后请在微信中完成授权确认。</p>
+        <a class="back-link" href="index.html">返回首页</a>
+    </section>
+</main>
+
+<script>
+    var sPayMallUrl = "";
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const fpPromise = import('./js/v4.js')
+            .then(FingerprintJS => FingerprintJS.load());
+
+        fpPromise
+            .then(fp => fp.get())
+            .then(result => {
+                const visitorId = result.visitorId;
+                let sceneStr = visitorId.toUpperCase();
+
+                const stealthLoginBtn = document.getElementById('stealth-login-btn');
+                if (stealthLoginBtn) {
+                    stealthLoginBtn.addEventListener('click', () => {
+                        setCookie('loginToken', visitorId, 30);
+                        window.location.href = 'index.html';
+                    });
+                }
+
+                fetch(sPayMallUrl + '/api/v1/login/weixin_qrcode_ticket_scene?sceneStr=' + encodeURIComponent(sceneStr))
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.code === "0000") {
+                            const ticket = data.data;
+                            const qrCodeImg = document.getElementById('qr-code-img');
+
+                            qrCodeImg.src = `https://mp.weixin.qq.com/cgi-bin/showqrcode?ticket=${encodeURIComponent(ticket)}`;
+                            qrCodeImg.classList.remove('pulse');
+
+                            const intervalId = setInterval(() => {
+                                checkLoginStatus(ticket, intervalId);
+                            }, 3000);
+                        } else {
+                            console.error('获取二维码 ticket 失败:', data.info);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('请求二维码 ticket 失败:', error);
+                    });
+
+                function checkLoginStatus(ticket, intervalId) {
+                    fetch(sPayMallUrl + `/api/v1/login/check_login_scene?ticket=${encodeURIComponent(ticket)}&sceneStr=${encodeURIComponent(sceneStr)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.code === "0000") {
+                                clearInterval(intervalId);
+                                setCookie('loginToken', data.data, 30);
+                                window.location.href = 'index.html';
+                            } else {
+                                console.info("login wait");
+                            }
+                        })
+                        .catch(error => {
+                            console.error('检查登录状态失败:', error);
+                        });
+                }
+
+                function setCookie(name, value, days) {
+                    const date = new Date();
+                    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+                    const expires = "expires=" + date.toUTCString();
+                    document.cookie = name + "=" + value + ";" + expires + ";path=/";
+                }
+            })
+            .catch(error => {
+                console.error('FingerprintJS 加载失败:', error);
+            });
+    });
+</script>
+</body>
+</html>
