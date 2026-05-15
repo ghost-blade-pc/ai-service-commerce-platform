@@ -165,7 +165,7 @@
 - [x] Nginx 对外端口映射使用 `80:80`，避免用户访问时需要额外输入端口。
 - [x] Docker 运行态切换为 `SPRING_PROFILES_ACTIVE=prod`，同时继续用 compose 环境变量覆盖敏感值。
 - [x] 云服务器已有 `frps` 监听 `8080` 和 `9001`，应用容器不能继续占用这两个宿主机端口；需要修改 `s-pay-mall-app` 当前 `8080:8080` 暴露策略。其他端口不做业务语义调整。
-- [x] MySQL、Redis、RabbitMQ 管理端仅限服务器内网访问，不对公网开放。
+- [x] MySQL `13306`、Redis `16379` 仅限服务器本机访问；phpMyAdmin `8899`、Redis Admin `8081`、RabbitMQ `5672/15672` 按用户确认对外暴露，供远程管理访问。
 - [ ] TODO: 支付宝与微信平台侧是否已经配置对应公网回调域名无法从本仓库确认；上线前必须在平台侧核对。建议支付宝异步通知配置为 `http://licodetech.top/api/v1/alipay/alipay_notify_url`，微信服务器地址配置为 `http://licodetech.top/api/v1/weixin/portal/receive`。
 
 ## 11. 技术决策
@@ -176,7 +176,7 @@
 | Nginx 端口 | `80:80` | `9001:80` | 用户期望浏览器或手机直接输入域名访问，不需要追加端口 |
 | 首期访问协议 | `http://licodetech.top` | `https://licodetech.top` | 当前先保证域名直连可访问；HTTPS 需要证书、443 端口和 Nginx TLS 配置，可作为后续加固 |
 | 应用宿主机端口 | 避开 `8080` 和 `9001` | 继续暴露 `8080:8080` | 云服务器已有 `frps` 监听 `8080` 和 `9001`，应用应通过 Docker 网络由 Nginx 访问 |
-| 中间件暴露 | 仅服务器内网访问 | 公网开放 MySQL/Redis/RabbitMQ 管理端 | 数据库、缓存和消息队列管理端不应暴露到公网 |
+| 中间件暴露 | MySQL/Redis 本体仅本机，phpMyAdmin/Redis Admin/RabbitMQ 按指定端口对外 | 全部端口仅内网或全部端口公网 | 用户明确要求远程访问 `8899`、`8081`、`5672`、`15672`，但 MySQL/Redis 本体仍不直接公网开放 |
 | 容器内服务互访 | Docker service name | 公网域名绕回 Nginx | 容器内调用 service name 更稳定，减少公网回环依赖 |
 | profile | `prod + env override` | 沿用 `dev + env override` | 用户已确认 Docker 切到 `prod`，云服务器语义也更清晰 |
 | 敏感配置 | 环境变量占位 | 继续硬编码真实值 | 符合安全规则，避免密钥扩散 |
@@ -188,10 +188,10 @@
 - 状态流转风险：本 change 不改状态逻辑，但回调入口不可达会影响订单支付成功状态更新。
 - MQ/外部接口风险：RabbitMQ 地址、交换机和队列不变；外部风险集中在支付宝、微信公网回调地址，以及 `8080` / `9001` 被 frps 占用导致的端口冲突。
 - 数据风险：不改表结构；初始化 SQL 中的历史 `127.0.0.1` 示例回调地址不应被当作生产事实。
-- 安全风险：当前配置存在固定数据库密码、RabbitMQ 密码、微信密钥、支付宝密钥；后续 `/apply` 需要改为环境变量或占位值，不能提交新的真实密钥。MySQL、Redis、RabbitMQ 管理端必须限制为服务器内网访问。
+- 安全风险：当前配置存在固定数据库密码、RabbitMQ 密码、微信密钥、支付宝密钥；后续 `/apply` 需要改为环境变量或占位值，不能提交新的真实密钥。phpMyAdmin、Redis Admin、RabbitMQ 对外暴露后，应在云安全组中限制可信来源 IP，并及时修改默认密码。
 
 ## 13. 确认记录
 
 - 确认时间：待用户确认
 - 确认人：用户
-- 确认范围：已确认域名 `licodetech.top`、首期入口 `http://licodetech.top`、Nginx `80:80`、Docker 切换到 `prod`、避开 frps 已占用的 `8080` 和 `9001`、MySQL/Redis/RabbitMQ 管理端仅服务器内网访问；仍需用户在支付宝/微信平台侧核对公网回调配置和确认敏感配置注入方式
+- 确认范围：已确认域名 `licodetech.top`、首期入口 `http://licodetech.top`、Nginx `80:80`、Docker 切换到 `prod`、避开 frps 已占用的 `8080` 和 `9001`；已确认 MySQL/Redis 本体仅本机访问，phpMyAdmin `8899`、Redis Admin `8081`、RabbitMQ `5672/15672` 对外暴露；仍需用户在支付宝/微信平台侧核对公网回调配置和确认敏感配置注入方式

@@ -13,6 +13,7 @@
 | 2026-05-15 | verify | 执行 Maven 构建与配置检查 | 两个 app reactor 构建成功；Docker CLI 缺失导致 compose config 未能执行 |
 | 2026-05-15 | fix | 修正微信/支付宝敏感配置默认值 | 去掉 `please-change` 假占位，改为运行时必填环境变量，并新增不含真实值的 `.env.example` |
 | 2026-05-15 | fix | 同步 Docker 镜像版本 | `build.sh` 已构建 `1.2` 镜像，compose 应用镜像同步为 `1.2`，避免云服务器启动旧镜像 |
+| 2026-05-16 | fix | 调整管理端口公网暴露策略 | MySQL/Redis 本体保持本机绑定；phpMyAdmin `8899`、Redis Admin `8081`、RabbitMQ `5672/15672` 按用户确认对外暴露 |
 
 ## 技术决策
 
@@ -24,7 +25,7 @@
 | 访问协议 | 首期使用 `http://licodetech.top` | 立即配置 HTTPS | 先满足浏览器和手机直接输入域名访问；HTTPS 后续需要证书和 Nginx TLS 配置 |
 | 配置策略 | `prod + env override` | 继续 `dev + env override` | 用户已确认 Docker 切到 `prod`，云服务器语义也更接近 prod |
 | 应用端口 | 应用不占用宿主机 `8080` 和 `9001` | 保留 `8080:8080` | 云服务器已有 frps 监听这两个端口，应用通过 Docker 网络由 Nginx 代理即可 |
-| 中间件访问 | 仅服务器内网访问 | 对公网开放管理端口 | 降低数据库、缓存、消息队列暴露面 |
+| 中间件访问 | MySQL/Redis 本体仅本机，phpMyAdmin/Redis Admin/RabbitMQ 对外暴露 | 全部端口仅本机或全部端口公网 | 用户确认需要远程访问 `8899`、`8081`、`5672`、`15672` |
 
 ## DDD 边界记录
 
@@ -42,7 +43,7 @@
 | 外部接口 | `ALIPAY_RETURN_URL` | 仍指向 `localhost:9001`，云服务器用户回跳错误 | 改为公网域名根路径 |
 | 配置 | `SPRING_PROFILES_ACTIVE=dev` | 修改 `application-prod.yml` 可能不影响 Docker 运行态 | 用户已确认切换到 `prod` |
 | 安全 | `application-prod.yml` 与 compose 环境变量 | 存在固定账号密码和支付/微信密钥 | 支付/微信密钥使用运行时必填环境变量，不提供假默认值 |
-| 安全 | `docker-compose-environment.yml` | MySQL、Redis、RabbitMQ 端口暴露到宿主机 | 仅允许服务器内网访问，不对公网开放 |
+| 安全 | `docker-compose-environment.yml` | 管理端口对外暴露后存在暴力破解和未授权访问风险 | MySQL/Redis 本体仍本机绑定；对外管理端口应配合云安全组限制可信来源 IP，并修改默认密码 |
 | 端口冲突 | `docs/tag/v1/docker-compose-app-v1.1.yml` | `s-pay-mall-app` 当前占用宿主机 8080，Nginx 当前占用宿主机 9001；云服务器 frps 已监听这两个端口 | Nginx 改为 `80:80`，应用后端改为仅 Docker 网络访问或避开已占用端口 |
 
 ## Spec-Code 偏差记录
